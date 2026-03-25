@@ -2,6 +2,8 @@
 
 A delivery accelerator for building enterprise portals in weeks, not months.
 
+Developed by **Bharath** | Co-authored with **Claude** (Anthropic)
+
 ## Prerequisites
 
 | Tool | Version | Install |
