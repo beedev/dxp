@@ -6,6 +6,7 @@ import { Claims } from './pages/Claims';
 import { Documents } from './pages/Documents';
 import { Playground } from './pages/Playground';
 import { GetQuote } from './pages/GetQuote';
+import { Settings } from './pages/Settings';
 
 const portalNav: NavItem[] = [
   { label: 'Dashboard', href: '/' },
@@ -13,6 +14,7 @@ const portalNav: NavItem[] = [
   { label: 'Claims', href: '/claims' },
   { label: 'Documents', href: '/documents' },
   { label: 'Get a Quote', href: '/quote' },
+  { label: 'Settings', href: '/settings' },
 ];
 
 const devNav = [
@@ -28,6 +30,7 @@ function renderPage(path: string) {
     case '/claims': return <Claims />;
     case '/documents': return <Documents />;
     case '/quote': return <GetQuote />;
+    case '/settings': return <Settings />;
     case '/playground': return <Playground />;
     default: return <Dashboard />;
   }

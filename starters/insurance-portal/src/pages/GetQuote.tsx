@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { QuestionFlow, Card, CardContent } from '@dxp/ui';
+import { QuestionFlow, OrderSummary } from '@dxp/ui';
 import { quoteQuestions } from '../data/mock';
 
 export function GetQuote() {
@@ -11,31 +11,25 @@ export function GetQuote() {
         <h1 className="text-2xl font-extrabold tracking-tight text-[var(--dxp-text)]">Your Quote is Ready</h1>
         <p className="text-[var(--dxp-text-secondary)] mt-2">Based on your selections, here's what we recommend.</p>
 
-        <Card className="mt-6">
-          <CardContent className="space-y-4 py-8">
-            <div className="text-center">
-              <p className="text-4xl font-bold text-[var(--dxp-brand)]">$197/mo</p>
-              <p className="text-sm text-[var(--dxp-text-muted)] mt-1">Estimated monthly premium</p>
-            </div>
-            <div className="border-t border-[var(--dxp-border-light)] pt-4 mt-4">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--dxp-text-muted)] mb-3">Your Selections</h4>
-              <dl className="space-y-2">
-                {Object.entries(result).map(([key, value]) => (
-                  <div key={key} className="flex justify-between text-sm">
-                    <dt className="text-[var(--dxp-text-secondary)]">{key.replace(/-/g, ' ')}</dt>
-                    <dd className="font-medium text-[var(--dxp-text)]">{Array.isArray(value) ? value.join(', ') : value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-            <div className="flex justify-center gap-3 pt-4">
-              <button
-                onClick={() => setResult(null)}
-                className="px-4 py-2 text-sm font-medium text-[var(--dxp-text-secondary)] hover:text-[var(--dxp-text)]"
-              >Start Over</button>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="max-w-md mt-6">
+          <OrderSummary
+            title="Quote Summary"
+            items={[
+              { label: 'Auto Insurance — Standard', detail: result['insurance-type'] as string, amount: '$165/mo' },
+              { label: 'Coverage Level', detail: result['coverage-level'] as string, amount: '$32/mo' },
+              ...(Array.isArray(result['priorities']) ? result['priorities'].map((p: string) => ({
+                label: p.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
+                amount: '$0/mo',
+              })) : []),
+            ]}
+            taxes={{ label: 'Taxes & Fees', amount: '$8.50/mo' }}
+            total={{ label: 'Estimated Monthly', amount: '$205.50/mo' }}
+            onConfirm={() => alert('Policy purchase initiated!')}
+            onCancel={() => setResult(null)}
+            confirmLabel="Purchase Policy"
+            note="30-day money-back guarantee. Cancel anytime."
+          />
+        </div>
       </div>
     );
   }
