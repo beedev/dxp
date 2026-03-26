@@ -20,7 +20,7 @@ const portalNav: NavItem[] = [
 ];
 
 const devNav = [
-  { label: 'API Playground', href: '/playground', external: true },
+  { label: 'API Playground', href: '/playground/index.html', external: true },
   { label: 'Docs', href: '/docs/index.html', external: true },
   { label: 'Storybook', href: '/storybook/index.html', external: true },
   { label: 'Swagger', href: '/api/docs', external: true },

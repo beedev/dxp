@@ -24,7 +24,7 @@ function serveStaticSubpaths(): Plugin {
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         const url = (req.url || '').split('?')[0];
-        if (url.startsWith('/docs/') || url.startsWith('/storybook/')) {
+        if (url.startsWith('/docs/') || url.startsWith('/storybook/') || url.startsWith('/playground/')) {
           const filePath = path.join(process.cwd(), 'public', url);
           if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
             const ext = path.extname(filePath).toLowerCase();
@@ -32,7 +32,7 @@ function serveStaticSubpaths(): Plugin {
             return res.end(fs.readFileSync(filePath));
           }
           // SPA fallback within subpath
-          const root = url.startsWith('/docs/') ? 'docs' : 'storybook';
+          const root = url.startsWith('/docs/') ? 'docs' : url.startsWith('/playground/') ? 'playground' : 'storybook';
           const indexPath = path.join(process.cwd(), 'public', root, 'index.html');
           if (fs.existsSync(indexPath)) {
             res.setHeader('Content-Type', 'text/html');
