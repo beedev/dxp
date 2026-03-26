@@ -9,6 +9,12 @@ import { SearchModule } from './modules/search/search.module';
 import { DocumentsModule } from './modules/documents/documents.module';
 import { IdentityModule } from './modules/identity/identity.module';
 import { IntegrationModule } from './modules/integration/integration.module';
+import { ESignatureModule } from './modules/esignature/esignature.module';
+import { SchedulingModule } from './modules/scheduling/scheduling.module';
+import { PaymentsModule } from './modules/payments/payments.module';
+import { ChatModule } from './modules/chat/chat.module';
+import { WorkflowModule } from './modules/workflow/workflow.module';
+import { AuditModule } from './modules/audit/audit.module';
 
 @Module({
   imports: [
@@ -25,6 +31,12 @@ import { IntegrationModule } from './modules/integration/integration.module';
     DocumentsModule,
     IdentityModule,
     IntegrationModule,
+    ESignatureModule,
+    SchedulingModule,
+    PaymentsModule,
+    ChatModule,
+    WorkflowModule,
+    AuditModule,
   ],
 })
 export class AppModule {}
