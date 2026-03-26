@@ -1,266 +1,202 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DXP API Playground</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <style>
-    body { font-family: 'Inter', system-ui, sans-serif; }
-    :root {
-      --dxp-brand: #1d6fb8; --dxp-brand-dark: #175a96; --dxp-brand-light: #eff8ff;
-      --dxp-success: #059669; --dxp-warning: #d97706; --dxp-danger: #dc2626; --dxp-info: #2563eb;
-      --dxp-bg: #f9fafb; --dxp-surface: #ffffff; --dxp-text: #111827;
-      --dxp-text-secondary: #4b5563; --dxp-text-muted: #9ca3af;
-      --dxp-border: #e5e7eb; --dxp-border-light: #f3f4f6; --dxp-radius: 0.5rem;
-    }
-    .tab-active { background: var(--dxp-brand); color: white; }
-    .tab-inactive { background: var(--dxp-border-light); color: var(--dxp-text); }
-    .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; }
-    .badge-get { background: #ecfdf5; color: #059669; }
-    .badge-post { background: #eff8ff; color: #1d6fb8; }
-    .badge-put { background: #fffbeb; color: #d97706; }
-    .badge-delete { background: #fef2f2; color: #dc2626; }
-    pre.response { background: #111827; color: #4ade80; padding: 1rem; border-radius: var(--dxp-radius); font-size: 12px; min-height: 200px; overflow: auto; white-space: pre-wrap; }
-  </style>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DXP API Playground</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+body { font-family: 'Inter', system-ui, sans-serif; margin: 0; }
+:root { --brand: #1d6fb8; --brand-dark: #175a96; --brand-light: #eff8ff; --success: #059669; --danger: #dc2626; --warning: #d97706; --info: #2563eb; --bg: #f9fafb; --surface: #fff; --text: #111827; --text2: #4b5563; --muted: #9ca3af; --border: #e5e7eb; --border-lt: #f3f4f6; --radius: 0.5rem; }
+.sidebar-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem 1rem; font-size: 0.8125rem; font-weight: 500; border-radius: var(--radius); cursor: pointer; color: var(--text2); transition: all 0.15s; border: none; background: none; width: 100%; text-align: left; }
+.sidebar-item:hover { background: var(--border-lt); color: var(--text); }
+.sidebar-item.active { background: var(--brand-light); color: var(--brand); font-weight: 700; }
+.badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.b-get { background: #ecfdf5; color: #059669; } .b-post { background: #eff8ff; color: #1d6fb8; }
+.b-put { background: #fffbeb; color: #d97706; } .b-del { background: #fef2f2; color: #dc2626; }
+.b-info { background: #eff6ff; color: #2563eb; }
+.tab { padding: 0.5rem 0; font-size: 0.8125rem; font-weight: 500; color: var(--muted); cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; }
+.tab.active { color: var(--brand); border-bottom-color: var(--brand); font-weight: 700; }
+.card { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.card-hdr { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-lt); font-size: 0.8125rem; font-weight: 700; }
+pre.code { background: #111827; color: #86efac; padding: 1rem; border-radius: var(--radius); font-size: 11px; overflow: auto; white-space: pre-wrap; margin: 0; }
+pre.code-blue { background: #111827; color: #93c5fd; }
+pre.code-yellow { background: #111827; color: #fcd34d; }
+pre.code-light { background: var(--border-lt); color: var(--text); padding: 1rem; border-radius: var(--radius); font-size: 0.8125rem; line-height: 1.7; white-space: pre-wrap; }
+</style>
 </head>
-<body style="background: var(--dxp-bg); min-height: 100vh;">
+<body style="background: var(--bg); display: flex; height: 100vh; overflow: hidden;">
 
-<header style="border-bottom: 1px solid var(--dxp-border); background: var(--dxp-surface); padding: 1rem 2rem;">
-  <div style="max-width: 80rem; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
-    <div>
-      <h1 style="font-size: 1.25rem; font-weight: 800; color: var(--dxp-text);">DXP API Playground</h1>
-      <p style="font-size: 0.875rem; color: var(--dxp-text-secondary);">Interactive explorer for BFF adapter modules</p>
-    </div>
-    <div style="font-size: 0.75rem; color: var(--dxp-text-muted); display: flex; gap: 1rem;">
-      <span>BFF: <code style="color: var(--dxp-brand);">localhost:4201</code></span>
-      <a href="/api/docs" target="_blank" style="color: var(--dxp-brand);">Swagger</a>
-    </div>
+<!-- Sidebar -->
+<aside style="width: 240px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto;">
+  <div style="padding: 1.25rem 1rem; border-bottom: 1px solid var(--border);">
+    <div style="font-size: 1rem; font-weight: 800; color: var(--text);">DXP API Playground</div>
+    <div style="font-size: 0.6875rem; color: var(--muted); margin-top: 0.25rem;">BFF Adapter Explorer</div>
   </div>
-</header>
-
-<div style="max-width: 80rem; margin: 0 auto; padding: 1.5rem 2rem;">
-  <!-- Auth Panel -->
-  <div id="auth-panel" style="border: 1px solid var(--dxp-border); border-radius: var(--dxp-radius); background: var(--dxp-surface); padding: 1.5rem; margin-bottom: 1.5rem;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-      <strong style="font-size: 0.875rem;">Keycloak Authentication</strong>
-      <span id="auth-status" class="badge" style="background: var(--dxp-border-light); color: var(--dxp-text-muted);">Not Authenticated</span>
-    </div>
-    <p style="font-size: 0.75rem; color: var(--dxp-text-secondary); margin-bottom: 1rem;">Login with Keycloak to get a JWT token. All API calls will include the Bearer token.</p>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.75rem; color: var(--dxp-text-muted); margin-bottom: 1rem;">
-      <div>Keycloak: <code style="color: var(--dxp-brand);">http://localhost:8080</code></div>
-      <div>Realm: <code style="color: var(--dxp-brand);">dxp</code></div>
-      <div>Client: <code style="color: var(--dxp-brand);">dxp-shell</code></div>
-      <div>Grant: <code style="color: var(--dxp-brand);">password</code></div>
-    </div>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
-      <div>
-        <label style="font-size: 0.75rem; font-weight: 500; color: var(--dxp-text-secondary);">Username</label>
-        <input id="auth-user" value="admin@dxp.local" style="width: 100%; border: 1px solid var(--dxp-border); border-radius: var(--dxp-radius); padding: 0.5rem 0.75rem; font-size: 0.875rem; margin-top: 0.25rem;" />
-      </div>
-      <div>
-        <label style="font-size: 0.75rem; font-weight: 500; color: var(--dxp-text-secondary);">Password</label>
-        <input id="auth-pass" type="password" value="admin" style="width: 100%; border: 1px solid var(--dxp-border); border-radius: var(--dxp-radius); padding: 0.5rem 0.75rem; font-size: 0.875rem; margin-top: 0.25rem;" />
-      </div>
-    </div>
-    <div style="font-size: 0.75rem; color: var(--dxp-text-muted); margin-bottom: 0.75rem;">Test users: admin@dxp.local / admin &middot; user@acme.local / user</div>
-    <p id="auth-error" style="font-size: 0.75rem; color: var(--dxp-danger); display: none; margin-bottom: 0.5rem;"></p>
-    <button id="auth-btn" onclick="login()" style="background: var(--dxp-brand); color: white; border: none; border-radius: var(--dxp-radius); padding: 0.5rem 1.25rem; font-size: 0.875rem; font-weight: 600; cursor: pointer;">Login with Keycloak</button>
-    <div id="auth-info" style="display: none; margin-top: 1rem; padding: 1rem; background: var(--dxp-border-light); border-radius: var(--dxp-radius);">
-      <div style="display: flex; align-items: center; gap: 0.75rem;">
-        <div id="auth-avatar" style="width: 2.25rem; height: 2.25rem; border-radius: 50%; background: var(--dxp-brand); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700;"></div>
-        <div>
-          <div id="auth-name" style="font-size: 0.875rem; font-weight: 700;"></div>
-          <div id="auth-email" style="font-size: 0.75rem; color: var(--dxp-text-muted);"></div>
-        </div>
-        <button onclick="logout()" style="margin-left: auto; font-size: 0.75rem; color: var(--dxp-text-muted); background: none; border: none; cursor: pointer;">Logout</button>
-      </div>
-    </div>
+  <div style="padding: 0.5rem; flex: 1;">
+    <div style="padding: 0.5rem 1rem; font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted);">Adapter Modules</div>
+    <div id="sidebar-nav"></div>
   </div>
+  <div style="padding: 0.75rem 1rem; border-top: 1px solid var(--border); font-size: 0.6875rem; color: var(--muted);">
+    <a href="/api/docs" target="_blank" style="color: var(--brand); text-decoration: none;">Swagger Docs</a> &middot;
+    <a href="/docs/index.html" target="_blank" style="color: var(--brand); text-decoration: none;">Full Docs</a>
+  </div>
+</aside>
 
-  <!-- Module Tabs -->
-  <div id="module-tabs" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;"></div>
-
-  <!-- Module Content -->
-  <div id="module-content"></div>
-</div>
+<!-- Main -->
+<main style="flex: 1; overflow-y: auto; display: flex; flex-direction: column;">
+  <!-- Top bar -->
+  <div id="auth-bar" style="padding: 0.75rem 1.5rem; border-bottom: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; gap: 1rem; flex-shrink: 0;">
+    <span id="auth-badge" class="badge" style="background: var(--border-lt); color: var(--muted);">Not Authenticated</span>
+    <input id="a-user" value="admin@dxp.local" style="border: 1px solid var(--border); border-radius: var(--radius); padding: 0.25rem 0.5rem; font-size: 0.75rem; width: 150px;" />
+    <input id="a-pass" type="password" value="admin" style="border: 1px solid var(--border); border-radius: var(--radius); padding: 0.25rem 0.5rem; font-size: 0.75rem; width: 100px;" />
+    <button onclick="login()" style="background: var(--brand); color: #fff; border: none; border-radius: var(--radius); padding: 0.25rem 0.75rem; font-size: 0.75rem; font-weight: 600; cursor: pointer;">Login</button>
+    <span id="a-info" style="font-size: 0.6875rem; color: var(--muted);"></span>
+    <span id="a-err" style="font-size: 0.6875rem; color: var(--danger); display: none;"></span>
+  </div>
+  <!-- Content -->
+  <div id="content" style="flex: 1; padding: 1.5rem; overflow-y: auto;"></div>
+</main>
 
 <script>
-let accessToken = null;
-let currentModule = 'CMS';
-
-const modules = [
-  { name: 'CMS', port: 'CmsPort', env: 'CMS_ADAPTER=strapi|payload', adapters: ['StrapiAdapter', 'PayloadAdapter'], endpoints: [
-    { method: 'GET', path: '/cms/articles', desc: 'List content' },
-    { method: 'GET', path: '/cms/articles/1', desc: 'Get by ID' },
-    { method: 'POST', path: '/cms/articles', desc: 'Create', body: { type: 'article', title: 'New FAQ', body: { content: '...' } } },
-    { method: 'DELETE', path: '/cms/articles/1', desc: 'Delete' },
-  ]},
-  { name: 'Storage', port: 'StoragePort', env: 'STORAGE_PROVIDER=s3|azure', adapters: ['S3Adapter', 'AzureBlobAdapter'], endpoints: [
-    { method: 'POST', path: '/storage/presign/upload', desc: 'Presign upload', body: { key: 'claims/photo.jpg', contentType: 'image/jpeg' } },
-    { method: 'POST', path: '/storage/presign/download', desc: 'Presign download', body: { key: 'claims/photo.jpg' } },
-    { method: 'GET', path: '/storage/list?prefix=claims/', desc: 'List objects' },
-  ]},
-  { name: 'Notifications', port: 'NotificationPort', env: 'NOTIFICATION_ADAPTER=smtp|sendgrid', adapters: ['SmtpAdapter', 'SendGridAdapter'], endpoints: [
-    { method: 'POST', path: '/notifications/send', desc: 'Send', body: { to: 'user@example.com', subject: 'Update', template: 'claim-status', data: { claimId: 'CLM-001' } } },
-  ]},
-  { name: 'Search', port: 'SearchPort', env: 'default (Postgres)', adapters: ['PostgresFtsAdapter'], endpoints: [
-    { method: 'GET', path: '/search?table=policies&q=auto', desc: 'Search' },
-    { method: 'GET', path: '/search/suggest?table=policies&q=tes', desc: 'Suggest' },
-  ]},
-  { name: 'Documents', port: 'DocumentPort', env: 'DOCUMENT_PROVIDER=s3', adapters: ['S3DocumentAdapter'], endpoints: [
-    { method: 'GET', path: '/documents', desc: 'List all' },
-    { method: 'GET', path: '/documents?category=claims', desc: 'By category' },
-    { method: 'POST', path: '/documents', desc: 'Upload', body: { name: 'photo.jpg', category: 'claims', mimeType: 'image/jpeg', data: 'base64...' } },
-  ]},
-  { name: 'Identity', port: 'IdentityPort', env: 'default (Keycloak)', adapters: ['KeycloakAdminAdapter'], endpoints: [
-    { method: 'GET', path: '/identity/me', desc: 'Current user' },
-    { method: 'GET', path: '/identity/users', desc: 'List users' },
-  ]},
-  { name: 'Integration', port: 'IntegrationPort', env: 'INTEGRATIONS_CONFIG=[...]', adapters: ['RestAdapter'], endpoints: [
-    { method: 'GET', path: '/integrations', desc: 'List integrations' },
-    { method: 'POST', path: '/integrations/salesforce/call', desc: 'Call integration', body: { method: 'GET', path: '/services/data/v58.0/sobjects/Account' } },
-  ]},
+let token = null;
+let cur = 'CMS';
+let curTab = 'try';
+const M = [
+  { name:'CMS', desc:'Content management — pages, articles, FAQs.', port:'CmsPort', env:'CMS_ADAPTER', portCode:'abstract class CmsPort {\n  abstract getContent(type: string, id: string): Promise<CmsContent>;\n  abstract listContent(type: string, query: CmsContentQuery): Promise<CmsContentList>;\n  abstract createContent(type: string, data: CreateContentDto): Promise<CmsContent>;\n  abstract publishContent(type: string, id: string): Promise<void>;\n  abstract deleteContent(type: string, id: string): Promise<void>;\n}',
+    adapters:[{name:'StrapiAdapter',env:'strapi',desc:'Connects to Strapi v4+ REST API.',cfg:'STRAPI_URL=http://localhost:1337\nSTRAPI_API_TOKEN=your-api-token'},{name:'PayloadAdapter',env:'payload',desc:'Connects to Payload CMS REST API.',cfg:'PAYLOAD_URL=http://localhost:3001'}],
+    eps:[{m:'GET',p:'/cms/articles',d:'List content'},{m:'GET',p:'/cms/articles/1',d:'Get by ID'},{m:'POST',p:'/cms/articles',d:'Create',b:'{\n  "type": "article",\n  "title": "New FAQ",\n  "body": {"content": "..."}\n}'},{m:'DELETE',p:'/cms/articles/1',d:'Delete'}],
+    sdk:'import { useCms, useCmsItem, useCmsCreate } from \'@dxp/sdk-react\';\n\nconst { data } = useCms(\'articles\', { page: 1 });\nconst { data: article } = useCmsItem(\'articles\', \'123\');\nconst create = useCmsCreate(\'articles\');\ncreate.mutate({ title: \'New FAQ\', body: { content: \'...\' } });',
+    setup:'1. Set CMS_ADAPTER=strapi in .env\n2. Set STRAPI_URL to your Strapi instance\n3. Generate API token in Strapi admin\n4. Set STRAPI_API_TOKEN in .env\n5. Restart BFF\n\nSwitch to Payload: CMS_ADAPTER=payload, set PAYLOAD_URL. Zero code changes.' },
+  { name:'Storage', desc:'File storage — presigned URLs for upload/download.', port:'StoragePort', env:'STORAGE_PROVIDER', portCode:'abstract class StoragePort {\n  abstract upload(key, data, options?): Promise<StorageObject>;\n  abstract download(key, bucket?): Promise<Buffer>;\n  abstract getPresignedUploadUrl(key, contentType, expiresIn?): Promise<PresignedUrl>;\n  abstract getPresignedDownloadUrl(key, expiresIn?): Promise<PresignedUrl>;\n  abstract delete(key, bucket?): Promise<void>;\n  abstract list(prefix, bucket?): Promise<StorageObject[]>;\n}',
+    adapters:[{name:'S3/MinIO Adapter',env:'s3',desc:'AWS S3, MinIO, or any S3-compatible storage.',cfg:'S3_ENDPOINT=https://s3.amazonaws.com\nS3_REGION=us-east-1\nS3_BUCKET=dxp-documents\nS3_ACCESS_KEY=AKIA...\nS3_SECRET_KEY=secret'},{name:'AzureBlobAdapter',env:'azure',desc:'Azure Blob Storage with SAS URLs.',cfg:'AZURE_STORAGE_CONNECTION_STRING=DefaultEndpoints...\nAZURE_STORAGE_CONTAINER=dxp-documents'}],
+    eps:[{m:'POST',p:'/storage/presign/upload',d:'Presign upload',b:'{\n  "key": "claims/photo.jpg",\n  "contentType": "image/jpeg"\n}'},{m:'POST',p:'/storage/presign/download',d:'Presign download',b:'{"key":"claims/photo.jpg"}'},{m:'GET',p:'/storage/list?prefix=claims/',d:'List objects'},{m:'DELETE',p:'/storage/claims-photo.jpg',d:'Delete'}],
+    sdk:'import { usePresignedUpload, usePresignedDownload } from \'@dxp/sdk-react\';\n\nconst presign = usePresignedUpload();\nconst { url } = await presign.mutateAsync({\n  key: \'claims/photo.jpg\',\n  contentType: \'image/jpeg\'\n});\nawait fetch(url, { method: \'PUT\', body: file });',
+    setup:'1. Set STORAGE_PROVIDER=s3 in .env\n2. Configure S3_ENDPOINT, S3_REGION, S3_BUCKET, S3_ACCESS_KEY, S3_SECRET_KEY\n3. Create bucket with CORS policy\n4. Restart BFF\n\nFor Azure: STORAGE_PROVIDER=azure, set connection string.' },
+  { name:'Notifications', desc:'Send email/SMS notifications.', port:'NotificationPort', env:'NOTIFICATION_ADAPTER', portCode:'abstract class NotificationPort {\n  abstract send(dto: SendNotificationDto): Promise<NotificationResult>;\n  abstract sendBulk(dtos: SendNotificationDto[]): Promise<NotificationResult[]>;\n}\n\ninterface SendNotificationDto {\n  to: string; subject: string;\n  template: string; data: Record<string, unknown>;\n  channel?: \'email\' | \'sms\';\n}',
+    adapters:[{name:'SmtpAdapter',env:'smtp',desc:'SMTP email via nodemailer.',cfg:'SMTP_HOST=smtp.gmail.com\nSMTP_PORT=587\nSMTP_USER=portal@company.com\nSMTP_PASS=app-password'},{name:'SendGridAdapter',env:'sendgrid',desc:'SendGrid REST API.',cfg:'SENDGRID_API_KEY=SG.xxxx\nSENDGRID_FROM_EMAIL=portal@company.com'}],
+    eps:[{m:'POST',p:'/notifications/send',d:'Send notification',b:'{\n  "to": "user@example.com",\n  "subject": "Claim Update",\n  "template": "claim-status",\n  "data": {"claimId": "CLM-001"}\n}'},{m:'POST',p:'/notifications/send-bulk',d:'Bulk send',b:'[{"to":"a@example.com","subject":"Update","template":"general","data":{}}]'}],
+    sdk:'import { useSendNotification } from \'@dxp/sdk-react\';\n\nconst send = useSendNotification();\nsend.mutate({\n  to: \'user@example.com\',\n  subject: \'Claim approved\',\n  template: \'claim-status\',\n  data: { claimId: \'CLM-001\' }\n});',
+    setup:'1. Set NOTIFICATION_ADAPTER=smtp (or sendgrid)\n2. SMTP: set HOST, PORT, USER, PASS\n3. SendGrid: set API_KEY, FROM_EMAIL\n4. Restart BFF' },
+  { name:'Search', desc:'Full-text search via PostgreSQL tsvector.', port:'SearchPort', env:'default (Postgres)', portCode:'abstract class SearchPort {\n  abstract search<T>(query: SearchQuery): Promise<SearchResult<T>>;\n  abstract suggest(table: string, term: string, limit?: number): Promise<string[]>;\n}',
+    adapters:[{name:'PostgresFtsAdapter',env:'default',desc:'PostgreSQL full-text search. Good for < 100K records.',cfg:'# Uses same DATABASE_URL as BFF\n# Requires tsvector column:\n# ALTER TABLE policies ADD COLUMN search_vector tsvector;\n# CREATE INDEX idx_search ON policies USING gin(search_vector);'}],
+    eps:[{m:'GET',p:'/search?table=policies&q=auto',d:'Full-text search'},{m:'GET',p:'/search/suggest?table=policies&q=tes',d:'Autocomplete'}],
+    sdk:'import { useSearch, useSuggest } from \'@dxp/sdk-react\';\n\nconst { data } = useSearch(\'policies\', searchTerm);\nconst { data: suggestions } = useSuggest(\'policies\', partial);',
+    setup:'1. Add tsvector column to tables\n2. Create GIN index\n3. Optional: trigger for auto-update\n4. No env var needed — Postgres FTS is default' },
+  { name:'Documents', desc:'Document lifecycle — upload, metadata, download URLs.', port:'DocumentPort', env:'DOCUMENT_PROVIDER', portCode:'abstract class DocumentPort {\n  abstract upload(tenantId, dto): Promise<DocumentMetadata>;\n  abstract getById(tenantId, id): Promise<DocumentMetadata>;\n  abstract list(tenantId, query): Promise<{data, total}>;\n  abstract getDownloadUrl(tenantId, id): Promise<string>;\n  abstract delete(tenantId, id): Promise<void>;\n}',
+    adapters:[{name:'S3DocumentAdapter',env:'s3',desc:'S3 with tenant-scoped key prefixes.',cfg:'S3_BUCKET=dxp-documents\nS3_REGION=us-east-1\nS3_ACCESS_KEY=...\nS3_SECRET_KEY=...'}],
+    eps:[{m:'GET',p:'/documents',d:'List all'},{m:'GET',p:'/documents?category=claims',d:'By category'},{m:'GET',p:'/documents/doc-123',d:'Get metadata'},{m:'GET',p:'/documents/doc-123/download-url',d:'Download URL'},{m:'POST',p:'/documents',d:'Upload',b:'{"name":"photo.jpg","category":"claims","mimeType":"image/jpeg","data":"base64..."}'},{m:'DELETE',p:'/documents/doc-123',d:'Delete'}],
+    sdk:'import { useDocuments, useDocumentUpload } from \'@dxp/sdk-react\';\n\nconst { data } = useDocuments(\'claims\');\nconst upload = useDocumentUpload();\nupload.mutate({ name: \'photo.jpg\', category: \'claims\', mimeType: \'image/jpeg\', data: base64 });',
+    setup:'1. Set DOCUMENT_PROVIDER=s3\n2. Configure S3 credentials\n3. Documents stored with tenant-scoped prefixes\n4. Endpoints auto-scope to authenticated tenant' },
+  { name:'Identity', desc:'User profile management via Keycloak.', port:'IdentityPort', env:'default (Keycloak)', portCode:'abstract class IdentityPort {\n  abstract getUser(userId): Promise<UserProfile>;\n  abstract listUsers(tenantId, page?, pageSize?): Promise<{data, total}>;\n  abstract updateUser(userId, dto): Promise<UserProfile>;\n  abstract resetPassword(userId): Promise<void>;\n}',
+    adapters:[{name:'KeycloakAdminAdapter',env:'default',desc:'Keycloak Admin REST API for user management.',cfg:'KEYCLOAK_URL=http://localhost:8080\nKEYCLOAK_REALM=dxp'}],
+    eps:[{m:'GET',p:'/identity/me',d:'Current user'},{m:'GET',p:'/identity/users',d:'List tenant users'},{m:'PUT',p:'/identity/users/user-123',d:'Update profile',b:'{"firstName":"Sarah","lastName":"Thompson"}'},{m:'POST',p:'/identity/users/user-123/reset-password',d:'Reset password'}],
+    sdk:'import { useAuth } from \'@dxp/sdk-react\';\n\nconst { user, isAuthenticated } = useAuth();\n// user.email, user.firstName, user.roles, user.tenantId',
+    setup:'1. Keycloak already configured\n2. BFF service account has realm-management permissions\n3. /identity/me reads from JWT\n4. /identity/users requires portal-admin role' },
+  { name:'Integration', desc:'Generic REST proxy to external systems.', port:'IntegrationPort', env:'INTEGRATIONS_CONFIG', portCode:'abstract class IntegrationPort {\n  abstract call(integration, request): Promise<IntegrationResponse>;\n  abstract listIntegrations(): Promise<IntegrationConfig[]>;\n}\n\ninterface IntegrationRequest {\n  method: \'GET\' | \'POST\' | \'PUT\' | \'DELETE\';\n  path: string; headers?: Record<string,string>;\n  body?: unknown; queryParams?: Record<string,string>;\n}',
+    adapters:[{name:'RestAdapter',env:'default',desc:'Config-driven REST proxy. Covers 60% of integration needs.',cfg:'INTEGRATIONS_CONFIG=\'[\n  {"name":"salesforce","baseUrl":"https://myorg.salesforce.com","authType":"oauth2"},\n  {"name":"billing-api","baseUrl":"https://billing.internal.com/api","authType":"apikey"}\n]\''}],
+    eps:[{m:'GET',p:'/integrations',d:'List integrations'},{m:'POST',p:'/integrations/salesforce/call',d:'Call integration',b:'{\n  "method": "GET",\n  "path": "/services/data/v58.0/sobjects/Account",\n  "queryParams": {"limit": "10"}\n}'}],
+    sdk:'import { apiFetch } from \'@dxp/sdk-react\';\n\nconst accounts = await apiFetch(\'/integrations/salesforce/call\', {\n  method: \'POST\',\n  body: JSON.stringify({\n    method: \'GET\',\n    path: \'/services/data/v58.0/sobjects/Account\'\n  })\n});',
+    setup:'1. Define integrations in INTEGRATIONS_CONFIG env var\n2. Each needs: name, baseUrl, authType\n3. RestAdapter proxies to configured baseUrl\n4. Call POST /integrations/{name}/call\n\nFor SAP/SOAP: build custom adapter implementing IntegrationPort.' },
 ];
 
-function renderTabs() {
-  document.getElementById('module-tabs').innerHTML = modules.map(m =>
-    `<button onclick="selectModule('${m.name}')" class="${m.name === currentModule ? 'tab-active' : 'tab-inactive'}" style="padding: 0.625rem 1.25rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500; border: none; cursor: pointer;">${m.name}</button>`
+function esc(s){ return s.replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function bclass(m){ return 'b-'+(m==='GET'?'get':m==='POST'?'post':m==='PUT'?'put':'del'); }
+
+function renderSidebar(){
+  document.getElementById('sidebar-nav').innerHTML = M.map(m=>
+    `<button class="sidebar-item ${m.name===cur?'active':''}" onclick="sel('${m.name}')">${m.name}</button>`
   ).join('');
 }
 
-function selectModule(name) {
-  currentModule = name;
-  renderTabs();
-  renderModule();
-}
+function sel(name){ cur=name; curTab='try'; renderSidebar(); render(); }
+function setTab(t){ curTab=t; render(); }
 
-function renderModule() {
-  const m = modules.find(x => x.name === currentModule);
-  document.getElementById('module-content').innerHTML = `
-    <div style="margin-bottom: 1.5rem;">
-      <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--dxp-text);">${m.name}</h2>
-      <div style="font-size: 0.875rem; color: var(--dxp-text-muted); margin-top: 0.5rem;">
-        Port: <code style="background: var(--dxp-border-light); padding: 2px 6px; border-radius: 4px; color: var(--dxp-brand); font-size: 0.75rem;">${m.port}</code>
-        &nbsp; Env: <code style="background: var(--dxp-border-light); padding: 2px 6px; border-radius: 4px; color: var(--dxp-brand); font-size: 0.75rem;">${m.env}</code>
+function render(){
+  const m=M.find(x=>x.name===cur);
+  const tabs=['try','port','adapters','sdk','setup'];
+  const tabLabels={try:'Try It',port:'Port Interface',adapters:'Adapters',sdk:'SDK Usage',setup:'Setup Guide'};
+  let h=`
+    <div style="margin-bottom:1.5rem;">
+      <h2 style="font-size:1.5rem;font-weight:800;color:var(--text);">${m.name}</h2>
+      <p style="font-size:0.875rem;color:var(--text2);margin-top:0.25rem;">${m.desc}</p>
+      <div style="margin-top:0.5rem;font-size:0.75rem;color:var(--muted);">
+        Port: <code style="background:var(--border-lt);padding:2px 6px;border-radius:4px;color:var(--brand);">${m.port}</code>
+        &nbsp;Env: <code style="background:var(--border-lt);padding:2px 6px;border-radius:4px;color:var(--brand);">${m.env}</code>
       </div>
-      <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;">${m.adapters.map(a => `<span class="badge badge-post">${a}</span>`).join('')}</div>
+      <div style="margin-top:0.5rem;display:flex;gap:0.375rem;">${m.adapters.map(a=>`<span class="badge b-info">${a.name}</span>`).join('')}</div>
     </div>
-    <div style="border: 1px solid var(--dxp-border); border-radius: var(--dxp-radius); background: var(--dxp-surface); overflow: hidden; margin-bottom: 1.5rem;">
-      <div style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--dxp-border-light); font-size: 0.875rem; font-weight: 700;">Endpoints</div>
-      ${m.endpoints.map((ep, i) => `
-        <button onclick="selectEndpoint(${i})" style="width: 100%; text-align: left; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.75rem; border: none; background: none; cursor: pointer; border-bottom: 1px solid var(--dxp-border-light); font-size: 0.875rem;" onmouseover="this.style.background='var(--dxp-border-light)'" onmouseout="this.style.background='none'">
-          <span class="badge badge-${ep.method.toLowerCase()}">${ep.method}</span>
-          <code style="font-size: 0.8125rem;">${ep.path}</code>
-          <span style="margin-left: auto; font-size: 0.75rem; color: var(--dxp-text-muted);">${ep.desc}</span>
-        </button>
-      `).join('')}
+    <div style="display:flex;gap:1.5rem;border-bottom:1px solid var(--border);margin-bottom:1.5rem;">
+      ${tabs.map(t=>`<button class="tab ${curTab===t?'active':''}" onclick="setTab('${t}')">${tabLabels[t]}</button>`).join('')}
+    </div>`;
+
+  if(curTab==='try'){
+    h+=`<div class="card" style="margin-bottom:1.5rem;"><div class="card-hdr">Endpoints</div>
+      ${m.eps.map((e,i)=>`<button onclick="selEp(${i})" style="width:100%;text-align:left;padding:0.625rem 1rem;display:flex;align-items:center;gap:0.75rem;border:none;background:${selEpIdx===i?'var(--brand-light)':'none'};cursor:pointer;border-bottom:1px solid var(--border-lt);font-size:0.8125rem;" onmouseover="if(selEpIdx!==${i})this.style.background='var(--border-lt)'" onmouseout="if(selEpIdx!==${i})this.style.background='none'">
+        <span class="badge ${bclass(e.m)}">${e.m}</span><code>${e.p}</code><span style="margin-left:auto;font-size:0.6875rem;color:var(--muted);">${e.d}</span></button>`).join('')}
     </div>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-      <div style="border: 1px solid var(--dxp-border); border-radius: var(--dxp-radius); background: var(--dxp-surface);">
-        <div style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--dxp-border-light); display: flex; justify-content: space-between; align-items: center;">
-          <strong style="font-size: 0.875rem;">Request</strong>
-          <button onclick="sendRequest()" style="background: var(--dxp-brand); color: white; border: none; border-radius: var(--dxp-radius); padding: 0.375rem 1rem; font-size: 0.75rem; font-weight: 600; cursor: pointer;">Send Request</button>
-        </div>
-        <div style="padding: 1rem;">
-          <div style="margin-bottom: 0.75rem;">
-            <span id="req-method" class="badge badge-get">GET</span>
-            <code id="req-url" style="margin-left: 0.5rem; font-size: 0.8125rem;"></code>
-          </div>
-          <div id="req-token-status" style="font-size: 0.625rem; margin-bottom: 0.75rem;"></div>
-          <textarea id="req-body" style="width: 100%; border: 1px solid var(--dxp-border); border-radius: var(--dxp-radius); background: var(--dxp-border-light); padding: 0.75rem; font-family: monospace; font-size: 0.75rem; display: none;" rows="8"></textarea>
-        </div>
-      </div>
-      <div style="border: 1px solid var(--dxp-border); border-radius: var(--dxp-radius); background: var(--dxp-surface);">
-        <div style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--dxp-border-light);"><strong style="font-size: 0.875rem;">Response</strong></div>
-        <div style="padding: 1rem;"><pre id="response" class="response">// Click "Send Request" to see the response</pre></div>
-      </div>
-    </div>
-  `;
-  selectEndpoint(0);
-}
-
-let selectedEpIdx = 0;
-function selectEndpoint(idx) {
-  const m = modules.find(x => x.name === currentModule);
-  const ep = m.endpoints[idx];
-  selectedEpIdx = idx;
-  document.getElementById('req-method').textContent = ep.method;
-  document.getElementById('req-method').className = `badge badge-${ep.method.toLowerCase()}`;
-  document.getElementById('req-url').textContent = `http://localhost:4201/api/v1${ep.path}`;
-  document.getElementById('response').textContent = '// Click "Send Request" to see the response';
-  const bodyEl = document.getElementById('req-body');
-  if (ep.body && ['POST', 'PUT'].includes(ep.method)) {
-    bodyEl.style.display = 'block';
-    bodyEl.value = JSON.stringify(ep.body, null, 2);
-  } else {
-    bodyEl.style.display = 'none';
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div class="card"><div class="card-hdr" style="display:flex;justify-content:space-between;align-items:center;">Request <button onclick="send()" style="background:var(--brand);color:#fff;border:none;border-radius:var(--radius);padding:0.25rem 0.75rem;font-size:0.6875rem;font-weight:600;cursor:pointer;">Send</button></div>
+        <div style="padding:1rem;"><div style="margin-bottom:0.5rem;"><span class="badge ${bclass(m.eps[selEpIdx].m)}">${m.eps[selEpIdx].m}</span> <code style="font-size:0.75rem;">localhost:4201/api/v1${m.eps[selEpIdx].p}</code></div>
+        <div style="font-size:0.625rem;margin-bottom:0.5rem;${token?'color:var(--success)':'color:var(--danger)'};font-weight:600;">${token?'Bearer token attached':'No token — login first'}</div>
+        ${m.eps[selEpIdx].b?`<textarea id="req-body" rows="8" style="width:100%;border:1px solid var(--border);border-radius:var(--radius);background:var(--border-lt);padding:0.75rem;font-family:monospace;font-size:0.6875rem;">${esc(m.eps[selEpIdx].b)}</textarea>`:''}</div></div>
+      <div class="card"><div class="card-hdr">Response</div><div style="padding:1rem;"><pre id="resp" class="code">// Click "Send" to see the response</pre></div></div>
+    </div>`;
+  } else if(curTab==='port'){
+    h+=`<div class="card"><div class="card-hdr">Port Interface — ${m.port}</div><div style="padding:1rem;">
+      <p style="font-size:0.8125rem;color:var(--text2);margin-bottom:1rem;">Abstract contract. All adapters implement this. Consumer code injects the port — never a specific adapter.</p>
+      <pre class="code-blue">${esc(m.portCode)}</pre>
+      <p style="font-size:0.6875rem;color:var(--muted);margin-top:1rem;">File: apps/bff/src/modules/${m.name.toLowerCase()}/ports/${m.name.toLowerCase()}.port.ts</p>
+    </div></div>`;
+  } else if(curTab==='adapters'){
+    h+=m.adapters.map(a=>`<div class="card" style="margin-bottom:1rem;"><div class="card-hdr" style="display:flex;justify-content:space-between;align-items:center;">${a.name} <span class="badge b-info">${m.env}=${a.env}</span></div>
+      <div style="padding:1rem;"><p style="font-size:0.8125rem;color:var(--text2);margin-bottom:1rem;">${a.desc}</p>
+      <p style="font-size:0.625rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin-bottom:0.5rem;">Configuration (.env)</p>
+      <pre class="code-yellow">${esc(a.cfg)}</pre></div></div>`).join('');
+    h+=`<div class="card" style="border-style:dashed;"><div style="padding:2rem;text-align:center;">
+      <p style="font-size:0.8125rem;font-weight:600;color:var(--text2);">Need a different provider?</p>
+      <p style="font-size:0.6875rem;color:var(--muted);margin-top:0.25rem;">Create a new file in adapters/ that extends ${m.port}.</p></div></div>`;
+  } else if(curTab==='sdk'){
+    h+=`<div class="card"><div class="card-hdr">React SDK Usage (@dxp/sdk-react)</div><div style="padding:1rem;">
+      <p style="font-size:0.8125rem;color:var(--text2);margin-bottom:1rem;">Hooks handle auth tokens, caching, and error states automatically.</p>
+      <pre class="code">${esc(m.sdk)}</pre></div></div>`;
+  } else if(curTab==='setup'){
+    h+=`<div class="card"><div class="card-hdr">Setup Guide</div><div style="padding:1rem;">
+      <pre class="code-light">${esc(m.setup)}</pre></div></div>`;
   }
-  document.getElementById('req-token-status').innerHTML = accessToken
-    ? '<span style="color: var(--dxp-success); font-weight: 600;">Bearer token attached</span>'
-    : '<span style="color: var(--dxp-danger); font-weight: 600;">No auth token — login above first</span>';
+  document.getElementById('content').innerHTML=h;
 }
 
-async function sendRequest() {
-  const m = modules.find(x => x.name === currentModule);
-  const ep = m.endpoints[selectedEpIdx];
-  const headers = { 'Content-Type': 'application/json' };
-  if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
-  const opts = { method: ep.method, headers };
-  if (ep.body && ['POST', 'PUT'].includes(ep.method)) {
-    opts.body = document.getElementById('req-body').value;
-  }
-  try {
-    const res = await fetch(`http://localhost:4201/api/v1${ep.path}`, opts);
-    const data = await res.json().catch(() => res.text());
-    document.getElementById('response').textContent = JSON.stringify(data, null, 2);
-  } catch (e) {
-    document.getElementById('response').textContent = `Error: ${e.message}`;
-  }
+let selEpIdx=0;
+function selEp(i){ selEpIdx=i; render(); }
+
+async function send(){
+  const m=M.find(x=>x.name===cur), ep=m.eps[selEpIdx];
+  const headers={'Content-Type':'application/json'};
+  if(token) headers['Authorization']='Bearer '+token;
+  const opts={method:ep.m,headers};
+  if(ep.b&&(ep.m==='POST'||ep.m==='PUT')){ const el=document.getElementById('req-body'); if(el) opts.body=el.value; }
+  try{ const r=await fetch('http://localhost:4201/api/v1'+ep.p,opts); const d=await r.json().catch(()=>r.text()); document.getElementById('resp').textContent=JSON.stringify(d,null,2); }
+  catch(e){ document.getElementById('resp').textContent='Error: '+e.message; }
 }
 
-async function login() {
-  const user = document.getElementById('auth-user').value;
-  const pass = document.getElementById('auth-pass').value;
-  document.getElementById('auth-error').style.display = 'none';
-  try {
-    const res = await fetch('http://localhost:8080/realms/dxp/protocol/openid-connect/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ grant_type: 'password', client_id: 'dxp-shell', username: user, password: pass }),
-    });
-    if (!res.ok) { const e = await res.json(); throw new Error(e.error_description || 'Login failed'); }
-    const data = await res.json();
-    accessToken = data.access_token;
-    const payload = JSON.parse(atob(accessToken.split('.')[1]));
-    document.getElementById('auth-status').textContent = 'Authenticated';
-    document.getElementById('auth-status').style.background = '#ecfdf5';
-    document.getElementById('auth-status').style.color = '#059669';
-    document.getElementById('auth-btn').style.display = 'none';
-    document.getElementById('auth-info').style.display = 'block';
-    document.getElementById('auth-avatar').textContent = (payload.given_name?.[0] || '?') + (payload.family_name?.[0] || '?');
-    document.getElementById('auth-name').textContent = payload.name || payload.preferred_username;
-    document.getElementById('auth-email').textContent = `${payload.email} · tenant: ${payload.tenant_id || 'n/a'}`;
-    renderModule();
-  } catch (e) {
-    document.getElementById('auth-error').textContent = e.message;
-    document.getElementById('auth-error').style.display = 'block';
-  }
+async function login(){
+  const u=document.getElementById('a-user').value, p=document.getElementById('a-pass').value;
+  document.getElementById('a-err').style.display='none';
+  try{
+    const r=await fetch('http://localhost:8080/realms/dxp/protocol/openid-connect/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({grant_type:'password',client_id:'dxp-shell',username:u,password:p})});
+    if(!r.ok){const e=await r.json();throw new Error(e.error_description||'Failed');}
+    const d=await r.json(); token=d.access_token;
+    const pay=JSON.parse(atob(token.split('.')[1]));
+    document.getElementById('auth-badge').textContent='Authenticated';
+    document.getElementById('auth-badge').style.background='#ecfdf5';
+    document.getElementById('auth-badge').style.color='#059669';
+    document.getElementById('a-info').textContent=pay.name+' · '+pay.email+' · tenant: '+(pay.tenant_id||'n/a');
+    render();
+  }catch(e){ document.getElementById('a-err').textContent=e.message; document.getElementById('a-err').style.display='inline'; }
 }
 
-function logout() {
-  accessToken = null;
-  document.getElementById('auth-status').textContent = 'Not Authenticated';
-  document.getElementById('auth-status').style.background = 'var(--dxp-border-light)';
-  document.getElementById('auth-status').style.color = 'var(--dxp-text-muted)';
-  document.getElementById('auth-btn').style.display = 'inline-block';
-  document.getElementById('auth-info').style.display = 'none';
-  renderModule();
-}
-
-renderTabs();
-renderModule();
+renderSidebar(); render();
 </script>
 </body>
 </html>
