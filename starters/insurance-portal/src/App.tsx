@@ -15,11 +15,11 @@ const portalNav: NavItem[] = [
   { label: 'Claims', href: '/claims' },
   { label: 'Documents', href: '/documents' },
   { label: 'Get a Quote', href: '/quote' },
+  { label: 'Form Builder', href: '/form-builder' },
   { label: 'Settings', href: '/settings' },
 ];
 
 const devNav = [
-  { label: 'Form Builder', href: '/form-builder', external: false },
   { label: 'API Playground', href: '/playground', external: false },
   { label: 'Docs', href: '/docs/index.html', external: true },
   { label: 'Storybook', href: '/storybook/index.html', external: true },
