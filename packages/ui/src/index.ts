@@ -96,6 +96,15 @@ export type { LinkPreviewProps } from './composed/LinkPreview';
 export { ItemCarousel } from './composed/ItemCarousel';
 export type { ItemCarouselProps, CarouselItem } from './composed/ItemCarousel';
 
+export { DynamicForm } from './composed/DynamicForm';
+export type { DynamicFormProps, FormSchema } from './composed/DynamicForm';
+
+export { FormDesigner } from './composed/FormDesigner';
+export type { FormDesignerProps } from './composed/FormDesigner';
+
+export { FormField } from './composed/FormField';
+export type { FieldSchema } from './composed/FormField';
+
 export { Citation } from './composed/Citation';
 export type { CitationProps } from './composed/Citation';
 

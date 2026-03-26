@@ -7,6 +7,7 @@ import { Documents } from './pages/Documents';
 import { Playground } from './pages/Playground';
 import { GetQuote } from './pages/GetQuote';
 import { Settings } from './pages/Settings';
+import { FormBuilder } from './pages/FormBuilder';
 
 const portalNav: NavItem[] = [
   { label: 'Dashboard', href: '/' },
@@ -18,6 +19,7 @@ const portalNav: NavItem[] = [
 ];
 
 const devNav = [
+  { label: 'Form Builder', href: '/form-builder', external: false },
   { label: 'API Playground', href: '/playground', external: false },
   { label: 'Docs', href: '/docs/index.html', external: true },
   { label: 'Storybook', href: '/storybook/index.html', external: true },
@@ -31,6 +33,7 @@ function renderPage(path: string) {
     case '/documents': return <Documents />;
     case '/quote': return <GetQuote />;
     case '/settings': return <Settings />;
+    case '/form-builder': return <FormBuilder />;
     case '/playground': return <Playground />;
     default: return <Dashboard />;
   }
