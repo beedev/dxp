@@ -75,5 +75,10 @@ export function themeToCSS(theme: DxpTheme): string {
   --dxp-density-gap: ${d.gap};
   --dxp-density-text: ${d.text};
   --dxp-font: ${theme.fontFamily};
+  --dxp-chart-1: ${theme.colors.brand};
+  --dxp-chart-2: ${theme.colors.success};
+  --dxp-chart-3: ${theme.colors.warning};
+  --dxp-chart-4: ${theme.colors.info};
+  --dxp-chart-5: ${theme.colors.danger};
 }`;
 }

@@ -54,6 +54,21 @@ export type { FileUploadZoneProps, UploadedFile } from './composed/FileUploadZon
 export { DocumentCard } from './composed/DocumentCard';
 export type { DocumentCardProps } from './composed/DocumentCard';
 
+export { Chart } from './composed/Chart';
+export type { ChartProps } from './composed/Chart';
+
+export { StatsDisplay } from './composed/StatsDisplay';
+export type { StatsDisplayProps, Stat } from './composed/StatsDisplay';
+
+export { ApprovalCard } from './composed/ApprovalCard';
+export type { ApprovalCardProps } from './composed/ApprovalCard';
+
+export { ProgressTracker } from './composed/ProgressTracker';
+export type { ProgressTrackerProps, ProgressStep } from './composed/ProgressTracker';
+
+export { QuestionFlow } from './composed/QuestionFlow';
+export type { QuestionFlowProps, Question, QuestionOption } from './composed/QuestionFlow';
+
 // === Layouts ===
 export { PageLayout } from './composed/PageLayout';
 export type { PageLayoutProps, NavItem } from './composed/PageLayout';
