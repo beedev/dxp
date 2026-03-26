@@ -23,7 +23,7 @@ export interface SliderProps {
 export function Slider({
   min, max, step = 1, value: controlledValue, defaultValue, onChange,
   label, unit, formatValue, showTicks = true, tickCount = 20,
-  color, centerZero = false, variant = 'default', disabled,
+  color, centerZero = false, variant = 'card', disabled,
 }: SliderProps) {
   const [internalValue, setInternalValue] = useState(defaultValue ?? (centerZero ? 0 : min));
   const value = controlledValue ?? internalValue;
@@ -37,22 +37,19 @@ export function Slider({
     onChange?.(v);
   };
 
-  // For center-zero sliders, fill from center to thumb
   const centerPercent = centerZero ? ((0 - min) / (max - min)) * 100 : 0;
-  const fillStyle = useMemo(() => {
+
+  // Build the gradient for the track
+  const trackGradient = useMemo(() => {
     if (centerZero) {
       const left = Math.min(centerPercent, percent);
       const right = Math.max(centerPercent, percent);
-      return {
-        background: `linear-gradient(to right,
-          var(--dxp-border-light) 0%, var(--dxp-border-light) ${left}%,
-          ${fillColor}40 ${left}%, ${fillColor}40 ${right}%,
-          var(--dxp-border-light) ${right}%, var(--dxp-border-light) 100%)`,
-      };
+      return `linear-gradient(to right,
+        #e5e7eb 0%, #e5e7eb ${left}%,
+        ${fillColor} ${left}%, ${fillColor} ${right}%,
+        #e5e7eb ${right}%, #e5e7eb 100%)`;
     }
-    return {
-      background: `linear-gradient(to right, ${fillColor}30 0%, ${fillColor}30 ${percent}%, var(--dxp-border-light) ${percent}%, var(--dxp-border-light) 100%)`,
-    };
+    return `linear-gradient(to right, ${fillColor} 0%, ${fillColor} ${percent}%, #e5e7eb ${percent}%, #e5e7eb 100%)`;
   }, [percent, centerPercent, centerZero, fillColor]);
 
   const ticks = useMemo(() => {
@@ -61,29 +58,32 @@ export function Slider({
   }, [showTicks, tickCount]);
 
   const content = (
-    <div className={cn('space-y-1', disabled && 'opacity-50 pointer-events-none')}>
-      {/* Label row with value */}
-      <div className="flex items-center justify-between mb-2">
-        {label && <span className="text-sm font-semibold text-[var(--dxp-text)]">{label}</span>}
-        <span className="text-sm font-bold tabular-nums" style={{ color: fillColor }}>
+    <div className={cn(disabled && 'opacity-50 pointer-events-none')}>
+      {/* Label row */}
+      <div className="flex items-center justify-between mb-4">
+        {label && <span className="text-base font-bold text-[var(--dxp-text)]">{label}</span>}
+        <span className="text-base font-bold tabular-nums" style={{ color: fillColor }}>
           {displayValue}{unit ? ` ${unit}` : ''}
         </span>
       </div>
 
-      {/* Track */}
-      <div className="relative h-8 flex items-center">
-        {/* Background track with fill */}
-        <div className="absolute inset-x-0 h-3 rounded-full overflow-hidden" style={fillStyle}>
-          {/* Center line for center-zero */}
+      {/* Track container */}
+      <div className="relative">
+        {/* Visual track */}
+        <div
+          className="h-4 rounded-full relative"
+          style={{ background: trackGradient }}
+        >
+          {/* Center marker for center-zero */}
           {centerZero && (
             <div
-              className="absolute top-0 bottom-0 w-0.5 bg-[var(--dxp-text-muted)]"
+              className="absolute top-0 bottom-0 w-0.5 bg-[var(--dxp-text-secondary)] z-10"
               style={{ left: `${centerPercent}%` }}
             />
           )}
         </div>
 
-        {/* Range input */}
+        {/* Invisible range input overlaid */}
         <input
           type="range"
           min={min}
@@ -92,28 +92,29 @@ export function Slider({
           value={value}
           onChange={handleChange}
           disabled={disabled}
-          className="relative w-full h-3 appearance-none cursor-pointer bg-transparent z-10
-            [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-8
-            [&::-webkit-slider-thumb]:rounded-[3px] [&::-webkit-slider-thumb]:cursor-pointer
-            [&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-[var(--dxp-border)]
-            [&::-webkit-slider-thumb]:bg-[var(--dxp-surface)]
-            [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-8 [&::-moz-range-thumb]:rounded-[3px]
-            [&::-moz-range-thumb]:bg-[var(--dxp-surface)] [&::-moz-range-thumb]:border [&::-moz-range-thumb]:border-[var(--dxp-border)]
+          className="absolute inset-0 w-full h-4 appearance-none cursor-pointer bg-transparent z-20
+            [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-7
+            [&::-webkit-slider-thumb]:rounded-sm [&::-webkit-slider-thumb]:cursor-pointer
+            [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md
+            [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-gray-300
+            [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:h-7 [&::-moz-range-thumb]:rounded-sm
+            [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:shadow-md
+            [&::-moz-range-thumb]:border [&::-moz-range-thumb]:border-gray-300
             [&::-moz-range-thumb]:cursor-pointer"
         />
       </div>
 
       {/* Tick marks */}
       {showTicks && (
-        <div className="relative h-3 mx-2">
+        <div className="relative h-4 mt-1">
           {ticks.map((pos, i) => {
             const isMajor = i % 5 === 0;
             return (
               <div
                 key={i}
                 className={cn(
-                  'absolute bottom-0',
-                  isMajor ? 'w-0.5 h-2.5 bg-[var(--dxp-text-muted)]/40' : 'w-px h-1.5 bg-[var(--dxp-border)]',
+                  'absolute top-0',
+                  isMajor ? 'w-px h-3 bg-gray-400' : 'w-px h-2 bg-gray-300',
                 )}
                 style={{ left: `${pos}%`, transform: 'translateX(-50%)' }}
               />
@@ -125,7 +126,7 @@ export function Slider({
   );
 
   if (variant === 'card') {
-    return <Card className="p-4">{content}</Card>;
+    return <Card className="px-5 py-4">{content}</Card>;
   }
   return content;
 }
