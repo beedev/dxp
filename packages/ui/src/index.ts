@@ -23,6 +23,12 @@ export type { CardProps } from './primitives/Card';
 export { Tabs } from './primitives/Tabs';
 export type { TabsProps, Tab } from './primitives/Tabs';
 
+export { Slider } from './primitives/Slider';
+export type { SliderProps } from './primitives/Slider';
+
+export { Select } from './primitives/Select';
+export type { SelectProps, SelectOption } from './primitives/Select';
+
 // === Composed (enterprise patterns) ===
 export { DataTable } from './composed/DataTable';
 export type { DataTableProps, Column } from './composed/DataTable';
@@ -68,6 +74,30 @@ export type { ProgressTrackerProps, ProgressStep } from './composed/ProgressTrac
 
 export { QuestionFlow } from './composed/QuestionFlow';
 export type { QuestionFlowProps, Question, QuestionOption } from './composed/QuestionFlow';
+
+export { OrderSummary } from './composed/OrderSummary';
+export type { OrderSummaryProps, OrderLineItem } from './composed/OrderSummary';
+
+export { OptionList } from './composed/OptionList';
+export type { OptionListProps, OptionItem } from './composed/OptionList';
+
+export { PreferencesPanel } from './composed/PreferencesPanel';
+export type { PreferencesPanelProps, PreferenceGroup, PreferenceItem } from './composed/PreferencesPanel';
+
+export { ImageGallery } from './composed/ImageGallery';
+export type { ImageGalleryProps, GalleryImage } from './composed/ImageGallery';
+
+export { PlanView } from './composed/PlanView';
+export type { PlanViewProps, PlanTask } from './composed/PlanView';
+
+export { LinkPreview } from './composed/LinkPreview';
+export type { LinkPreviewProps } from './composed/LinkPreview';
+
+export { ItemCarousel } from './composed/ItemCarousel';
+export type { ItemCarouselProps, CarouselItem } from './composed/ItemCarousel';
+
+export { Citation } from './composed/Citation';
+export type { CitationProps } from './composed/Citation';
 
 // === Layouts ===
 export { PageLayout } from './composed/PageLayout';
