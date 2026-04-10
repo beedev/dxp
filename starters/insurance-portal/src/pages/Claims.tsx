@@ -43,12 +43,26 @@ export function Claims() {
                 <h3 className="text-2xl font-bold tracking-tight">Incident Details</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-[var(--dxp-text-secondary)] mb-1.5">Policy</label>
-                    <select className="w-full rounded-[var(--dxp-radius)] border border-[var(--dxp-border)] bg-[var(--dxp-surface)] px-3 py-2 text-sm"><option>POL-001 — Tesla Model 3</option><option>POL-002 — 742 Evergreen</option></select>
+                    <Select
+                      label="Policy"
+                      options={[
+                        { value: 'POL-001', label: 'POL-001 — Tesla Model 3' },
+                        { value: 'POL-002', label: 'POL-002 — 742 Evergreen' },
+                      ]}
+                      value=""
+                      onChange={() => {}}
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[var(--dxp-text-secondary)] mb-1.5">Claim Type</label>
-                    <select className="w-full rounded-[var(--dxp-radius)] border border-[var(--dxp-border)] bg-[var(--dxp-surface)] px-3 py-2 text-sm"><option>Collision</option><option>Water Damage</option></select>
+                    <Select
+                      label="Claim Type"
+                      options={[
+                        { value: 'collision', label: 'Collision' },
+                        { value: 'water-damage', label: 'Water Damage' },
+                      ]}
+                      value=""
+                      onChange={() => {}}
+                    />
                   </div>
                 </div>
                 <div>

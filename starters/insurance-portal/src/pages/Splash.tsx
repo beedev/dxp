@@ -41,6 +41,19 @@ const portals: PortalCard[] = [
     accentClass: 'from-teal-500 to-cyan-600',
     iconPath: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
   },
+  {
+    title: 'Wealth Portal',
+    subtitle: 'APAC Portfolio Management',
+    description:
+      'APAC-first wealth management portal. 24 pages across investor, markets, and advisor views. Live Alpha Vantage quotes, 14-currency FX rates, paper trading terminal, and macro dashboards.',
+    badge: 'Paper trading',
+    badgeVariant: 'warning',
+    href: 'http://localhost:4400',
+    external: true,
+    features: ['APAC Indices', 'FX Rates', 'Paper Trading', 'Portfolio Analytics', 'Macro Dashboard'],
+    accentClass: 'from-amber-500 to-yellow-600',
+    iconPath: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+  },
 ];
 
 const devTools = [
@@ -131,7 +144,7 @@ export function Splash({ onNavigate }: SplashProps) {
       {/* Portal cards */}
       <div className="mb-6">
         <h2 className="text-xs font-bold uppercase tracking-widest text-[var(--dxp-text-muted)] mb-4">Portal Starters</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {portals.map((portal) => (
             <Card
               key={portal.title}

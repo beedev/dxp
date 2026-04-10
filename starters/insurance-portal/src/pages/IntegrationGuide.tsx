@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, Badge } from '@dxp/ui';
+import { Card, CardContent, CardHeader, Badge, DataTable, type Column } from '@dxp/ui';
 
 interface PhaseStep {
   title: string;
@@ -165,6 +165,35 @@ const adapterMatrix = [
   { system: 'Legacy LDAP / on-prem IdP',  adapter: 'Keycloak federation',                   effort: '1 day',    code: false },
 ];
 
+type AdapterRow = typeof adapterMatrix[0];
+
+const adapterMatrixColumns: Column<AdapterRow>[] = [
+  { key: 'system', header: 'Customer System' },
+  {
+    key: 'adapter',
+    header: 'DXP Adapter',
+    render: (v) => <span className="font-mono text-xs text-[var(--dxp-text-secondary)]">{String(v)}</span>,
+  },
+  {
+    key: 'effort',
+    header: 'Effort',
+    render: (v) => {
+      const val = String(v);
+      const variant = val.includes('hours') ? 'success' : (val.includes('day') && !val.includes('days')) ? 'info' : 'warning';
+      return <Badge variant={variant}>{val}</Badge>;
+    },
+  },
+  {
+    key: 'code',
+    header: 'Code?',
+    render: (v) => (
+      <span className={`text-xs font-bold ${v ? 'text-[var(--dxp-warning)]' : 'text-[var(--dxp-success)]'}`}>
+        {v ? 'New adapter' : 'Config only'}
+      </span>
+    ),
+  },
+];
+
 const timelines = [
   {
     scenario: 'Customer has FHIR R4 + Azure AD + S3',
@@ -302,38 +331,10 @@ export function IntegrationGuide({ onNavigate }: IntegrationGuideProps) {
       {/* Adapter matrix */}
       <div className="mb-8">
         <h2 className="text-xs font-bold uppercase tracking-widest text-[var(--dxp-text-muted)] mb-4">Adapter Integration Matrix</h2>
-        <Card>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-[var(--dxp-border-light)]">
-                  <th className="text-left px-4 py-3 text-xs font-bold text-[var(--dxp-text-muted)] uppercase tracking-wider">Customer System</th>
-                  <th className="text-left px-4 py-3 text-xs font-bold text-[var(--dxp-text-muted)] uppercase tracking-wider">DXP Adapter</th>
-                  <th className="text-left px-4 py-3 text-xs font-bold text-[var(--dxp-text-muted)] uppercase tracking-wider">Effort</th>
-                  <th className="text-left px-4 py-3 text-xs font-bold text-[var(--dxp-text-muted)] uppercase tracking-wider">Code?</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--dxp-border-light)]">
-                {adapterMatrix.map((row) => (
-                  <tr key={row.system} className="hover:bg-[var(--dxp-border-light)] transition-colors">
-                    <td className="px-4 py-3 font-medium text-[var(--dxp-text)]">{row.system}</td>
-                    <td className="px-4 py-3 text-[var(--dxp-text-secondary)] font-mono text-xs">{row.adapter}</td>
-                    <td className="px-4 py-3">
-                      <Badge variant={row.effort.includes('hours') ? 'success' : row.effort.includes('day') && !row.effort.includes('days') ? 'info' : 'warning'}>
-                        {row.effort}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`text-xs font-bold ${row.code ? 'text-[var(--dxp-warning)]' : 'text-[var(--dxp-success)]'}`}>
-                        {row.code ? 'New adapter' : 'Config only'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
+        <DataTable
+          columns={adapterMatrixColumns}
+          data={adapterMatrix}
+        />
       </div>
 
       {/* Footer note */}

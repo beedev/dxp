@@ -141,7 +141,7 @@ importers:
         version: 19.2.3(@types/react@19.2.14)
       '@vitejs/plugin-react':
         specifier: ^4.5.0
-        version: 4.7.0(vite@6.4.1(@types/node@25.5.0)(jiti@1.21.7)(less@4.6.4)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.3))
+        version: 4.7.0(vite@6.4.1(@types/node@25.5.0)(jiti@2.6.1)(less@4.6.4)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.3))
       autoprefixer:
         specifier: ^10.4.21
         version: 10.4.27(postcss@8.5.8)
@@ -156,7 +156,7 @@ importers:
         version: 5.9.3
       vite:
         specifier: ^6.3.5
-        version: 6.4.1(@types/node@25.5.0)(jiti@1.21.7)(less@4.6.4)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.3)
+        version: 6.4.1(@types/node@25.5.0)(jiti@2.6.1)(less@4.6.4)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.3)
 
   packages/contracts:
     devDependencies:
@@ -378,6 +378,55 @@ importers:
       typescript:
         specifier: ^5.8.3
         version: 5.9.3
+
+  starters/wealth-portal:
+    dependencies:
+      '@dxp/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@dxp/sdk-react':
+        specifier: workspace:*
+        version: link:../../packages/sdk-react
+      '@dxp/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@tanstack/react-query':
+        specifier: ^5.75.5
+        version: 5.95.2(react@19.2.4)
+      react:
+        specifier: ^19.1.0
+        version: 19.2.4
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.2.4(react@19.2.4)
+      react-router-dom:
+        specifier: ^7.6.0
+        version: 7.13.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.1.2
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19.1.2
+        version: 19.2.3(@types/react@19.2.14)
+      '@vitejs/plugin-react':
+        specifier: ^4.5.0
+        version: 4.7.0(vite@6.4.1(@types/node@25.5.0)(jiti@1.21.7)(less@4.6.4)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.3))
+      autoprefixer:
+        specifier: ^10.4.21
+        version: 10.4.27(postcss@8.5.8)
+      postcss:
+        specifier: ^8.5.3
+        version: 8.5.8
+      tailwindcss:
+        specifier: ^3.4.17
+        version: 3.4.19(yaml@2.8.3)
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+      vite:
+        specifier: ^6.3.5
+        version: 6.4.1(@types/node@25.5.0)(jiti@1.21.7)(less@4.6.4)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.1)(yaml@2.8.3)
 
 packages:
 

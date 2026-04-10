@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DataTable, StatusBadge, DetailPanel, type Column } from '@dxp/ui';
+import { DataTable, StatusBadge, DetailPanel, Button, type Column } from '@dxp/ui';
 import { policies } from '../data/mock';
 
 type Policy = typeof policies[0];
@@ -42,12 +42,8 @@ export function Policies() {
         title={selected ? `Policy ${selected.id}` : ''}
         footer={
           <div className="flex gap-3">
-            <button className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
-              Download Declaration
-            </button>
-            <button className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-              Request Change
-            </button>
+            <Button variant="primary" size="sm">Download Declaration</Button>
+            <Button variant="secondary" size="sm">Request Change</Button>
           </div>
         }
       >

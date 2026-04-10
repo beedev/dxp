@@ -48,6 +48,7 @@ const devTools = [
   { label: 'Swagger',           href: '/api/docs',             external: true },
   { label: 'Docs',              href: '/docs/index.html',      external: true },
   { label: 'Payer Portal',      href: 'http://localhost:4300', external: true },
+  { label: 'Wealth Portal',     href: 'http://localhost:4400', external: true },
 ];
 
 // ── Page router ──────────────────────────────────────────────────────────────

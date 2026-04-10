@@ -1,5 +1,5 @@
 import React from 'react';
-import { StatsDisplay, Chart, StatusBadge, Card } from '@dxp/ui';
+import { StatsDisplay, Chart, StatusBadge, Card, Button } from '@dxp/ui';
 import { claims, notifications, claimsChartData, premiumChartData } from '../data/mock';
 
 export function Dashboard() {
@@ -48,7 +48,7 @@ export function Dashboard() {
         <section className="lg:col-span-6 flex flex-col gap-6">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-bold text-[var(--dxp-text)] tracking-tight">Recent Claims</h2>
-            <button className="text-[var(--dxp-brand)] text-sm font-bold hover:underline">View All History</button>
+            <Button variant="ghost" size="sm">View All History</Button>
           </div>
           <div className="flex flex-col gap-4">
             {claims.map((claim) => (
