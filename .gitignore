@@ -57,3 +57,12 @@ starters/insurance-portal/public/storybook/
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Contracts build output
+packages/contracts/src/*.js
+packages/contracts/src/*.js.map
+packages/contracts/src/*.d.ts
+
+# Screenshots
+*.png
+.playwright-mcp/
