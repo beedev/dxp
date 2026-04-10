@@ -3,7 +3,7 @@ import { Button } from '../primitives/Button';
 
 export interface Column<T extends object> {
   key: keyof T & string;
-  header: string;
+  header: React.ReactNode;
   render?: (value: unknown, row: T) => React.ReactNode;
   sortable?: boolean;
   width?: string;
