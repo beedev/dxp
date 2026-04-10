@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Badge, Button } from '@dxp/ui';
+import { Card, Badge, Button, Select, Input } from '@dxp/ui';
 
 type Category = 'claims' | 'auth' | 'care' | 'clinical' | 'pharmacy';
 
@@ -219,41 +219,27 @@ export function Messages() {
               </div>
 
               <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-medium text-[var(--dxp-text-secondary)] mb-1.5">To</label>
-                  <select
-                    value={form.to}
-                    onChange={(e) => setForm((f) => ({ ...f, to: e.target.value }))}
-                    className="w-full rounded-[var(--dxp-radius)] border border-[var(--dxp-border)] bg-[var(--dxp-surface)] px-3 py-2 text-sm text-[var(--dxp-text)] focus:outline-none focus:ring-1 focus:ring-[var(--dxp-brand)]"
-                  >
-                    <option value="">Select recipient...</option>
-                    {recipients.map((r) => (
-                      <option key={r.value} value={r.value}>{r.label}</option>
-                    ))}
-                  </select>
-                </div>
+                <Select
+                  label="To"
+                  options={[{ value: '', label: 'Select recipient...' }, ...recipients]}
+                  value={form.to}
+                  onChange={(val) => setForm((f) => ({ ...f, to: val }))}
+                />
 
-                <div>
-                  <label className="block text-xs font-medium text-[var(--dxp-text-secondary)] mb-1.5">Category</label>
-                  <select
-                    value={form.category}
-                    onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as Category }))}
-                    className="w-full rounded-[var(--dxp-radius)] border border-[var(--dxp-border)] bg-[var(--dxp-surface)] px-3 py-2 text-sm text-[var(--dxp-text)] focus:outline-none focus:ring-1 focus:ring-[var(--dxp-brand)]"
-                  >
-                    {categoryOptions.map((c) => (
-                      <option key={c.value} value={c.value}>{c.label}</option>
-                    ))}
-                  </select>
-                </div>
+                <Select
+                  label="Category"
+                  options={categoryOptions}
+                  value={form.category}
+                  onChange={(val) => setForm((f) => ({ ...f, category: val as Category }))}
+                />
 
                 <div>
                   <label className="block text-xs font-medium text-[var(--dxp-text-secondary)] mb-1.5">Subject</label>
-                  <input
-                    type="text"
+                  <Input
                     value={form.subject}
                     onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))}
                     placeholder="Brief subject..."
-                    className="w-full rounded-[var(--dxp-radius)] border border-[var(--dxp-border)] bg-[var(--dxp-surface)] px-3 py-2 text-sm text-[var(--dxp-text)] placeholder:text-[var(--dxp-text-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--dxp-brand)]"
+                    className="w-full"
                   />
                 </div>
 
@@ -275,12 +261,9 @@ export function Messages() {
                   >
                     Send Message
                   </Button>
-                  <button
-                    onClick={() => setComposing(false)}
-                    className="text-sm text-[var(--dxp-text-secondary)] hover:text-[var(--dxp-text)] transition-colors"
-                  >
+                  <Button variant="secondary" onClick={() => setComposing(false)}>
                     Discard
-                  </button>
+                  </Button>
                 </div>
               </div>
             </Card>
@@ -337,12 +320,9 @@ export function Messages() {
                 <p className="text-sm font-medium text-[var(--dxp-text)]">Select a message to read</p>
                 <p className="text-xs text-[var(--dxp-text-muted)] mt-1">or compose a new message to your care team</p>
               </div>
-              <button
-                onClick={handleCompose}
-                className="text-sm font-medium text-[var(--dxp-brand)] hover:underline"
-              >
+              <Button variant="ghost" onClick={handleCompose}>
                 Compose new message
-              </button>
+              </Button>
             </Card>
           )}
         </div>

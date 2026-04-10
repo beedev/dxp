@@ -1,5 +1,5 @@
 import React from 'react';
-import { StatsDisplay, Chart, Card, StatusBadge, ItemCarousel } from '@dxp/ui';
+import { StatsDisplay, Chart, Card, StatusBadge, ItemCarousel, Badge } from '@dxp/ui';
 import { useMemberDashboard, useClaimsDashboard } from '@dxp/sdk-react';
 import { claimsTrendData, spendingByCategory, claims as mockClaims, notifications } from '../../data/mock';
 
@@ -93,7 +93,7 @@ export function Dashboard() {
               id: n.id,
               content: (
                 <Card className="p-4 h-full">
-                  <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-[var(--dxp-warning)]/10 text-[var(--dxp-warning)] mb-2">Care Gap</span>
+                  <Badge variant="warning" className="mb-2">Care Gap</Badge>
                   <h4 className="text-sm font-bold text-[var(--dxp-text)] mb-1">{n.title}</h4>
                   <p className="text-xs text-[var(--dxp-text-secondary)] leading-relaxed">{n.message}</p>
                 </Card>
