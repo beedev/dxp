@@ -1,4 +1,4 @@
-.PHONY: help up down dev dev-bff dev-portal dev-payer build-storybook test lint clean status fhir-seed fhir-reset
+.PHONY: help up down dev dev-bff dev-portal dev-payer build-storybook test lint audit audit-portal clean status fhir-seed fhir-reset
 
 COMPOSE = docker compose
 
@@ -56,6 +56,12 @@ fhir-reset: ## Reset HAPI FHIR (drop + recreate + reseed)
 
 build-storybook: ## Rebuild Storybook static into portal
 	cd packages/ui && npx storybook build -o ../../starters/insurance-portal/public/storybook
+
+audit: ## Audit all portals for DXP component compliance (errors = must fix, warnings = review)
+	@node scripts/audit-portals.js
+
+audit-portal: ## Audit one portal: make audit-portal PORTAL=wealth-portal
+	@node scripts/audit-portals.js $(PORTAL)
 
 test: ## Run all tests
 	pnpm nx run-many -t test

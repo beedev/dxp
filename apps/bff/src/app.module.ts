@@ -25,6 +25,14 @@ import { RiskStratificationModule } from './modules/risk-stratification/risk-str
 import { QualityMeasuresModule } from './modules/quality-measures/quality-measures.module';
 import { ConsentModule } from './modules/consent/consent.module';
 import { PayerExchangeModule } from './modules/payer-exchange/payer-exchange.module';
+import { MarketDataModule } from './modules/market-data/market-data.module';
+import { FxRatesModule } from './modules/fx-rates/fx-rates.module';
+import { MacroDataModule } from './modules/macro-data/macro-data.module';
+import { FinancialNewsModule } from './modules/financial-news/financial-news.module';
+import { WealthPortfolioModule } from './modules/wealth-portfolio/wealth-portfolio.module';
+import { WatchlistModule } from './modules/watchlist/watchlist.module';
+import { PaperTradingModule } from './modules/paper-trading/paper-trading.module';
+import { BrokerGatewayModule } from './modules/broker-gateway/broker-gateway.module';
 
 @Module({
   imports: [
@@ -58,6 +66,15 @@ import { PayerExchangeModule } from './modules/payer-exchange/payer-exchange.mod
     QualityMeasuresModule,
     ConsentModule,
     PayerExchangeModule,
+    // Wealth domain modules
+    MarketDataModule,
+    FxRatesModule,
+    MacroDataModule,
+    FinancialNewsModule,
+    WealthPortfolioModule,
+    WatchlistModule,
+    PaperTradingModule,
+    BrokerGatewayModule,
   ],
 })
 export class AppModule {}

@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --dxp-brand: #D97706;
+  --dxp-brand-light: #FEF3C7;
+  --dxp-text: #0F172A;
+  --dxp-text-secondary: #475569;
+  --dxp-text-muted: #94A3B8;
+  --dxp-surface: #FFFFFF;
+  --dxp-border: #E2E8F0;
+  --dxp-border-light: #F1F5F9;
+  --dxp-success: #059669;
+  --dxp-warning: #D97706;
+  --dxp-error: #E11D48;
+  --dxp-radius: 0.5rem;
+}

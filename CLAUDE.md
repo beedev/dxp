@@ -37,8 +37,77 @@ A lean framework for building enterprise portals fast. Not a platform engineerin
 - Module factory selects adapter from env: `CMS_ADAPTER=strapi`, `STORAGE_PROVIDER=s3`
 - Swapping = one env var change, zero code changes
 
+## Portal Coding Standards — MANDATORY
+
+These rules are enforced by `make audit`. Violations block merge.
+
+### UI Components — always use @dxp/ui
+
+Never hand-roll what the component library already provides. Every portal page MUST source UI from `@dxp/ui`.
+
+| Need | Use | Never use |
+|------|-----|-----------|
+| Data table / list | `<DataTable columns={} data={}>` | `<table>`, `<tr>`, `<td>` |
+| Text input | `<Input value onChange />` | `<input type="text">` |
+| Dropdown | `<Select options value onChange />` | `<select>` |
+| Button | `<Button variant size>` | `<button className="...">` |
+| Status label | `<StatusBadge status="pending\|approved\|..." />` | colored `<span>` |
+| Generic label | `<Badge variant="success\|warning\|danger\|info">` | colored `<span>` |
+| Tab navigation | `<Tabs tabs active onChange variant="pill\|underline">` | `<button>` tab loops |
+| Filter bar | `<FilterBar filters activeFilters onToggle onClear>` | button group arrays |
+| Chart | `<Chart type="bar\|line" data xKey yKeys>` | raw SVG / canvas |
+| Step flow | `<ProgressTracker steps>` | custom step divs |
+| Multi-step form | `<MultiStepForm steps>` | hand-rolled step state |
+
+**Allowed exceptions** (raw HTML is intentional):
+- Visual toggle chips (Buy/Sell, order type selectors) — tight custom styling required
+- `<input type="checkbox|radio|file|range">` — no @dxp/ui equivalent
+- `<textarea>` — multi-line, no @dxp/ui equivalent
+- Custom domain components (`PriceChart`, `LiveTicker`, `FxWidget`) — domain-specific visualizations built on top of `Card`
+
+### BFF Integration — always use @dxp/sdk-react
+
+Never call the BFF directly. All data fetching goes through SDK hooks.
+
+```ts
+// ✅ correct
+import { useClaims, useClaimDetail } from '@dxp/sdk-react';
+const { data, isLoading } = useClaims(filters);
+
+// ❌ forbidden
+const res = await fetch('/api/v1/claims');
+const res = await axios.get('http://localhost:4201/api/v1/claims');
+```
+
+### Third-party UI libraries — forbidden in portals
+
+Do NOT install or import: `antd`, `@mui/*`, `@chakra-ui/*`, `react-bootstrap`, `@headlessui/*`, `primereact`, `@mantine/*`, `react-icons`.
+
+If a component doesn't exist in `@dxp/ui`, add it to the library — don't import an external one.
+
+### BFF Adapter Pattern — mandatory for new integrations
+
+Every new data source MUST follow the port+adapter pattern:
+1. Define a Port (abstract class in `modules/<name>/ports/<name>.port.ts`)
+2. Implement at least one Adapter (in `modules/<name>/adapters/`)
+3. Module factory selects adapter via env var (`NAME_ADAPTER=impl`)
+4. Register in `app.module.ts`
+
+Never connect to an external system directly from a controller.
+
+### Enforcement
+
+```bash
+make audit                       # audit all portals
+make audit-portal PORTAL=wealth-portal  # audit one portal
+node scripts/audit-portals.js --fix-report  # write violations.json
+```
+
+Exit codes: `0` = clean, `1` = errors (must fix), `2` = warnings only.
+
 ## Commands
 - `make up` — start 4 infra services
 - `make dev` — start BFF in dev mode
 - `make down` — stop everything
 - `make status` — health check
+- `make audit` — check all portals for compliance violations

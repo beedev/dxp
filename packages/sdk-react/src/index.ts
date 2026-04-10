@@ -28,3 +28,13 @@ export { useMemberList, useMemberDashboard, useMemberProfile, useMemberPreferenc
 export { usePopulationDashboard, useRiskWorklist, useMemberRiskProfile, useCareGaps, useCloseCareGap } from './hooks/use-population';
 export { useQualityDashboard, useQualityCareGaps, useTriggerOutreach } from './hooks/use-quality';
 export { useUtilizationDashboard, useContractScorecards, useVBCDetail, useScenarioSimulate } from './hooks/use-analytics';
+
+// Wealth portal hooks
+export { useStockQuote, useStockQuotes, useApacIndices, useSymbolSearch, usePriceHistory } from './hooks/use-market-data';
+export { useFxRates, useApacFxRates, useFxConvert, useSgdRates } from './hooks/use-fx-rates';
+export { useCountryProfiles, useMacroIndicators } from './hooks/use-macro-data';
+export { useApacNews, useCompanyNews } from './hooks/use-financial-news';
+export { usePortfolio, useHoldings, useTransactions, useAddTransaction } from './hooks/use-wealth-portfolio';
+export { useWatchlist, useAddToWatchlist, useRemoveFromWatchlist } from './hooks/use-watchlist';
+export { usePaperPortfolio, usePaperOrders, usePlaceOrder, useCancelOrder, useAlerts, useCreateAlert, useDeleteAlert } from './hooks/use-paper-trading';
+export { useBrokerAccount, useBrokerOrders, usePlaceBrokerOrder, useCancelBrokerOrder } from './hooks/use-broker';
