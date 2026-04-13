@@ -38,3 +38,8 @@ export { usePortfolio, useHoldings, useTransactions, useAddTransaction } from '.
 export { useWatchlist, useAddToWatchlist, useRemoveFromWatchlist } from './hooks/use-watchlist';
 export { usePaperPortfolio, usePaperOrders, usePlaceOrder, useCancelOrder, useAlerts, useCreateAlert, useDeleteAlert } from './hooks/use-paper-trading';
 export { useBrokerAccount, useBrokerOrders, usePlaceBrokerOrder, useCancelBrokerOrder } from './hooks/use-broker';
+
+// Retail portal hooks
+export { useProducts, useProduct, useStockLevels, useBarcodeLookup } from './hooks/use-inventory';
+export { useDailySales, useSalesRange, useCategoryBreakdown, useTopSellers } from './hooks/use-pos';
+export { useProjectTemplates, useProjectTemplate, useMaterialsList } from './hooks/use-project-planner';

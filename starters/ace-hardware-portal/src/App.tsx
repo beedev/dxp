@@ -14,6 +14,16 @@ import { CartCheckout } from './pages/customer/CartCheckout';
 import { OrderHistory } from './pages/customer/OrderHistory';
 import { LoyaltyRewards } from './pages/customer/LoyaltyRewards';
 
+// Customer pages — Phase 4
+import { ProjectPlanner } from './pages/customer/ProjectPlanner';
+import { ServiceBooking } from './pages/customer/ServiceBooking';
+
+// Manager pages — Phase 3
+import { InventoryManagement } from './pages/manager/InventoryManagement';
+import { SalesAnalytics } from './pages/manager/SalesAnalytics';
+import { StaffSchedule } from './pages/manager/StaffSchedule';
+import { CustomerInsights } from './pages/manager/CustomerInsights';
+
 // ---------------------------------------------------------------------------
 // Navigation definitions
 // ---------------------------------------------------------------------------
@@ -78,6 +88,8 @@ function renderPage(
   navigate: (p: string) => void,
   selectedProductId: string | null,
   setSelectedProductId: (id: string) => void,
+  selectedProjectId: string | null,
+  setSelectedProjectId: (id: string | null) => void,
 ) {
   switch (path) {
     // Customer
@@ -104,7 +116,9 @@ function renderPage(
     case '/customer/loyalty':
       return <LoyaltyRewards />;
     case '/customer/projects':
+      return <ProjectPlanner selectedProjectId={selectedProjectId} onSelectProject={setSelectedProjectId} />;
     case '/customer/services':
+      return <ServiceBooking />;
     case '/customer/store':
       return <PlaceholderPage title={customerNav.find((n) => n.href === path)?.label || path} persona="customer" />;
 
@@ -112,9 +126,13 @@ function renderPage(
     case '/manager':
       return <ManagerDashboard />;
     case '/manager/inventory':
+      return <InventoryManagement />;
     case '/manager/sales':
+      return <SalesAnalytics />;
     case '/manager/staff':
+      return <StaffSchedule />;
     case '/manager/insights':
+      return <CustomerInsights />;
     case '/manager/suppliers':
     case '/manager/promotions':
     case '/manager/settings':
@@ -170,6 +188,7 @@ function PlaceholderPage({ title, persona }: { title: string; persona: string })
 export function App() {
   const [currentPath, setCurrentPath] = useState('/customer');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
 
   const currentPersona = personaFromPath(currentPath);
 
@@ -213,7 +232,7 @@ export function App() {
         </div>
       }
     >
-      {renderPage(currentPath, setCurrentPath, selectedProductId, setSelectedProductId)}
+      {renderPage(currentPath, setCurrentPath, selectedProductId, setSelectedProductId, selectedProjectId, setSelectedProjectId)}
     </PageLayout>
   );
 }

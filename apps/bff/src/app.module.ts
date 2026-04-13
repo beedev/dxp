@@ -33,6 +33,9 @@ import { WealthPortfolioModule } from './modules/wealth-portfolio/wealth-portfol
 import { WatchlistModule } from './modules/watchlist/watchlist.module';
 import { PaperTradingModule } from './modules/paper-trading/paper-trading.module';
 import { BrokerGatewayModule } from './modules/broker-gateway/broker-gateway.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
+import { PosConnectorModule } from './modules/pos-connector/pos-connector.module';
+import { ProjectPlannerModule } from './modules/project-planner/project-planner.module';
 
 @Module({
   imports: [
@@ -75,6 +78,10 @@ import { BrokerGatewayModule } from './modules/broker-gateway/broker-gateway.mod
     WatchlistModule,
     PaperTradingModule,
     BrokerGatewayModule,
+    // Retail domain modules
+    InventoryModule,
+    PosConnectorModule,
+    ProjectPlannerModule,
   ],
 })
 export class AppModule {}
