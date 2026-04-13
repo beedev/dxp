@@ -10,3 +10,4 @@ export * from './rules';
 export * from './analytics';
 export * from './payer';
 export * from './wealth';
+export * from './retail';

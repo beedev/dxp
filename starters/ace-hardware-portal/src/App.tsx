@@ -7,6 +7,13 @@ import { CustomerDashboard } from './pages/customer/Dashboard';
 import { ManagerDashboard } from './pages/manager/Dashboard';
 import { NetworkDashboard } from './pages/coop/NetworkDashboard';
 
+// Customer pages — Phase 2
+import { ProductCatalog } from './pages/customer/ProductCatalog';
+import { ProductDetail } from './pages/customer/ProductDetail';
+import { CartCheckout } from './pages/customer/CartCheckout';
+import { OrderHistory } from './pages/customer/OrderHistory';
+import { LoyaltyRewards } from './pages/customer/LoyaltyRewards';
+
 // ---------------------------------------------------------------------------
 // Navigation definitions
 // ---------------------------------------------------------------------------
@@ -16,6 +23,7 @@ const customerNav: NavItem[] = [
   { label: 'Product Catalog', href: '/customer/catalog' },
   { label: 'Project Planner', href: '/customer/projects' },
   { label: 'Order History', href: '/customer/orders' },
+  { label: 'Cart & Checkout', href: '/customer/cart' },
   { label: 'Service Booking', href: '/customer/services' },
   { label: 'My Store', href: '/customer/store' },
   { label: 'Loyalty & Rewards', href: '/customer/loyalty' },
@@ -65,17 +73,39 @@ function personaFromPath(path: string): Persona {
 // Page router
 // ---------------------------------------------------------------------------
 
-function renderPage(path: string, navigate: (p: string) => void) {
+function renderPage(
+  path: string,
+  navigate: (p: string) => void,
+  selectedProductId: string | null,
+  setSelectedProductId: (id: string) => void,
+) {
   switch (path) {
     // Customer
     case '/customer':
       return <CustomerDashboard onNavigate={navigate} />;
     case '/customer/catalog':
-    case '/customer/projects':
+      return (
+        <ProductCatalog
+          onNavigate={navigate}
+          onSelectProduct={(id) => { setSelectedProductId(id); }}
+        />
+      );
+    case '/customer/product-detail':
+      return (
+        <ProductDetail
+          productId={selectedProductId || 'T001'}
+          onNavigate={navigate}
+        />
+      );
+    case '/customer/cart':
+      return <CartCheckout onNavigate={navigate} />;
     case '/customer/orders':
+      return <OrderHistory />;
+    case '/customer/loyalty':
+      return <LoyaltyRewards />;
+    case '/customer/projects':
     case '/customer/services':
     case '/customer/store':
-    case '/customer/loyalty':
       return <PlaceholderPage title={customerNav.find((n) => n.href === path)?.label || path} persona="customer" />;
 
     // Manager
@@ -122,7 +152,7 @@ function PlaceholderPage({ title, persona }: { title: string; persona: string })
     <div className="p-8">
       <div className={`rounded-xl bg-gradient-to-r ${colors[persona]} text-white p-8 mb-6`}>
         <h1 className="text-2xl font-extrabold">{title}</h1>
-        <p className="text-sm opacity-80 mt-1">Coming in Phase 2+. This page will be fully built with @dxp/ui components.</p>
+        <p className="text-sm opacity-80 mt-1">Coming in Phase 3+. This page will be fully built with @dxp/ui components.</p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {[1, 2, 3].map((i) => (
@@ -139,6 +169,7 @@ function PlaceholderPage({ title, persona }: { title: string; persona: string })
 
 export function App() {
   const [currentPath, setCurrentPath] = useState('/customer');
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
   const currentPersona = personaFromPath(currentPath);
 
@@ -182,7 +213,7 @@ export function App() {
         </div>
       }
     >
-      {renderPage(currentPath, setCurrentPath)}
+      {renderPage(currentPath, setCurrentPath, selectedProductId, setSelectedProductId)}
     </PageLayout>
   );
 }
