@@ -43,3 +43,4 @@ export { useBrokerAccount, useBrokerOrders, usePlaceBrokerOrder, useCancelBroker
 export { useProducts, useProduct, useStockLevels, useBarcodeLookup } from './hooks/use-inventory';
 export { useDailySales, useSalesRange, useCategoryBreakdown, useTopSellers } from './hooks/use-pos';
 export { useProjectTemplates, useProjectTemplate, useMaterialsList } from './hooks/use-project-planner';
+export { useLoyaltyMember, usePointsBalance, usePointsHistory, useRewardsCatalog } from './hooks/use-loyalty';

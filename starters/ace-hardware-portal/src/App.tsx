@@ -24,6 +24,21 @@ import { SalesAnalytics } from './pages/manager/SalesAnalytics';
 import { StaffSchedule } from './pages/manager/StaffSchedule';
 import { CustomerInsights } from './pages/manager/CustomerInsights';
 
+// Customer pages — Phase 5
+import { MyStore } from './pages/customer/MyStore';
+
+// Manager pages — Phase 5
+import { SupplierOrders } from './pages/manager/SupplierOrders';
+import { Promotions } from './pages/manager/Promotions';
+import { StoreSettings } from './pages/manager/StoreSettings';
+
+// Coop pages — Phase 5
+import { StorePerformance } from './pages/coop/StorePerformance';
+import { SupplyChain } from './pages/coop/SupplyChain';
+import { Procurement } from './pages/coop/Procurement';
+import { VendorManagement } from './pages/coop/VendorManagement';
+import { QualityCompliance } from './pages/coop/QualityCompliance';
+
 // ---------------------------------------------------------------------------
 // Navigation definitions
 // ---------------------------------------------------------------------------
@@ -120,7 +135,7 @@ function renderPage(
     case '/customer/services':
       return <ServiceBooking />;
     case '/customer/store':
-      return <PlaceholderPage title={customerNav.find((n) => n.href === path)?.label || path} persona="customer" />;
+      return <MyStore />;
 
     // Manager
     case '/manager':
@@ -134,19 +149,25 @@ function renderPage(
     case '/manager/insights':
       return <CustomerInsights />;
     case '/manager/suppliers':
+      return <SupplierOrders />;
     case '/manager/promotions':
+      return <Promotions />;
     case '/manager/settings':
-      return <PlaceholderPage title={managerNav.find((n) => n.href === path)?.label || path} persona="manager" />;
+      return <StoreSettings />;
 
     // Coop
     case '/coop':
       return <NetworkDashboard />;
     case '/coop/performance':
+      return <StorePerformance />;
     case '/coop/supply-chain':
+      return <SupplyChain />;
     case '/coop/procurement':
+      return <Procurement />;
     case '/coop/vendors':
+      return <VendorManagement />;
     case '/coop/compliance':
-      return <PlaceholderPage title={coopNav.find((n) => n.href === path)?.label || path} persona="coop" />;
+      return <QualityCompliance />;
 
     default:
       return (
@@ -156,29 +177,6 @@ function renderPage(
         </div>
       );
   }
-}
-
-// Placeholder for pages that will be built in later phases
-function PlaceholderPage({ title, persona }: { title: string; persona: string }) {
-  const colors: Record<string, string> = {
-    customer: 'from-red-600 to-red-400',
-    manager: 'from-gray-700 to-gray-500',
-    coop: 'from-emerald-700 to-emerald-500',
-  };
-
-  return (
-    <div className="p-8">
-      <div className={`rounded-xl bg-gradient-to-r ${colors[persona]} text-white p-8 mb-6`}>
-        <h1 className="text-2xl font-extrabold">{title}</h1>
-        <p className="text-sm opacity-80 mt-1">Coming in Phase 3+. This page will be fully built with @dxp/ui components.</p>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-48 rounded-lg bg-[var(--dxp-border-light)] border border-[var(--dxp-border)] animate-pulse" />
-        ))}
-      </div>
-    </div>
-  );
 }
 
 // ---------------------------------------------------------------------------

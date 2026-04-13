@@ -36,6 +36,7 @@ import { BrokerGatewayModule } from './modules/broker-gateway/broker-gateway.mod
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { PosConnectorModule } from './modules/pos-connector/pos-connector.module';
 import { ProjectPlannerModule } from './modules/project-planner/project-planner.module';
+import { LoyaltyModule } from './modules/loyalty/loyalty.module';
 
 @Module({
   imports: [
@@ -82,6 +83,7 @@ import { ProjectPlannerModule } from './modules/project-planner/project-planner.
     InventoryModule,
     PosConnectorModule,
     ProjectPlannerModule,
+    LoyaltyModule,
   ],
 })
 export class AppModule {}

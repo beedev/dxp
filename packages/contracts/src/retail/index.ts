@@ -6,3 +6,6 @@ export * from './inventory';
 export * from './sales';
 export * from './project';
 export * from './service';
+export * from './supplier';
+export * from './network';
+export * from './promotion';
