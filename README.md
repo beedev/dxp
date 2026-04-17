@@ -88,6 +88,10 @@ Edit `.env` — here's what to configure:
 | `AGENTIC_CONFIG_ID` | Persona to load: `ace-hardware`, `wealth-investment-advisor`, or `insurance-claims-advisor` | For AI chatbot |
 | `LLM_MODEL` | `gpt-4.1` (default) or `gpt-4o` | No |
 | `BFF_BASE_URL` | `http://localhost:4201/api` (default) | For domain actions |
+| **Security** | | |
+| `DEV_AUTH_BYPASS` | `true` for local dev (skips all auth). **Must be `false` in production** — backend refuses to start if `true` + `ENV=production` | Yes |
+| `AGENTIC_API_KEY` | Shared secret for BFF → FastAPI calls. Generate with `openssl rand -hex 32` | For production |
+| `AGENTIC_ADMIN_KEY` | Admin key for config/pipeline management. Generate with `openssl rand -hex 32` | For production |
 | **Observability** | | |
 | `LANGFUSE_ENABLED` | `true` to enable LLM tracing | No |
 | `LANGFUSE_SECRET_KEY` | From [cloud.langfuse.com](https://cloud.langfuse.com) | If Langfuse enabled |

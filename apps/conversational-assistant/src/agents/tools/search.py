@@ -108,8 +108,10 @@ async def semantic_search(
 
         where_sql = (" WHERE " + " AND ".join(where_clauses)) if where_clauses else ""
 
-        # Embedding vector passed as a parameterized string to avoid SQL injection
-        params["query_embedding"] = "[" + ",".join(str(float(x)) for x in query_embedding) + "]"
+        # Embedding vector: each element is coerced through float() to ensure
+        # only numeric values. Safe to interpolate since input is from OpenAI API,
+        # not user-controlled, and each element is validated as a float.
+        embedding_literal = "[" + ",".join(str(float(x)) for x in query_embedding) + "]"
 
         sql = text(f"""
             SELECT
@@ -120,7 +122,7 @@ async def semantic_search(
                 e.description,
                 e.data,
                 e.image_url,
-                1 - (e.embedding <=> :query_embedding::vector) AS relevance
+                1 - (e.embedding <=> '{embedding_literal}'::vector) AS relevance
             FROM entities e
             {where_sql}
             ORDER BY relevance DESC

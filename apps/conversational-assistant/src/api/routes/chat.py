@@ -443,7 +443,7 @@ async def _stream_agent_turn(
         })
         await manager.send_json(session_id, {
             "type": "assistant_message",
-            "content": f"I hit a snag. Try rephrasing? (technical: {str(e)[:100]})",
+            "content": "I hit a snag processing your request. Please try rephrasing.",
         })
 
     return conversation
