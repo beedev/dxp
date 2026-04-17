@@ -41,6 +41,10 @@ class Settings(BaseSettings):
     env: str = "development"
     debug: bool = False
 
+    # Auth — service-to-service API keys
+    agentic_api_key: str = ""
+    agentic_admin_key: str = ""
+
     @property
     def sync_database_url(self) -> str:
         return self.database_url.replace("postgresql+asyncpg", "postgresql")

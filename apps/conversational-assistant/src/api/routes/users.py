@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.api.security import require_api_key
 from src.db.models import User, UserPreference
 from src.db.session import get_db
 
@@ -18,7 +19,11 @@ class DemoLoginRequest(BaseModel):
 
 
 @router.post("/auth/demo-login")
-async def demo_login(req: DemoLoginRequest, db: AsyncSession = Depends(get_db)):
+async def demo_login(
+    req: DemoLoginRequest,
+    db: AsyncSession = Depends(get_db),
+    _auth=Depends(require_api_key),
+):
     """Simple demo auth — select a pre-configured user."""
     result = await db.execute(select(User).where(User.id == uuid.UUID(req.user_id)))
     user = result.scalar_one_or_none()
@@ -33,7 +38,10 @@ async def demo_login(req: DemoLoginRequest, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/users")
-async def list_users(db: AsyncSession = Depends(get_db)):
+async def list_users(
+    db: AsyncSession = Depends(get_db),
+    _auth=Depends(require_api_key),
+):
     """List all demo users for the login selector."""
     result = await db.execute(select(User).order_by(User.display_name))
     users = result.scalars().all()
@@ -49,7 +57,11 @@ async def list_users(db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/users/{user_id}/preferences")
-async def get_preferences(user_id: str, db: AsyncSession = Depends(get_db)):
+async def get_preferences(
+    user_id: str,
+    db: AsyncSession = Depends(get_db),
+    _auth=Depends(require_api_key),
+):
     result = await db.execute(
         select(UserPreference).where(UserPreference.user_id == uuid.UUID(user_id))
     )
@@ -73,7 +85,10 @@ class UpdateSpendLimitRequest(BaseModel):
 
 @router.put("/users/{user_id}/spend-limit")
 async def update_spend_limit(
-    user_id: str, req: UpdateSpendLimitRequest, db: AsyncSession = Depends(get_db)
+    user_id: str,
+    req: UpdateSpendLimitRequest,
+    db: AsyncSession = Depends(get_db),
+    _auth=Depends(require_api_key),
 ):
     result = await db.execute(select(User).where(User.id == uuid.UUID(user_id)))
     user = result.scalar_one_or_none()

@@ -1,7 +1,10 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AgenticPort } from './ports/agentic.port';
 
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @ApiTags('agentic')
 @Controller('agentic')
 export class AgenticController {

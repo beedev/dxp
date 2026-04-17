@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.api.security import require_api_key
 from src.db.models import AgentSession, Message, AgentStep
 from src.db.session import get_db
 
@@ -27,7 +28,11 @@ class SessionResponse(BaseModel):
 
 
 @router.post("/sessions", response_model=SessionResponse)
-async def create_session(req: CreateSessionRequest, db: AsyncSession = Depends(get_db)):
+async def create_session(
+    req: CreateSessionRequest,
+    db: AsyncSession = Depends(get_db),
+    _auth=Depends(require_api_key),
+):
     session = AgentSession(user_id=uuid.UUID(req.user_id))
     db.add(session)
     await db.commit()
@@ -36,7 +41,11 @@ async def create_session(req: CreateSessionRequest, db: AsyncSession = Depends(g
 
 
 @router.get("/sessions/{session_id}")
-async def get_session(session_id: str, db: AsyncSession = Depends(get_db)):
+async def get_session(
+    session_id: str,
+    db: AsyncSession = Depends(get_db),
+    _auth=Depends(require_api_key),
+):
     result = await db.execute(
         select(AgentSession).where(AgentSession.id == uuid.UUID(session_id))
     )
@@ -53,7 +62,11 @@ async def get_session(session_id: str, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/sessions/{session_id}/messages")
-async def get_messages(session_id: str, db: AsyncSession = Depends(get_db)):
+async def get_messages(
+    session_id: str,
+    db: AsyncSession = Depends(get_db),
+    _auth=Depends(require_api_key),
+):
     result = await db.execute(
         select(Message)
         .where(Message.session_id == uuid.UUID(session_id))
@@ -73,7 +86,11 @@ async def get_messages(session_id: str, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/sessions/{session_id}/steps")
-async def get_steps(session_id: str, db: AsyncSession = Depends(get_db)):
+async def get_steps(
+    session_id: str,
+    db: AsyncSession = Depends(get_db),
+    _auth=Depends(require_api_key),
+):
     result = await db.execute(
         select(AgentStep)
         .where(AgentStep.session_id == uuid.UUID(session_id))

@@ -16,10 +16,11 @@ matches the format our framework expects.
 import json
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from openai import AsyncOpenAI
 from pydantic import BaseModel
 
+from src.api.security import require_admin_key
 from src.config import settings
 
 router = APIRouter()
@@ -130,7 +131,7 @@ class SaveRequest(BaseModel):
 
 
 @router.post("/api/agent-configs/generate")
-async def generate_config(req: GenerateRequest) -> dict:
+async def generate_config(req: GenerateRequest, _auth=Depends(require_admin_key)) -> dict:
     """Use the LLM to generate a persona config scoped to the portal's domain."""
     desc = (req.description or "").strip()
     if not desc:
@@ -176,7 +177,7 @@ async def generate_config(req: GenerateRequest) -> dict:
 
 
 @router.post("/api/agent-configs/save")
-async def save_config(req: SaveRequest) -> dict:
+async def save_config(req: SaveRequest, _auth=Depends(require_admin_key)) -> dict:
     """Save a generated/edited config to the configs directory."""
     config = req.config
     config_id = config.get("id")

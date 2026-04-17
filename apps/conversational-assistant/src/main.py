@@ -6,12 +6,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.routes import chat, config_builder, data_pipeline, sessions, products, users, orders, analytics, readiness, uploads, voice
+from src.api.security import check_auth_config
 from src.config import settings
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan: startup and shutdown events."""
+    # Safety check: refuse to start with auth bypass in production
+    check_auth_config()
     # Startup: initialize Redis connection pool
     app.state.redis = redis.from_url(settings.redis_url, decode_responses=True)
     yield

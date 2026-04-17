@@ -15,8 +15,9 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, BackgroundTasks, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, UploadFile
 
+from src.api.security import require_admin_key
 from src.config import settings
 
 router = APIRouter()
@@ -30,7 +31,7 @@ PIPELINE_STATUS: dict[str, dict[str, Any]] = {}
 
 
 @router.get("/api/data-pipeline/configs")
-async def list_data_configs() -> dict:
+async def list_data_configs(_auth=Depends(require_admin_key)) -> dict:
     """List available data source configurations."""
     configs = []
     if CONFIGS_DIR.exists():
@@ -59,6 +60,7 @@ async def list_data_configs() -> dict:
 async def upload_source_data(
     config_id: str = Form(...),
     file: UploadFile = File(...),
+    _auth=Depends(require_admin_key),
 ) -> dict:
     """Upload a source data file (JSON or CSV) for a data config.
 
@@ -119,6 +121,7 @@ async def upload_source_data(
 async def trigger_ingestion(
     config_id: str = Form(None),
     background_tasks: BackgroundTasks = None,
+    _auth=Depends(require_admin_key),
 ) -> dict:
     """Trigger catalog ingestion for a data config. Runs in background."""
     import re as _re
@@ -161,6 +164,7 @@ async def trigger_ingestion(
 @router.post("/api/data-pipeline/enrich")
 async def trigger_enrichment(
     background_tasks: BackgroundTasks = None,
+    _auth=Depends(require_admin_key),
 ) -> dict:
     """Trigger knowledge graph enrichment. Runs in background."""
     run_id = str(uuid.uuid4())[:8]
@@ -188,7 +192,7 @@ async def trigger_enrichment(
 
 
 @router.get("/api/data-pipeline/status")
-async def pipeline_status(run_id: str = None) -> dict:
+async def pipeline_status(run_id: str = None, _auth=Depends(require_admin_key)) -> dict:
     """Get the status of a pipeline run, or the most recent run."""
     if run_id and run_id in PIPELINE_STATUS:
         s = PIPELINE_STATUS[run_id]
@@ -209,6 +213,7 @@ async def create_data_config(
     config_id: str = Form(...),
     description: str = Form(""),
     embedding_template: str = Form("{name}. {description}"),
+    _auth=Depends(require_admin_key),
 ) -> dict:
     """Create a new data config with default settings."""
     CONFIGS_DIR.mkdir(parents=True, exist_ok=True)

@@ -22,7 +22,7 @@ import traceback
 import uuid
 from typing import Any
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from langchain_core.messages import HumanMessage
 
 from src.agents.react_tools import (
@@ -35,6 +35,7 @@ from src.agents.react_tools import (
 from src.agents.supervisor import build_agent, get_ui_config
 from src.agents.tool_presenters import presenter_for
 from src.agents.tools.products import get_product_details as _get_product_details
+from src.api.security import require_api_key, validate_ws_token, track_session_owner
 from src.observability import get_langfuse_handler
 
 router = APIRouter()
@@ -73,7 +74,7 @@ manager = ConnectionManager()
 
 
 @router.get("/api/sessions/{session_id}/agent-history")
-async def get_agent_history(session_id: str) -> dict:
+async def get_agent_history(session_id: str, _auth=Depends(require_api_key)) -> dict:
     convo = SESSION_CONVERSATIONS.get(session_id, [])
     messages = []
     for m in convo:
@@ -89,13 +90,13 @@ async def get_agent_history(session_id: str) -> dict:
 
 
 @router.get("/api/agent-config")
-async def get_agent_config() -> dict:
+async def get_agent_config(_auth=Depends(require_api_key)) -> dict:
     """Expose the deployment's UI config (title, suggestions, greeting)."""
     return get_ui_config()
 
 
 @router.get("/api/agent-configs")
-async def list_agent_configs(domain: str | None = None) -> dict:
+async def list_agent_configs(domain: str | None = None, _auth=Depends(require_api_key)) -> dict:
     """List available deployment configs, optionally filtered by domain tag.
 
     GET /api/agent-configs → all configs
@@ -126,7 +127,7 @@ async def list_agent_configs(domain: str | None = None) -> dict:
 
 
 @router.get("/api/users/{user_id}/preferences")
-async def list_user_preferences(user_id: str) -> dict:
+async def list_user_preferences(user_id: str, _auth=Depends(require_api_key)) -> dict:
     """Return a user's current preferences for the UI panel."""
     from src.agents.tools.preferences import get_user_preferences
     return await get_user_preferences(user_id)
@@ -453,6 +454,12 @@ async def _stream_agent_turn(
 
 @router.websocket("/ws/chat/{session_id}")
 async def chat_websocket(websocket: WebSocket, session_id: str) -> None:
+    # Validate API key from query params before accepting the connection
+    token_result = validate_ws_token(websocket)
+    if token_result == "__REJECT__":
+        await websocket.close(code=4001, reason="Invalid or missing API key")
+        return
+
     await manager.connect(session_id, websocket)
     conversation: list = SESSION_CONVERSATIONS.setdefault(session_id, [])
     await _emit_cart_state(session_id)
@@ -467,6 +474,17 @@ async def chat_websocket(websocket: WebSocket, session_id: str) -> None:
                 user_id = data.get("user_id", "")
                 if not content.strip():
                     continue
+
+                # Validate session ownership: the first user_id to send a
+                # message on this session becomes the owner. Subsequent
+                # messages from a different user_id are rejected.
+                if not track_session_owner(session_id, user_id):
+                    await manager.send_json(session_id, {
+                        "type": "error",
+                        "content": "Session owned by a different user",
+                    })
+                    continue
+
                 conversation = await _stream_agent_turn(
                     session_id, user_id, content, conversation
                 )
