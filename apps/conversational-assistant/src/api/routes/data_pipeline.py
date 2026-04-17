@@ -65,6 +65,10 @@ async def upload_source_data(
     The uploaded file path is automatically written into the config's
     source.path so the next ingestion uses it.
     """
+    # Validate inputs before any I/O
+    import re as _re
+    if not _re.match(r"^[a-zA-Z0-9_-]+$", config_id):
+        raise HTTPException(status_code=400, detail="Invalid config_id")
     if not (file.content_type or "").startswith(("application/json", "text/csv", "text/")):
         raise HTTPException(status_code=400, detail="Only JSON and CSV files are supported")
 
@@ -83,11 +87,6 @@ async def upload_source_data(
     dest = UPLOAD_DIR / f"{config_id}_{safe_name}"
     with open(dest, "wb") as f:
         f.write(data)
-
-    # Validate config_id to prevent path traversal
-    import re as _re
-    if not _re.match(r"^[a-zA-Z0-9_-]+$", config_id):
-        raise HTTPException(status_code=400, detail="Invalid config_id")
 
     # Update the data config to point to this file
     config_path = CONFIGS_DIR / f"{config_id}.json"
@@ -113,7 +112,6 @@ async def upload_source_data(
         "size_kb": len(data) // 1024,
         "records": record_count,
         "config_id": config_id,
-        "path": str(dest),
     }
 
 
@@ -123,7 +121,10 @@ async def trigger_ingestion(
     background_tasks: BackgroundTasks = None,
 ) -> dict:
     """Trigger catalog ingestion for a data config. Runs in background."""
+    import re as _re
     cid = config_id or "ace-hardware"
+    if not _re.match(r"^[a-zA-Z0-9_-]+$", cid):
+        raise HTTPException(status_code=400, detail="Invalid config_id")
 
     run_id = str(uuid.uuid4())[:8]
     PIPELINE_STATUS[run_id] = {

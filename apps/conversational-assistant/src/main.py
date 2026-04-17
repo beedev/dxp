@@ -26,10 +26,19 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS for Next.js frontend
+# CORS — restrict to known portal origins in production.
+# In development, allow common localhost ports.
+_ALLOWED_ORIGINS = [
+    "http://localhost:4200",  # insurance portal
+    "http://localhost:4300",  # payer portal
+    "http://localhost:4400",  # wealth portal
+    "http://localhost:4500",  # ace hardware portal
+    "http://localhost:4600",  # playground
+    "http://localhost:3000",  # generic dev
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_ALLOWED_ORIGINS,
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],

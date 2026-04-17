@@ -43,7 +43,10 @@ async def upload_file(
         raise HTTPException(status_code=400, detail="File too large (max 10 MB)")
 
     file_id = str(uuid.uuid4())
-    session_dir = UPLOAD_ROOT / session_id
+    safe_session = "".join(c for c in session_id if c.isalnum() or c == "-")
+    if not safe_session:
+        raise HTTPException(status_code=400, detail="Invalid session_id")
+    session_dir = UPLOAD_ROOT / safe_session
     session_dir.mkdir(parents=True, exist_ok=True)
 
     safe_name = "".join(
