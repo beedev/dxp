@@ -264,17 +264,32 @@ case '/manager/data-pipeline':
   return <DataPipeline />;
 ```
 
-### Step 7: Start and test
+### Step 7: Configure `.env` and start
+
+Set the `AGENTIC_CONFIG_ID` in your `.env` to the **`id` field inside your persona config JSON** (not the filename):
 
 ```bash
-# Start the backend with your persona
-AGENTIC_CONFIG_ID=your-vertical uvicorn src.main:app --port 8002
+# In .env — use the "id" value from your persona config JSON
+AGENTIC_CONFIG_ID=your-vertical-id    # matches "id" field in configs/your-vertical.json
+OPENAI_API_KEY=sk-proj-...            # required for LLM + embeddings
+DEV_AUTH_BYPASS=true                  # for local development (skips auth)
+```
+
+The system scans all JSON files in `configs/` and matches by the internal `id` field — filenames don't matter.
+
+```bash
+# Start the backend
+cd apps/conversational-assistant
+source .venv/bin/activate
+AGENTIC_CONFIG_ID=your-vertical-id uvicorn src.main:app --port 8002
 
 # Start your portal (in another terminal)
 nx dev your-portal
 ```
 
 Navigate to the AI Assistant page. You should see your persona's title, greeting, and suggestion prompts.
+
+**Important**: One backend process serves one persona. To switch verticals, change `AGENTIC_CONFIG_ID` and restart. In production, each customer deployment has its own backend with the right config.
 
 ## Walkthrough: Insurance Claims Advisor
 
@@ -526,19 +541,35 @@ WHERE data->>'coverage_type' = 'health'
 
 ### Environment Variables
 
-```bash
-# Required
-OPENAI_API_KEY=sk-proj-...                              # OpenAI API key
-AGENTIC_CONFIG_ID=your-vertical                          # Persona config to load
-DATABASE_URL=postgresql+asyncpg://user:pass@host:5432/db # PostgreSQL with pgvector
+The `.env` file controls which persona the backend serves and how it connects to services.
 
-# Optional
-LLM_MODEL=gpt-4.1                                       # Default: gpt-4.1
-EMBEDDING_MODEL=text-embedding-3-small                   # Default: text-embedding-3-small
-BFF_BASE_URL=http://localhost:4201/api                   # For domain_action tool
-REDIS_URL=redis://localhost:6379/0                       # Session pub/sub (optional)
-LANGFUSE_ENABLED=false                                   # Observability (optional)
+```bash
+# ── Required ──────────────────────────────────────────────
+OPENAI_API_KEY=sk-proj-...              # OpenAI API key (LLM + embeddings)
+AGENTIC_CONFIG_ID=ace-hardware-retail   # The "id" field from your persona config JSON
+DATABASE_URL=postgresql+asyncpg://user:pass@host:5432/db
+
+# ── Security ──────────────────────────────────────────────
+DEV_AUTH_BYPASS=true                    # Local dev only — skips all auth
+                                        # MUST be false in production (backend refuses to start otherwise)
+AGENTIC_API_KEY=                        # API key for BFF → FastAPI calls (generate: openssl rand -hex 32)
+AGENTIC_ADMIN_KEY=                      # Admin key for config/pipeline mgmt (generate: openssl rand -hex 32)
+
+# ── Optional ──────────────────────────────────────────────
+LLM_MODEL=gpt-4.1                      # Default: gpt-4.1
+EMBEDDING_MODEL=text-embedding-3-small  # Default: text-embedding-3-small
+BFF_BASE_URL=http://localhost:4201/api  # For domain_action tool → BFF calls
+REDIS_URL=redis://localhost:6379/0      # Session pub/sub (optional)
+LANGFUSE_ENABLED=false                  # LLM observability (optional)
+LANGFUSE_SECRET_KEY=                    # From cloud.langfuse.com
+LANGFUSE_PUBLIC_KEY=                    # From cloud.langfuse.com
 ```
+
+**How `AGENTIC_CONFIG_ID` works**: The system scans all JSON files in `configs/` and matches by the `"id"` field inside the JSON — **not by filename**. This means:
+- Filename `configs/ace-hardware.json` with internal `"id": "ace-hardware-retail"` → set `AGENTIC_CONFIG_ID=ace-hardware-retail`
+- Filename doesn't matter — you can rename files freely as long as the internal `id` is unique
+
+**Production security**: Set `DEV_AUTH_BYPASS=false`, generate real API keys, and set `ENV=production`. The backend will refuse to start if `DEV_AUTH_BYPASS=true` with `ENV=production`.
 
 ### Database Setup
 
@@ -554,8 +585,8 @@ psql -d your_database -c "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";"
 ```bash
 cd apps/conversational-assistant
 source .venv/bin/activate
-python -m src.db.ingest your-vertical                    # Ingest data
-AGENTIC_CONFIG_ID=your-vertical uvicorn src.main:app --port 8002  # Start
+python -m src.db.ingest your-vertical-id                 # Ingest data (uses internal id)
+AGENTIC_CONFIG_ID=your-vertical-id uvicorn src.main:app --port 8002  # Start
 ```
 
 ### Frontend Override (optional)
@@ -592,8 +623,10 @@ python -m pytest tests/ -v
 
 ## Existing Verticals
 
-| Vertical | Config ID | Entity | Tools | Actions |
-|----------|----------|--------|-------|---------|
-| Ace Hardware | `ace-hardware` | product (50) | 11 (all) | create_order |
-| Wealth | `wealth-investment-advisor` | investment_product (25) | 7 | place_order, start_sip |
-| Insurance | `insurance-claims-advisor` | insurance_plan (15) | 7 | file_claim, check_claim_status, get_quote |
+| Vertical | AGENTIC_CONFIG_ID | Filename | Entity | Tools | Actions |
+|----------|-------------------|----------|--------|-------|---------|
+| Ace Hardware | `ace-hardware-retail` | `ace-hardware.json` | product (50) | 11 (all) | create_order |
+| Wealth | `wealth-investment-advisor` | `wealth-investment-advisor.json` | investment_product (25) | 7 | place_order, start_sip |
+| Insurance | `insurance-claims-advisor` | `insurance-claims-advisor.json` | insurance_plan (15) | 7 | file_claim, check_claim_status, get_quote |
+
+Use the **AGENTIC_CONFIG_ID** column value in your `.env` — this is the `"id"` field inside the JSON file, not the filename.
