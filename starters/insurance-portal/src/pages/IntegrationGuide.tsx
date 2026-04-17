@@ -151,6 +151,73 @@ k6 run --vus 50 --duration 60s scripts/load-test.js`,
       },
     ],
   },
+  {
+    day: 'Day 6',
+    title: 'Conversational AI Assistant',
+    effort: '1 day',
+    effortVariant: 'brand' as const,
+    steps: [
+      {
+        title: 'Install @dxp/ai-assistant',
+        detail: 'Add the shared package to your portal. It provides all AI components, pages, and the WebSocket hook — zero copy-paste.',
+        code: `// package.json
+"@dxp/ai-assistant": "workspace:*"
+
+// tailwind.config.js — add to content array
+'../../packages/ai-assistant/src/**/*.{ts,tsx}'`,
+        tags: ['@dxp/ai-assistant', 'workspace dep'],
+      },
+      {
+        title: 'Add routes to your portal',
+        detail: 'Import from @dxp/ai-assistant and wire into your router. 5 lines for customer + 4 manager pages.',
+        code: `import {
+  AgenticAssistant, AgenticPlayground,
+  AgentReadiness, ConfigBuilder, DataPipeline,
+} from '@dxp/ai-assistant';
+
+// Customer: <AgenticAssistant />
+// Manager: <AgenticPlayground />, <AgentReadiness />,
+//          <ConfigBuilder />, <DataPipeline />`,
+        tags: ['React', '5 imports', 'drop-in'],
+      },
+      {
+        title: 'Setup the agent backend',
+        detail: 'Run the one-command setup script. Creates Python venv, installs LangGraph + OpenAI deps, initializes PostgreSQL with pgvector + Apache AGE extensions.',
+        code: `cd apps/conversational-assistant
+./setup.sh   # venv + deps + DB + sample data
+
+# Start
+pnpm nx run conversational-assistant:dev`,
+        tags: ['Python', 'LangGraph', 'pgvector', 'AGE'],
+      },
+      {
+        title: 'Configure your persona',
+        detail: 'Use the Config Builder UI to describe your domain in natural language. The LLM generates voice, clarifiers, playbooks, and UI copy. Or write JSON manually.',
+        code: `# Via UI: Manager → Config Builder → describe → generate → save
+
+# Via CLI:
+curl -X POST localhost:8002/api/agent-configs/generate \\
+  -d '{"description":"...", "portal_domain":"retail"}'
+
+# Switch: AGENTIC_CONFIG_ID=my-config`,
+        tags: ['LLM-generated', 'JSON config', 'domain-scoped'],
+      },
+      {
+        title: 'Load your catalog data',
+        detail: 'Upload via the Data Pipeline UI or CLI. Config-driven: define field mappings + embedding template → run ingestion → enrich graph. Check readiness score.',
+        code: `# Via UI: Manager → Data Pipeline → upload → ingest → enrich
+
+# Via CLI:
+python -m src.db.ingest my-config
+python -m src.db.enrich_graph
+
+# Verify:
+curl localhost:8002/api/readiness  # target ≥ 90`,
+        tags: ['pgvector', 'OpenAI embeddings', 'Apache AGE'],
+        highlight: true,
+      },
+    ],
+  },
 ];
 
 const adapterMatrix = [
@@ -163,6 +230,8 @@ const adapterMatrix = [
   { system: 'Custom claims system',        adapter: 'ClaimsPort → new adapter',              effort: '2–3 days', code: true },
   { system: 'Custom PA workflow',          adapter: 'PriorAuthPort → new adapter',           effort: '2–3 days', code: true },
   { system: 'Legacy LDAP / on-prem IdP',  adapter: 'Keycloak federation',                   effort: '1 day',    code: false },
+  { system: 'AI Conversation Assistant', adapter: 'AgenticPort → @dxp/ai-assistant package', effort: '1 day',    code: false },
+  { system: 'Custom AI backend',        adapter: 'AgenticPort → new adapter (Vertex/Bedrock)', effort: '2–3 days', code: true },
 ];
 
 type AdapterRow = typeof adapterMatrix[0];

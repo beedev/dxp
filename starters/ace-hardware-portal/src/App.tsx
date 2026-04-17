@@ -27,6 +27,14 @@ import { CustomerInsights } from './pages/manager/CustomerInsights';
 // Customer pages — Phase 5
 import { MyStore } from './pages/customer/MyStore';
 
+// Conversational AI Assistant (from shared @dxp/ai-assistant package)
+import {
+  AgenticAssistant,
+  AgentReadiness,
+  ConfigBuilder,
+  DataPipeline,
+} from '@dxp/ai-assistant';
+
 // Manager pages — Phase 5
 import { SupplierOrders } from './pages/manager/SupplierOrders';
 import { Promotions } from './pages/manager/Promotions';
@@ -45,6 +53,7 @@ import { QualityCompliance } from './pages/coop/QualityCompliance';
 
 const customerNav: NavItem[] = [
   { label: 'Dashboard', href: '/customer' },
+  { label: 'AI Assistant', href: '/customer/ai-assistant' },
   { label: 'Product Catalog', href: '/customer/catalog' },
   { label: 'Project Planner', href: '/customer/projects' },
   { label: 'Order History', href: '/customer/orders' },
@@ -56,6 +65,9 @@ const customerNav: NavItem[] = [
 
 const managerNav: NavItem[] = [
   { label: 'Dashboard', href: '/manager' },
+  { label: 'Agent Readiness', href: '/manager/agent-readiness' },
+  { label: 'Config Builder', href: '/manager/config-builder' },
+  { label: 'Data Pipeline', href: '/manager/data-pipeline' },
   { label: 'Inventory', href: '/manager/inventory' },
   { label: 'Sales Analytics', href: '/manager/sales' },
   { label: 'Staff Schedule', href: '/manager/staff' },
@@ -110,6 +122,8 @@ function renderPage(
     // Customer
     case '/customer':
       return <CustomerDashboard onNavigate={navigate} />;
+    case '/customer/ai-assistant':
+      return <AgenticAssistant />;
     case '/customer/catalog':
       return (
         <ProductCatalog
@@ -140,6 +154,12 @@ function renderPage(
     // Manager
     case '/manager':
       return <ManagerDashboard />;
+    case '/manager/agent-readiness':
+      return <AgentReadiness />;
+    case '/manager/config-builder':
+      return <ConfigBuilder />;
+    case '/manager/data-pipeline':
+      return <DataPipeline />;
     case '/manager/inventory':
       return <InventoryManagement />;
     case '/manager/sales':
@@ -184,9 +204,30 @@ function renderPage(
 // ---------------------------------------------------------------------------
 
 export function App() {
-  const [currentPath, setCurrentPath] = useState('/customer');
+  // Initialize from the browser URL so direct links work (e.g. /manager/agent-readiness)
+  const initialPath =
+    typeof window !== 'undefined' && window.location.pathname !== '/'
+      ? window.location.pathname
+      : '/customer';
+
+  const [currentPath, setCurrentPathState] = useState(initialPath);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+
+  // Keep the browser URL in sync when user navigates internally
+  const setCurrentPath = (p: string) => {
+    setCurrentPathState(p);
+    if (typeof window !== 'undefined' && window.location.pathname !== p) {
+      window.history.pushState({}, '', p);
+    }
+  };
+
+  // Handle browser back/forward
+  React.useEffect(() => {
+    const onPop = () => setCurrentPathState(window.location.pathname || '/customer');
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
 
   const currentPersona = personaFromPath(currentPath);
 

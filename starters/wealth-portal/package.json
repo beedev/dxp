@@ -11,6 +11,7 @@
     "@dxp/ui": "workspace:*",
     "@dxp/sdk-react": "workspace:*",
     "@dxp/contracts": "workspace:*",
+    "@dxp/ai-assistant": "workspace:*",
     "@tanstack/react-query": "^5.75.5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

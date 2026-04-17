@@ -1,0 +1,51 @@
+{
+  "name": "conversational-assistant",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/conversational-assistant/src",
+  "projectType": "application",
+  "tags": ["scope:ai", "type:backend", "lang:python"],
+  "targets": {
+    "setup": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "./setup.sh",
+        "cwd": "apps/conversational-assistant"
+      }
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": ". .venv/bin/activate && uvicorn src.main:app --host 0.0.0.0 --port 8002 --reload",
+        "cwd": "apps/conversational-assistant"
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": ". .venv/bin/activate && uvicorn src.main:app --host 0.0.0.0 --port 8002",
+        "cwd": "apps/conversational-assistant"
+      }
+    },
+    "ingest": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": ". .venv/bin/activate && python -m src.db.ingest {args.config}",
+        "cwd": "apps/conversational-assistant"
+      }
+    },
+    "enrich": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": ". .venv/bin/activate && python -m src.db.enrich_graph",
+        "cwd": "apps/conversational-assistant"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": ". .venv/bin/activate && ruff check src/",
+        "cwd": "apps/conversational-assistant"
+      }
+    }
+  }
+}

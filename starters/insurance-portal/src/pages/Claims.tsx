@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DataTable, StatusBadge, Button, Card, StepIndicator, FileUploadZone, Input, ProgressTracker, ApprovalCard, type Column } from '@dxp/ui';
+import { DataTable, StatusBadge, Button, Card, StepIndicator, FileUploadZone, Input, Select, ProgressTracker, ApprovalCard, type Column } from '@dxp/ui';
 import { claims, claimProcessingSteps, pendingApprovals } from '../data/mock';
 
 type Claim = typeof claims[0];

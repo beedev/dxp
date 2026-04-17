@@ -1,0 +1,50 @@
+{
+  "id": "wealth-investment-advisor",
+  "description": "Investment products — stocks, funds, ETFs, gold, forex",
+  "source": {
+    "type": "json_file",
+    "path": "/tmp/wealth_investment_products.json"
+  },
+  "entity": {
+    "name": "investment_product",
+    "display_name": "Investment Product",
+    "display_name_plural": "Investment Products",
+    "primary_key_field": "symbol",
+    "group_field": "sector",
+    "group_label_field": "asset_class",
+    "field_map": {
+      "symbol": "symbol",
+      "name": "name",
+      "asset_class": "assetClass",
+      "sector": "sector",
+      "risk_level": "riskLevel",
+      "description": "description",
+      "return_1y": "return1Y",
+      "return_3y": "return3Y",
+      "expense_ratio": "expenseRatio",
+      "min_investment": "minInvestment",
+      "currency": "currency",
+      "exchange": "exchange"
+    },
+    "card_layout": {
+      "headline": "name",
+      "subtitle": "asset_class",
+      "primary_metric": { "field": "min_investment", "format": "currency", "label": "Min Investment" },
+      "secondary_metrics": [
+        { "field": "return_1y", "format": "percent", "label": "1Y Return" },
+        { "field": "risk_level", "label": "Risk" }
+      ],
+      "badge": "sector"
+    },
+    "action": { "label": "Invest", "type": "invest" }
+  },
+  "embeddings": {
+    "provider": "openai",
+    "model": "text-embedding-3-small",
+    "dimensions": 1536,
+    "template": "{name} ({symbol}). Asset class: {asset_class}. Sector: {sector}. Risk: {risk_level}. {description}"
+  },
+  "graph": {
+    "enabled": false
+  }
+}

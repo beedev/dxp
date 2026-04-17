@@ -37,6 +37,7 @@ import { InventoryModule } from './modules/inventory/inventory.module';
 import { PosConnectorModule } from './modules/pos-connector/pos-connector.module';
 import { ProjectPlannerModule } from './modules/project-planner/project-planner.module';
 import { LoyaltyModule } from './modules/loyalty/loyalty.module';
+import { AgenticModule } from './modules/agentic/agentic.module';
 
 @Module({
   imports: [
@@ -84,6 +85,8 @@ import { LoyaltyModule } from './modules/loyalty/loyalty.module';
     PosConnectorModule,
     ProjectPlannerModule,
     LoyaltyModule,
+    // Agentic Commerce — domain-agnostic
+    AgenticModule,
   ],
 })
 export class AppModule {}

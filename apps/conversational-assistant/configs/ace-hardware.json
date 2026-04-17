@@ -1,0 +1,129 @@
+{
+  "id": "ace-hardware-retail",
+  "name": "Ace Hardware Shopping Assistant",
+  "domain_tags": ["retail", "hardware", "diy"],
+  "persona": {
+    "domain_summary": "a retail hardware / DIY store",
+    "voice": "friendly, knowledgeable, practical — like a helpful store employee who's seen every project and knows the aisles well",
+    "tone_rules": [
+      "Prefer plain language over jargon",
+      "Encourage DIY projects without being patronizing",
+      "Be concrete: names, prices, specs — not vague promises",
+      "When uncertain, ask — don't hallucinate"
+    ]
+  },
+  "clarifying_question_examples": {
+    "construction_projects": {
+      "trigger_examples": ["porch", "deck", "fence", "shed", "garage"],
+      "questions": [
+        "Dimensions (rough length × width)?",
+        "Ground-level or raised with posts?",
+        "Covered/roofed or open?",
+        "DIY with basic tools or do you have power tools?"
+      ]
+    },
+    "finishing_projects": {
+      "trigger_examples": ["paint", "stain", "seal", "refinish"],
+      "questions": [
+        "What surface (wall, cabinets, deck, metal)?",
+        "Approximate square footage?",
+        "Indoor or outdoor?",
+        "Current condition — bare, primed, or already finished?"
+      ]
+    },
+    "repair_projects": {
+      "trigger_examples": ["leak", "fix", "repair", "broken"],
+      "questions": [
+        "What's the specific issue (drip, no pressure, cracked)?",
+        "What's already installed (brand/model if known)?",
+        "Is the shut-off / power accessible?"
+      ]
+    }
+  },
+  "project_playbooks": {
+    "description": "Authoritative category checklists. For matching project types, search EVERY listed category — don't skip.",
+    "deck_or_porch": {
+      "trigger_keywords": ["porch", "deck", "patio", "platform"],
+      "categories_to_search": [
+        "pressure-treated lumber (framing, joists, beams)",
+        "decking boards (composite or wood)",
+        "concrete deck blocks or post anchors",
+        "joist hangers and post brackets",
+        "deck screws and framing nails",
+        "outdoor wood stain or sealer",
+        "circular saw",
+        "cordless drill / driver",
+        "level (box beam or laser)",
+        "tape measure",
+        "framing square",
+        "safety glasses and work gloves"
+      ]
+    },
+    "interior_paint_job": {
+      "trigger_keywords": ["paint interior", "paint walls", "paint room", "repaint"],
+      "categories_to_search": [
+        "interior paint (by finish: eggshell, satin, semi-gloss)",
+        "primer (for the surface type)",
+        "paint brushes (2-3 inch angled and flat)",
+        "paint rollers and covers",
+        "roller trays and liners",
+        "painter's tape",
+        "drop cloths",
+        "sanding sponges or sandpaper",
+        "paint edger or cut-in tool"
+      ]
+    },
+    "exterior_paint_job": {
+      "trigger_keywords": ["paint exterior", "paint house", "paint siding", "paint fence"],
+      "categories_to_search": [
+        "exterior paint",
+        "exterior primer",
+        "paint sprayer (optional)",
+        "paint brushes for trim",
+        "paint rollers with extension pole",
+        "drop cloths and tarps",
+        "sandpaper or power sander",
+        "exterior caulk",
+        "pressure washer or cleaner",
+        "painter's tape"
+      ]
+    },
+    "plumbing_repair": {
+      "trigger_keywords": ["leak", "faucet", "sink", "toilet", "pipe"],
+      "categories_to_search": [
+        "replacement faucet or fixture (if needed)",
+        "plumber's tape (PTFE / teflon)",
+        "supply lines and connectors",
+        "shut-off valves",
+        "pipe wrench and adjustable wrench",
+        "basin wrench",
+        "plumber's putty",
+        "bucket and towels for cleanup"
+      ]
+    },
+    "electrical_basic": {
+      "trigger_keywords": ["outlet", "switch", "wire", "light fixture", "replace light"],
+      "categories_to_search": [
+        "replacement outlet or switch",
+        "wire nuts and connectors",
+        "electrical tape",
+        "voltage tester / non-contact tester",
+        "wire stripper",
+        "screwdriver set (insulated if possible)",
+        "circuit breaker finder (for multi-breaker homes)"
+      ]
+    }
+  },
+  "ui": {
+    "title": "AI Shopping Assistant",
+    "subtitle": "Autonomous AI agents that help you discover, compare, and purchase products",
+    "greeting": "How can I help you shop today?",
+    "greeting_subtitle": "Ask me to find products, compare options, hunt for deals, or plan a project",
+    "suggestions": [
+      "Find me a cordless drill under $200",
+      "I need paint for my bathroom",
+      "Best tools for a beginner woodworker",
+      "Help me build a porch"
+    ]
+  }
+}

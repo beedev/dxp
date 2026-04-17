@@ -1,0 +1,100 @@
+/**
+ * Shared types for the agentic assistant frontend.
+ *
+ * These mirror the WebSocket message contract. Keep in sync with the
+ * backend's `chat.py` event protocol.
+ */
+
+export type ChatRole = 'user' | 'assistant' | 'system';
+
+export interface ChatMessage {
+  id: string;
+  role: ChatRole;
+  content: string;
+  timestamp: string;
+  /** Entities returned by the agent as part of this specific turn. */
+  products?: AgentEntity[];
+}
+
+export type AgentStepType =
+  | 'thinking'
+  | 'tool_call'
+  | 'tool_result'
+  | 'decision'
+  | 'error';
+
+export interface AgentStep {
+  id: string;
+  agent: string;
+  step: AgentStepType;
+  tool?: string;
+  content: string;
+  duration_ms?: number;
+  timestamp: string;
+}
+
+export interface AgentEntity {
+  id: string;
+  entity_type: string;
+  external_id: string;
+  name: string;
+  description: string;
+  data: Record<string, any>;
+  image_url?: string;
+}
+
+/** @deprecated Use AgentEntity instead. Kept for backward compatibility. */
+export type AgentProduct = AgentEntity;
+
+export interface EntityCardLayout {
+  headline: string;
+  subtitle: string;
+  primary_metric: { field: string; format: 'currency' | 'percent' | 'rating' | 'number'; label?: string };
+  secondary_metrics: Array<{ field: string; format?: string; label?: string }>;
+  badge: string;
+}
+
+export interface EntityAction {
+  label: string;
+  type: string;
+}
+
+export interface EntityConfig {
+  card_layout: EntityCardLayout;
+  action: EntityAction;
+}
+
+export interface CartItem {
+  product_id: string;
+  name: string;
+  brand?: string;
+  price?: number;
+  quantity: number;
+  data?: Record<string, any>;
+}
+
+export interface DemoUser {
+  id: string;
+  email: string;
+  display_name: string;
+  spend_limit: number;
+}
+
+/**
+ * UI config from the deployment's persona JSON (loaded from backend).
+ */
+export interface AgentUIConfig {
+  title: string;
+  subtitle?: string;
+  greeting: string;
+  greeting_subtitle?: string;
+  suggestions: string[];
+}
+
+export interface UploadRecord {
+  id: string;
+  filename: string;
+  mime_type: string;
+  size: number;
+  analyzed?: boolean;
+}

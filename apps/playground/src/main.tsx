@@ -1,10 +1,30 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
-import { ThemeProvider, Tabs } from '@dxp/ui';
+import { ThemeProvider, Tabs, Badge } from '@dxp/ui';
 import { AuthPanel } from './components/AuthPanel';
 import { ApiTester } from './components/ApiTester';
-import { adapterModules } from './data/modules';
+import { adapterModules, type ModuleDomain } from './data/modules';
 import './index.css';
+
+// Group modules by domain
+const domainOrder: ModuleDomain[] = [
+  'Core Platform',
+  'Healthcare — FHIR / Da Vinci',
+  'Wealth — APAC Markets',
+  'Retail — ACE Hardware',
+  'Conversational AI Assistant',
+];
+
+const domainBadges: Partial<Record<ModuleDomain, string>> = {
+  'Healthcare — FHIR / Da Vinci': 'FHIR R4',
+  'Conversational AI Assistant': 'Live demo',
+};
+
+const modulesByDomain = domainOrder.map((domain) => ({
+  domain,
+  badge: domainBadges[domain],
+  modules: adapterModules.filter((m) => m.domain === domain),
+}));
 
 function App() {
   const [activeModule, setActiveModule] = useState(adapterModules[0].name);
@@ -17,7 +37,6 @@ function App() {
   } | null>(null);
 
   const currentModule = adapterModules.find((m) => m.name === activeModule) || adapterModules[0];
-  const tabs = adapterModules.map((m) => ({ key: m.name, label: m.name }));
 
   return (
     <div style={{ fontFamily: 'var(--dxp-font)', background: 'var(--dxp-bg)', minHeight: '100vh' }}>
@@ -42,10 +61,25 @@ function App() {
         <AuthPanel token={token} onTokenChange={setToken} />
       </div>
 
-      {/* Module tabs */}
-      <div style={{ borderBottom: '1px solid var(--dxp-border)', background: 'var(--dxp-surface)', padding: '0.75rem 2rem', marginTop: '1.5rem' }}>
+      {/* Domain-grouped module tabs */}
+      <div style={{ background: 'var(--dxp-surface)', padding: '0.75rem 2rem 0', marginTop: '1.5rem' }}>
         <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
-          <Tabs tabs={tabs} active={activeModule} onChange={setActiveModule} variant="pill" />
+          {modulesByDomain.map(({ domain, badge, modules }) => (
+            <div key={domain} style={{ marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--dxp-text-muted)' }}>
+                  {domain}
+                </span>
+                {badge && <Badge variant="info">{badge}</Badge>}
+              </div>
+              <Tabs
+                tabs={modules.map((m) => ({ key: m.name, label: m.name }))}
+                active={modules.some((m) => m.name === activeModule) ? activeModule : ''}
+                onChange={setActiveModule}
+                variant="pill"
+              />
+            </div>
+          ))}
         </div>
       </div>
 

@@ -54,6 +54,19 @@ const portals: PortalCard[] = [
     accentClass: 'from-amber-500 to-yellow-600',
     iconPath: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
   },
+  {
+    title: 'ACE Hardware Portal',
+    subtitle: 'Retail Cooperative',
+    description:
+      'Hardware retail portal for ACE\'s 5,000+ stores. 3 personas (Customer, Store Manager, Coop Ops), 23 pages. Now with Conversational AI Assistant — multi-modal (voice + uploads), preference learning, and configurable personas.',
+    badge: 'AI Assistant',
+    badgeVariant: 'brand',
+    href: 'http://localhost:4500',
+    external: true,
+    features: ['AI Shopping Assistant', 'Agent Readiness', 'Config Builder', 'Data Pipeline', 'Product Catalog', 'Loyalty Program'],
+    accentClass: 'from-red-500 to-red-700',
+    iconPath: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
+  },
 ];
 
 const devTools = [
@@ -77,6 +90,13 @@ const devTools = [
     href: '/storybook/index.html',
     external: true,
     iconPath: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
+  },
+  {
+    label: 'Conversational AI',
+    description: 'Configurable AI assistant with ReAct agent, voice I/O, file uploads, and knowledge graph — add to any portal',
+    href: 'http://localhost:4500/manager/agentic-playground',
+    external: true,
+    iconPath: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z',
   },
   {
     label: 'Swagger',
@@ -144,7 +164,7 @@ export function Splash({ onNavigate }: SplashProps) {
       {/* Portal cards */}
       <div className="mb-6">
         <h2 className="text-xs font-bold uppercase tracking-widest text-[var(--dxp-text-muted)] mb-4">Portal Starters</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {portals.map((portal) => (
             <Card
               key={portal.title}

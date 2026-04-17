@@ -31,6 +31,9 @@ import { ClientDetail } from './pages/advisor/ClientDetail';
 import { RebalanceHelper } from './pages/advisor/RebalanceHelper';
 import { ProposalBuilder } from './pages/advisor/ProposalBuilder';
 
+// Conversational AI Assistant (from shared @dxp/ai-assistant package)
+import { AgenticAssistant } from '@dxp/ai-assistant';
+
 // ---------------------------------------------------------------------------
 // Navigation definitions
 // ---------------------------------------------------------------------------
@@ -95,6 +98,7 @@ function buildInvestorNav(retirementLabel: string): NavItem[] {
   return [
     { label: '← Markets', href: '/' },
     { label: 'Dashboard', href: '/investor' },
+    { label: 'AI Advisor', href: '/investor/ai-advisor' },
     { label: 'Portfolio', href: '/investor/portfolio' },
     { label: 'Trading Terminal', href: '/investor/terminal' },
     { label: 'Orders', href: '/investor/orders' },
@@ -139,6 +143,7 @@ function renderPage(path: string, navigate: (p: string) => void) {
 
     // Investor
     case '/investor':            return <InvestorDashboard onNavigate={navigate} />;
+    case '/investor/ai-advisor': return <AgenticAssistant />;
     case '/investor/portfolio':  return <Portfolio />;
     case '/investor/terminal':   return <TradingTerminal />;
     case '/investor/orders':     return <Orders />;
@@ -220,7 +225,24 @@ const defaultPathBySection: Record<PortalSection, string> = {
 
 function AppInner() {
   const { region } = useRegion();
-  const [currentPath, setCurrentPath] = useState('/');
+  const initialPath =
+    typeof window !== 'undefined' && window.location.pathname !== '/'
+      ? window.location.pathname
+      : '/';
+  const [currentPath, setCurrentPathState] = useState(initialPath);
+
+  const setCurrentPath = (p: string) => {
+    setCurrentPathState(p);
+    if (typeof window !== 'undefined' && window.location.pathname !== p) {
+      window.history.pushState({}, '', p);
+    }
+  };
+
+  React.useEffect(() => {
+    const onPop = () => setCurrentPathState(window.location.pathname || '/');
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
 
   const currentSection: PortalSection =
     currentPath.startsWith('/investor') ? 'investor' :

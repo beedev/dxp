@@ -3,81 +3,120 @@ import { AuthPanel } from '../components/AuthPanel';
 import { ApiTester } from '../components/ApiTester';
 import { adapterModules } from '../data/modules';
 
-// ── Module grouping ──────────────────────────────────────────────────────────
+// ── Module grouping by domain ───────────────────────────────────────────────
 
-const FHIR_MODULE_NAMES = new Set([
-  'Prior Auth (Da Vinci PAS)',
-  'Claims (FHIR EOB)',
-  'Eligibility (FHIR Coverage)',
-  'Provider Directory',
-  'Risk Stratification (HCC)',
+const FHIR_NAMES = new Set([
+  'Prior Auth (Da Vinci PAS)', 'Claims (FHIR EOB)', 'Eligibility (FHIR Coverage)',
+  'Provider Directory', 'Risk Stratification (HCC)',
+]);
+const WEALTH_NAMES = new Set([
+  'Market Data', 'FX Rates', 'Wealth Portfolio', 'Paper Trading', 'Broker Gateway',
+]);
+const RETAIL_NAMES = new Set([
+  'Inventory', 'POS Connector', 'Project Planner', 'Loyalty',
+]);
+const AI_NAMES = new Set([
+  'Conversational AI', 'Config Builder', 'Data Pipeline', 'Readiness Monitor',
 ]);
 
-const coreModules  = adapterModules.filter((m) => !FHIR_MODULE_NAMES.has(m.name));
-const fhirModules  = adapterModules.filter((m) =>  FHIR_MODULE_NAMES.has(m.name));
+interface DomainGroup {
+  label: string;
+  badge?: string;
+  badgeColor?: string;
+  activeColor: string;
+  modules: typeof adapterModules;
+}
+
+const domains: DomainGroup[] = [
+  {
+    label: 'Core Platform',
+    activeColor: 'bg-[var(--dxp-brand)] text-white',
+    modules: adapterModules.filter((m) => !FHIR_NAMES.has(m.name) && !WEALTH_NAMES.has(m.name) && !RETAIL_NAMES.has(m.name) && !AI_NAMES.has(m.name)),
+  },
+  {
+    label: 'Healthcare — FHIR / Da Vinci',
+    badge: 'FHIR R4',
+    badgeColor: 'bg-teal-100 text-teal-700',
+    activeColor: 'bg-teal-600 text-white',
+    modules: adapterModules.filter((m) => FHIR_NAMES.has(m.name)),
+  },
+  {
+    label: 'Wealth — APAC Markets',
+    badge: 'Live data',
+    badgeColor: 'bg-amber-100 text-amber-700',
+    activeColor: 'bg-amber-600 text-white',
+    modules: adapterModules.filter((m) => WEALTH_NAMES.has(m.name)),
+  },
+  {
+    label: 'Retail — ACE Hardware',
+    badge: 'New',
+    badgeColor: 'bg-red-100 text-red-700',
+    activeColor: 'bg-red-600 text-white',
+    modules: adapterModules.filter((m) => RETAIL_NAMES.has(m.name)),
+  },
+  {
+    label: 'Conversational AI Assistant',
+    badge: 'Live demo',
+    badgeColor: 'bg-purple-100 text-purple-700',
+    activeColor: 'bg-purple-600 text-white',
+    modules: adapterModules.filter((m) => AI_NAMES.has(m.name)),
+  },
+];
 
 // ── Grouped tab bar ──────────────────────────────────────────────────────────
 
-interface GroupedTabsProps {
-  active: string;
-  onChange: (name: string) => void;
-}
-
-function GroupedTabs({ active, onChange }: GroupedTabsProps) {
-  const tabCls = (name: string) =>
-    `px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
-      active === name
-        ? 'bg-[var(--dxp-brand)] text-white shadow-sm'
-        : 'text-[var(--dxp-text-secondary)] hover:text-[var(--dxp-text)] hover:bg-[var(--dxp-border-light)]'
-    }`;
+function GroupedTabs({ active, onChange }: { active: string; onChange: (name: string) => void }) {
+  const inactiveCls = 'text-[var(--dxp-text-secondary)] hover:text-[var(--dxp-text)] hover:bg-[var(--dxp-border-light)]';
+  const baseCls = 'px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors cursor-pointer';
 
   return (
     <div className="space-y-3">
-      {/* Core Platform */}
-      <div>
-        <p className="text-[9px] font-bold uppercase tracking-widest text-[var(--dxp-text-muted)] mb-2 px-1">
-          Core Platform
-        </p>
-        <div className="flex flex-wrap gap-1.5">
-          {coreModules.map((m) => (
-            <button key={m.name} onClick={() => onChange(m.name)} className={tabCls(m.name)}>
-              {m.name}
-            </button>
-          ))}
+      {domains.map((domain, i) => (
+        <div key={domain.label}>
+          {i > 0 && <div className="border-t border-[var(--dxp-border-light)] mb-3" />}
+          <div className="flex items-center gap-2 mb-2 px-1">
+            <p className="text-[9px] font-bold uppercase tracking-widest text-[var(--dxp-text-muted)]">
+              {domain.label}
+            </p>
+            {domain.badge && (
+              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${domain.badgeColor}`}>
+                {domain.badge}
+              </span>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {domain.modules.map((m) => (
+              <button
+                key={m.name}
+                onClick={() => onChange(m.name)}
+                className={`${baseCls} ${active === m.name ? `${domain.activeColor} shadow-sm` : inactiveCls}`}
+              >
+                {m.name}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
-
-      {/* Divider */}
-      <div className="border-t border-[var(--dxp-border-light)]" />
-
-      {/* Healthcare / FHIR */}
-      <div>
-        <div className="flex items-center gap-2 mb-2 px-1">
-          <p className="text-[9px] font-bold uppercase tracking-widest text-[var(--dxp-text-muted)]">
-            Healthcare — FHIR / Da Vinci
-          </p>
-          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-teal-100 text-teal-700">
-            FHIR R4
-          </span>
-        </div>
-        <div className="flex flex-wrap gap-1.5">
-          {fhirModules.map((m) => (
-            <button
-              key={m.name}
-              onClick={() => onChange(m.name)}
-              className={
-                active === m.name
-                  ? 'px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors cursor-pointer bg-teal-600 text-white shadow-sm'
-                  : 'px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors cursor-pointer text-[var(--dxp-text-secondary)] hover:text-[var(--dxp-text)] hover:bg-[var(--dxp-border-light)]'
-              }
-            >
-              {m.name}
-            </button>
-          ))}
-        </div>
-      </div>
+      ))}
     </div>
   );
+}
+
+// ── Domain banner ────────────────────────────────────────────────────────────
+
+function getDomainBanner(name: string) {
+  if (FHIR_NAMES.has(name)) return {
+    color: 'text-teal-700 bg-teal-50 border-teal-200',
+    text: 'FHIR R4 module — results come live from HAPI FHIR via the BFF adapter. Requires make up + pnpm seed:fhir.',
+  };
+  if (WEALTH_NAMES.has(name)) return {
+    color: 'text-amber-700 bg-amber-50 border-amber-200',
+    text: 'Wealth module — connects to APAC market data providers. Set MARKET_DATA_ADAPTER=yahoo-finance for live quotes.',
+  };
+  if (RETAIL_NAMES.has(name)) return {
+    color: 'text-red-700 bg-red-50 border-red-200',
+    text: 'Retail module — built for the ACE Hardware portal. Uses mock adapters by default. Run ACE portal at localhost:4500.',
+  };
+  return null;
 }
 
 // ── Page ─────────────────────────────────────────────────────────────────────
@@ -93,7 +132,7 @@ export function Playground() {
   } | null>(null);
 
   const currentModule = adapterModules.find((m) => m.name === activeModule) || adapterModules[0];
-  const isFhir = FHIR_MODULE_NAMES.has(activeModule);
+  const banner = getDomainBanner(activeModule);
 
   return (
     <div>
@@ -111,16 +150,13 @@ export function Playground() {
         <GroupedTabs active={activeModule} onChange={setActiveModule} />
       </div>
 
-      {/* Active group indicator */}
-      {isFhir && (
-        <div className="mb-4 flex items-center gap-2 text-xs text-teal-700 bg-teal-50 border border-teal-200 rounded-[var(--dxp-radius)] px-3 py-2">
+      {/* Domain-specific banner */}
+      {banner && (
+        <div className={`mb-4 flex items-center gap-2 text-xs border rounded-[var(--dxp-radius)] px-3 py-2 ${banner.color}`}>
           <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span>
-            <strong>FHIR R4 module</strong> — results come live from HAPI FHIR via the BFF adapter.
-            Requires <code className="font-mono">make up</code> + <code className="font-mono">pnpm seed:fhir</code>.
-          </span>
+          <span>{banner.text}</span>
         </div>
       )}
 

@@ -1,0 +1,21 @@
+{
+  "name": "@dxp/ai-assistant",
+  "version": "0.1.0",
+  "description": "Conversational AI Assistant — plug into any DXP portal",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./*": "./src/*"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "@dxp/ui": "workspace:*",
+    "lucide-react": ">=0.400.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0"
+  }
+}

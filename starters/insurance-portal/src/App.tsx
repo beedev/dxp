@@ -10,6 +10,7 @@ import { GetQuote } from './pages/GetQuote';
 import { Settings } from './pages/Settings';
 import { FormBuilder } from './pages/FormBuilder';
 import { IntegrationGuide } from './pages/IntegrationGuide';
+import { AgenticAssistant } from '@dxp/ai-assistant';
 
 // ── Nav sets ────────────────────────────────────────────────────────────────
 
@@ -20,6 +21,7 @@ const homeNav: NavItem[] = [
 const insuranceNav: NavItem[] = [
   { label: '← Home', href: '/' },
   { label: 'Dashboard', href: '/insurance' },
+  { label: 'Claims Advisor', href: '/insurance/ai-advisor' },
   { label: 'My Policies', href: '/insurance/policies' },
   { label: 'Claims', href: '/insurance/claims' },
   { label: 'Documents', href: '/insurance/documents' },
@@ -49,6 +51,7 @@ const devTools = [
   { label: 'Docs',              href: '/docs/index.html',      external: true },
   { label: 'Payer Portal',      href: 'http://localhost:4300', external: true },
   { label: 'Wealth Portal',     href: 'http://localhost:4400', external: true },
+  { label: 'ACE Hardware Portal', href: 'http://localhost:4500', external: true },
 ];
 
 // ── Page router ──────────────────────────────────────────────────────────────
@@ -56,6 +59,7 @@ const devTools = [
 function renderPage(path: string, onNavigate: (p: string) => void) {
   switch (path) {
     case '/insurance':              return <Dashboard />;
+    case '/insurance/ai-advisor':   return <AgenticAssistant />;
     case '/insurance/policies':     return <Policies />;
     case '/insurance/claims':       return <Claims />;
     case '/insurance/documents':    return <Documents />;
