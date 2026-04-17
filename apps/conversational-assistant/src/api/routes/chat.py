@@ -498,12 +498,14 @@ async def chat_websocket(websocket: WebSocket, session_id: str) -> None:
                 quantity = int(data.get("quantity", 1))
                 details = await _get_product_details(product_id)
                 if details:
+                    d = details.get("data", {})
                     item = {
                         "product_id": product_id,
                         "name": details["name"],
-                        "brand": details["brand"],
-                        "price": float(details["price"]),
+                        "brand": d.get("brand", d.get("asset_class", "")),
+                        "price": float(d.get("price", d.get("min_investment", 0))),
                         "quantity": quantity,
+                        "data": d,
                     }
                     cart = SESSION_CARTS.setdefault(session_id, [])
                     existing = next(

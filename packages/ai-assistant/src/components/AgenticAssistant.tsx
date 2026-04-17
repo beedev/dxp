@@ -72,6 +72,7 @@ export function AgenticAssistant() {
   const suggestions = ui?.suggestions?.length ? ui.suggestions : DEFAULT_SUGGESTIONS;
 
   const priceField = ec?.card_layout?.primary_metric?.field;
+  const showCart = !ec?.action?.type || ec.action.type === 'add_to_cart';
   const cartTotal = chat.cart.reduce((s, c) => {
     const unitPrice = c.data?.[priceField ?? ''] ?? c.price ?? 0;
     return s + Number(unitPrice) * c.quantity;
@@ -95,6 +96,7 @@ export function AgenticAssistant() {
       <Header
         title={title}
         currentUserName={chat.currentUser.display_name}
+        showCart={showCart}
         cartCount={chat.cart.reduce((s, c) => s + c.quantity, 0)}
         cartTotal={cartTotal}
         cartNoun={cartNoun}
@@ -212,13 +214,14 @@ export function AgenticAssistant() {
 interface HeaderProps {
   title: string;
   currentUserName: string;
+  showCart: boolean;
   cartCount: number;
   cartTotal: number;
   cartNoun: string;
   connected: boolean;
 }
 
-function Header({ title, currentUserName, cartCount, cartTotal, cartNoun, connected }: HeaderProps) {
+function Header({ title, currentUserName, showCart, cartCount, cartTotal, cartNoun, connected }: HeaderProps) {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -233,22 +236,24 @@ function Header({ title, currentUserName, cartCount, cartTotal, cartNoun, connec
         </div>
       </div>
       <div className="flex items-center gap-3">
-        <div
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--dxp-radius)] ${
-            cartCount > 0
-              ? 'bg-[var(--dxp-brand-light)] text-[var(--dxp-brand)]'
-              : 'bg-[var(--dxp-border-light)] text-[var(--dxp-text-muted)]'
-          }`}
-        >
-          <ShoppingCart size={14} />
-          <span className="text-xs font-semibold">{cartCount} in {cartNoun}</span>
-          {cartCount > 0 && (
-            <>
-              <span className="text-xs">·</span>
-              <span className="text-xs font-semibold">${cartTotal.toFixed(2)}</span>
-            </>
-          )}
-        </div>
+        {showCart && (
+          <div
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--dxp-radius)] ${
+              cartCount > 0
+                ? 'bg-[var(--dxp-brand-light)] text-[var(--dxp-brand)]'
+                : 'bg-[var(--dxp-border-light)] text-[var(--dxp-text-muted)]'
+            }`}
+          >
+            <ShoppingCart size={14} />
+            <span className="text-xs font-semibold">{cartCount} in {cartNoun}</span>
+            {cartCount > 0 && (
+              <>
+                <span className="text-xs">·</span>
+                <span className="text-xs font-semibold">${cartTotal.toFixed(2)}</span>
+              </>
+            )}
+          </div>
+        )}
         <div className="flex items-center gap-2">
           <div
             className={`h-2 w-2 rounded-full ${
