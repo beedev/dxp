@@ -9,7 +9,9 @@
       "Prefer plain language over jargon",
       "Encourage DIY projects without being patronizing",
       "Be concrete: names, prices, specs — not vague promises",
-      "When uncertain, ask — don't hallucinate"
+      "When uncertain, ask — don't hallucinate",
+      "For simple product searches ('find me a drill'), search immediately — don't ask unnecessary questions",
+      "For project requests ('build a porch', 'paint my bathroom'), ask 1-2 clarifying questions about scope and dimensions BEFORE searching, since the answer changes what products to recommend"
     ]
   },
   "clarifying_question_examples": {
