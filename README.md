@@ -70,19 +70,30 @@ brew services start redis
 cp .env.example .env
 ```
 
-Edit `.env` with your local Postgres credentials:
+Edit `.env` — here's what to configure:
 
-```env
-# If using default Homebrew Postgres (no password, your OS username):
-POSTGRES_USER=<your-username>
-POSTGRES_PASSWORD=
-POSTGRES_DB=dxp
+| Variable | What to Set | Required |
+|----------|------------|----------|
+| **PostgreSQL** | | |
+| `POSTGRES_USER` | Your local Postgres username (macOS default: your OS username) | Yes |
+| `POSTGRES_PASSWORD` | Your Postgres password (blank if using default Homebrew setup) | Yes |
+| `POSTGRES_DB` | `dxp` (or your preferred DB name) | Yes |
+| **Redis** | | |
+| `REDIS_PASSWORD` | Leave as default for local dev | No |
+| **Wealth Portal** | | |
+| `ALPHA_VANTAGE_KEY` | Get free key at [alphavantage.co](https://www.alphavantage.co/support/#api-key) | For live market data |
+| `BRAVE_SEARCH_KEY` | Get at [brave.com/search/api](https://brave.com/search/api/) | For news search |
+| **Conversational AI Assistant** | | |
+| `OPENAI_API_KEY` | Your OpenAI API key (`sk-proj-...`) | For AI chatbot |
+| `AGENTIC_CONFIG_ID` | Persona to load: `ace-hardware`, `wealth-investment-advisor`, or `insurance-claims-advisor` | For AI chatbot |
+| `LLM_MODEL` | `gpt-4.1` (default) or `gpt-4o` | No |
+| `BFF_BASE_URL` | `http://localhost:4201/api` (default) | For domain actions |
+| **Observability** | | |
+| `LANGFUSE_ENABLED` | `true` to enable LLM tracing | No |
+| `LANGFUSE_SECRET_KEY` | From [cloud.langfuse.com](https://cloud.langfuse.com) | If Langfuse enabled |
+| `LANGFUSE_PUBLIC_KEY` | From [cloud.langfuse.com](https://cloud.langfuse.com) | If Langfuse enabled |
 
-# If using the dedicated dxp user:
-POSTGRES_USER=dxp
-POSTGRES_PASSWORD=your-password
-POSTGRES_DB=dxp
-```
+Everything else in `.env.example` has sensible defaults for local development.
 
 ### 5. Start Keycloak and Kong
 
@@ -352,21 +363,61 @@ Storybook is served as a static build. Rebuild it:
 make build-storybook
 ```
 
+## Conversational AI Assistant
+
+The DXP includes a config-driven AI chatbot that can be added to any portal. See [docs/conversational-assistant-guide.md](docs/conversational-assistant-guide.md) for the full integration guide.
+
+### Quick summary
+
+```bash
+# 1. Set up the backend (one-time)
+cd apps/conversational-assistant && ./setup.sh
+
+# 2. Create persona + data configs (JSON files, no code)
+cp configs/ace-hardware.json configs/your-vertical.json
+cp configs/data/ace-hardware.json configs/data/your-vertical.json
+
+# 3. Ingest your data
+python -m src.db.ingest your-vertical
+
+# 4. Add one component to your portal
+import { AgenticAssistant } from '@dxp/ai-assistant';
+<AgenticAssistant />
+
+# 5. Start
+AGENTIC_CONFIG_ID=your-vertical uvicorn src.main:app --port 8002
+```
+
+Three verticals are pre-configured:
+
+| Vertical | Config ID | Port |
+|----------|----------|------|
+| Ace Hardware (retail) | `ace-hardware` | 4500 |
+| Wealth Management | `wealth-investment-advisor` | 4400 |
+| Insurance | `insurance-claims-advisor` | 4200 |
+
 ## Project Structure
 
 ```
 dxp/
-  apps/bff/               NestJS BFF — 9 adapter modules
-  packages/ui/             Component library (@dxp/ui) — 16 components
-  packages/sdk-react/      React hooks (@dxp/sdk-react)
-  packages/contracts/      Shared TypeScript types
+  apps/
+    bff/                       NestJS BFF — 40+ adapter modules
+    conversational-assistant/  FastAPI AI backend (LangGraph + pgvector)
+    playground/                Component playground
+  packages/
+    ui/                        Component library (@dxp/ui)
+    sdk-react/                 React hooks (@dxp/sdk-react)
+    ai-assistant/              AI chat components (@dxp/ai-assistant)
+    contracts/                 Shared TypeScript types
   starters/
-    insurance-portal/      Sample insurance portal (the demo)
-    portal-nextjs/         Generic Next.js starter (clone per engagement)
-  optional/                Bring-if-needed (Go services, Kafka)
-  infra/                   Keycloak realm, Kong config
-  docs/                    Documentation + engagement playbook
-  TODO-PRODUCTION.md       Production hardening checklist
+    insurance-portal/          Insurance portal (Claims Advisor)
+    wealth-portal/             Wealth management portal (Investment Advisor)
+    ace-hardware-portal/       Retail portal (Shopping Assistant)
+    payer-portal/              Healthcare payer portal
+    portal-nextjs/             Next.js starter template
+  optional/                    Bring-if-needed (Go services, Kafka)
+  infra/                       Keycloak realm, Kong config
+  docs/                        Documentation + guides
 ```
 
 ## What's Next
