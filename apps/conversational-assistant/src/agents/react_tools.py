@@ -60,6 +60,7 @@ from src.agents.tools.pricing import (
     find_applicable_coupons,
     get_loyalty_balance,
 )
+from src.agents.tools.domain_action import domain_action_tool
 from src.agents.tools.products import get_product_details
 from src.agents.tools.search import semantic_product_search
 
@@ -512,7 +513,7 @@ async def get_cart_contents_tool() -> dict[str, Any]:
     }
 
 
-# Export the canonical tool list
+# Export the canonical tool list (backward compat — all tools, unfiltered)
 AGENT_TOOLS = [
     search_products_tool,
     get_product_details_tool,
@@ -525,3 +526,20 @@ AGENT_TOOLS = [
     learn_preference_tool,
     analyze_upload_tool,
 ]
+
+# Registry for config-driven tool selection.
+# Persona config's "tools" array references these short keys.
+# To add a new tool: define it above, then add an entry here.
+TOOL_REGISTRY: dict[str, Any] = {
+    "search": search_products_tool,
+    "details": get_product_details_tool,
+    "complements": find_complements_tool,
+    "deals": find_deals_tool,
+    "explain": explain_product_tool,
+    "cart": add_to_cart_tool,
+    "cart_contents": get_cart_contents_tool,
+    "preferences": get_user_preferences_tool,
+    "learn_preference": learn_preference_tool,
+    "upload": analyze_upload_tool,
+    "domain_action": domain_action_tool,
+}

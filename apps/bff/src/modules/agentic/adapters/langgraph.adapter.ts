@@ -34,6 +34,18 @@ export class LangGraphAdapter extends AgenticPort {
     return res.json() as Promise<T>;
   }
 
+  private async postJson<T>(path: string, body: any): Promise<T> {
+    const res = await fetch(`${this.baseUrl}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      throw new Error(`Agentic backend POST ${path} failed: ${res.status}`);
+    }
+    return res.json() as Promise<T>;
+  }
+
   async listConfigs(): Promise<AgentConfig[]> {
     const data = await this.fetchJson<{ configs: AgentConfig[] }>('/api/agent-configs');
     return data.configs ?? [];
@@ -53,5 +65,21 @@ export class LangGraphAdapter extends AgenticPort {
 
   getChatWebSocketUrl(sessionId: string): string {
     return `${this.wsUrl}/ws/chat/${sessionId}`;
+  }
+
+  async listUsers(): Promise<any[]> {
+    return this.fetchJson<any[]>('/api/users');
+  }
+
+  async demoLogin(userId: string): Promise<any> {
+    return this.postJson('/api/auth/demo-login', { user_id: userId });
+  }
+
+  async createSession(userId: string): Promise<any> {
+    return this.postJson('/api/sessions', { user_id: userId });
+  }
+
+  async getSessionHistory(sessionId: string): Promise<any> {
+    return this.fetchJson(`/api/sessions/${sessionId}/agent-history`);
   }
 }

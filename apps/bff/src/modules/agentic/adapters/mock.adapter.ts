@@ -45,4 +45,22 @@ export class MockAgenticAdapter extends AgenticPort {
   getChatWebSocketUrl(sessionId: string): string {
     return `ws://localhost:0/mock-${sessionId}`;
   }
+
+  async listUsers(): Promise<any[]> {
+    return [
+      { id: 'mock-user-1', name: 'Mock User', email: 'mock@example.com' },
+    ];
+  }
+
+  async demoLogin(_userId: string): Promise<any> {
+    return { id: 'mock-user-1', name: 'Mock User', email: 'mock@example.com', token: 'mock-token' };
+  }
+
+  async createSession(_userId: string): Promise<any> {
+    return { id: 'mock-session-001', user_id: 'mock-user-1', created_at: new Date().toISOString() };
+  }
+
+  async getSessionHistory(_sessionId: string): Promise<any> {
+    return { messages: [], session_id: 'mock-session-001' };
+  }
 }

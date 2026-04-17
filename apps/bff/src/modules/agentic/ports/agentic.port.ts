@@ -45,4 +45,16 @@ export abstract class AgenticPort {
    * adapter just returns a URL and the portal connects directly.
    */
   abstract getChatWebSocketUrl(sessionId: string): string;
+
+  /** List all demo users available for login. */
+  abstract listUsers(): Promise<any[]>;
+
+  /** Authenticate as a demo user by ID. */
+  abstract demoLogin(userId: string): Promise<any>;
+
+  /** Create a new chat session for a user. */
+  abstract createSession(userId: string): Promise<any>;
+
+  /** Retrieve the agent message history for a session. */
+  abstract getSessionHistory(sessionId: string): Promise<any>;
 }

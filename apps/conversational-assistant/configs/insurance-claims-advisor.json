@@ -86,5 +86,25 @@
       "I need a quote for health insurance",
       "What documents do I need for my pending claim?"
     ]
+  },
+  "tools": ["search", "details", "explain", "preferences", "learn_preference", "upload", "domain_action"],
+  "actions": {
+    "file_claim": {
+      "bff_endpoint": "/claims",
+      "method": "POST",
+      "description": "File a new insurance claim",
+      "required_fields": ["policy_id", "claim_type", "incident_date", "description"]
+    },
+    "check_claim_status": {
+      "bff_endpoint": "/claims/{claim_id}",
+      "method": "GET",
+      "description": "Check the status of an existing claim"
+    },
+    "get_quote": {
+      "bff_endpoint": "/quotes",
+      "method": "POST",
+      "description": "Request a quote for a new insurance policy",
+      "required_fields": ["coverage_type", "applicant_details"]
+    }
   }
 }

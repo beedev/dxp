@@ -125,5 +125,13 @@
       "Best tools for a beginner woodworker",
       "Help me build a porch"
     ]
+  },
+  "tools": ["search", "details", "complements", "deals", "explain", "cart", "cart_contents", "preferences", "learn_preference", "upload", "domain_action"],
+  "actions": {
+    "create_order": {
+      "bff_endpoint": "/orders",
+      "method": "POST",
+      "description": "Create a purchase order from the user's cart items"
+    }
   }
 }

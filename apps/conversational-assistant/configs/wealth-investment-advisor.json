@@ -126,5 +126,20 @@
       "Help me diversify into gold",
       "Review my current portfolio"
     ]
+  },
+  "tools": ["search", "details", "explain", "preferences", "learn_preference", "upload", "domain_action"],
+  "actions": {
+    "place_order": {
+      "bff_endpoint": "/orders",
+      "method": "POST",
+      "description": "Place an investment order (buy/sell stock, ETF, fund)",
+      "required_fields": ["symbol", "quantity", "order_type"]
+    },
+    "start_sip": {
+      "bff_endpoint": "/sip",
+      "method": "POST",
+      "description": "Start a systematic investment plan (recurring monthly investment)",
+      "required_fields": ["fund_id", "amount", "frequency"]
+    }
   }
 }

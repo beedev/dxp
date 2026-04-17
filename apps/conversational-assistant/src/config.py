@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     langfuse_public_key: str = ""
     langfuse_base_url: str = "https://cloud.langfuse.com"
 
+    # BFF integration (for domain_action tool)
+    bff_base_url: str = "http://localhost:4201/api"
+
     # Application
     api_host: str = "0.0.0.0"
     api_port: int = 8000

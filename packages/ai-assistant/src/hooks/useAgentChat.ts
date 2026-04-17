@@ -1,11 +1,13 @@
 /**
  * useAgentChat — WebSocket hook for Agentic AI Assistant.
  *
- * Connects to the FastAPI + LangGraph backend on ws://localhost:8002/ws/chat/{sessionId}.
- * Streams agent activity steps, entity results, and assistant messages in real-time.
+ * Connects to the agentic backend via WebSocket for real-time chat streaming.
+ * By default points at http://localhost:8002 (direct to FastAPI). Portals that
+ * route through the DXP BFF can override by setting:
  *
- * This is the MVP 0 direct-to-FastAPI integration. Later MVPs will route
- * through the DXP BFF.
+ *   window.__DXP_AGENTIC_API_BASE__ = 'http://localhost:4201/api/v1/agentic';
+ *
+ * The WebSocket URL is derived automatically from API_BASE (http → ws).
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -37,8 +39,8 @@ export type {
   UploadRecord,
 } from '../lib/agent-types';
 
-const API_BASE = 'http://localhost:8002';
-const WS_BASE = 'ws://localhost:8002';
+const DEFAULT_API_BASE = 'http://localhost:8002';
+const API_BASE = (typeof window !== 'undefined' && (window as any).__DXP_AGENTIC_API_BASE__) || DEFAULT_API_BASE;
 const RECONNECT_BASE_MS = 2000;
 const MAX_RECONNECT_ATTEMPTS = 5;
 
@@ -150,7 +152,8 @@ export function useAgentChat(): UseAgentChatResult {
     if (!sessionId) return;
 
     const connect = () => {
-      const ws = new WebSocket(`${WS_BASE}/ws/chat/${sessionId}`);
+      const wsBase = API_BASE.replace(/^http/, 'ws');
+      const ws = new WebSocket(`${wsBase}/ws/chat/${sessionId}`);
 
       ws.onopen = () => {
         setConnected(true);

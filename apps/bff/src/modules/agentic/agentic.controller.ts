@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AgenticPort } from './ports/agentic.port';
 
@@ -30,10 +30,34 @@ export class AgenticController {
     return this.agentic.getReadiness();
   }
 
+  @Get('users')
+  @ApiOperation({ summary: 'List demo users available for login' })
+  listUsers() {
+    return this.agentic.listUsers();
+  }
+
   @Get('users/:userId/preferences')
   @ApiOperation({ summary: 'Get a user\'s stored preferences' })
   getUserPreferences(@Param('userId') userId: string) {
     return this.agentic.getUserPreferences(userId);
+  }
+
+  @Post('auth/demo-login')
+  @ApiOperation({ summary: 'Authenticate as a demo user' })
+  demoLogin(@Body() body: { user_id: string }) {
+    return this.agentic.demoLogin(body.user_id);
+  }
+
+  @Post('sessions')
+  @ApiOperation({ summary: 'Create a new chat session for a user' })
+  createSession(@Body() body: { user_id: string }) {
+    return this.agentic.createSession(body.user_id);
+  }
+
+  @Get('sessions/:id/history')
+  @ApiOperation({ summary: 'Get agent message history for a session' })
+  getSessionHistory(@Param('id') id: string) {
+    return this.agentic.getSessionHistory(id);
   }
 
   @Get('chat-url')
