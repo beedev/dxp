@@ -1,5 +1,5 @@
 {
-  "id": "ace-hardware-retail",
+  "id": "ace-hardware",
   "description": "Ace Hardware retail product catalog",
   "source": {
     "type": "json_file",
