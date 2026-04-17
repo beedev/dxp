@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     api_host: str = "0.0.0.0"
     api_port: int = 8000
     env: str = "development"
-    debug: bool = True
+    debug: bool = False
 
     @property
     def sync_database_url(self) -> str:

@@ -68,14 +68,26 @@ async def upload_source_data(
     if not (file.content_type or "").startswith(("application/json", "text/csv", "text/")):
         raise HTTPException(status_code=400, detail="Only JSON and CSV files are supported")
 
-    data = await file.read()
-    if len(data) > 50 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="File too large (max 50MB)")
+    # Stream file with size check to prevent OOM from oversized uploads
+    MAX_SIZE = 50 * 1024 * 1024
+    chunks: list[bytes] = []
+    total = 0
+    while chunk := await file.read(64 * 1024):
+        total += len(chunk)
+        if total > MAX_SIZE:
+            raise HTTPException(status_code=413, detail="File too large (max 50MB)")
+        chunks.append(chunk)
+    data = b"".join(chunks)
 
     safe_name = "".join(c for c in (file.filename or "data") if c.isalnum() or c in "._-")[:80]
     dest = UPLOAD_DIR / f"{config_id}_{safe_name}"
     with open(dest, "wb") as f:
         f.write(data)
+
+    # Validate config_id to prevent path traversal
+    import re as _re
+    if not _re.match(r"^[a-zA-Z0-9_-]+$", config_id):
+        raise HTTPException(status_code=400, detail="Invalid config_id")
 
     # Update the data config to point to this file
     config_path = CONFIGS_DIR / f"{config_id}.json"

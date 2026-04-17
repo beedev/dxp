@@ -30,9 +30,18 @@ async def get_embedding(text_input: str) -> list[float]:
 
 
 # ---------------------------------------------------------------------------
-# Numeric filter keys — values compared with <= or >= via cast to numeric
+# Filter key validation — only these keys are allowed in JSONB queries.
+# Prevents SQL injection via filter key interpolation.
 # ---------------------------------------------------------------------------
-_NUMERIC_FILTER_KEYS = {"max_price", "min_rating"}
+import re
+
+_ALLOWED_FILTER_KEYS = {
+    "category", "brand", "sector", "asset_class", "risk_level",
+    "coverage_type", "provider", "exchange", "currency",
+    "max_price", "min_rating",
+}
+
+_KEY_PATTERN = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
 
 
 async def semantic_search(
@@ -82,12 +91,13 @@ async def semantic_search(
             where_clauses.append("e.entity_type = :entity_type")
             params["entity_type"] = entity_type
 
-        # JSONB filters
+        # JSONB filters — keys are validated against allowlist to prevent injection
         for key, value in merged.items():
+            if key not in _ALLOWED_FILTER_KEYS or not _KEY_PATTERN.match(key):
+                continue  # skip unknown/unsafe keys
             param_name = f"f_{key}"
             if key == "max_price":
                 where_clauses.append(f"(e.data->>'{key.removeprefix('max_')}')::numeric <= :{param_name}")
-                # Strip the "max_" prefix so we query data->>'price'
                 params[param_name] = value
             elif key == "min_rating":
                 where_clauses.append(f"(e.data->>'{key.removeprefix('min_')}')::numeric >= :{param_name}")
@@ -97,7 +107,9 @@ async def semantic_search(
                 params[param_name] = str(value)
 
         where_sql = (" WHERE " + " AND ".join(where_clauses)) if where_clauses else ""
-        embedding_str = "[" + ",".join(str(x) for x in query_embedding) + "]"
+
+        # Embedding vector passed as a parameterized string to avoid SQL injection
+        params["query_embedding"] = "[" + ",".join(str(float(x)) for x in query_embedding) + "]"
 
         sql = text(f"""
             SELECT
@@ -108,7 +120,7 @@ async def semantic_search(
                 e.description,
                 e.data,
                 e.image_url,
-                1 - (e.embedding <=> '{embedding_str}'::vector) AS relevance
+                1 - (e.embedding <=> :query_embedding::vector) AS relevance
             FROM entities e
             {where_sql}
             ORDER BY relevance DESC

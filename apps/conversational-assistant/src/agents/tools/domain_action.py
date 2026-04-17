@@ -10,6 +10,7 @@ Zero Python changes.
 """
 
 import logging
+import re
 from contextvars import ContextVar
 from typing import Any
 
@@ -65,11 +66,15 @@ async def domain_action_tool(action_type: str, payload: dict | None = None) -> d
     method = route.get("method", "POST").upper()
 
     # Substitute path params (e.g., /api/claims/{claim_id})
+    # Sanitize values to prevent path traversal
     if payload:
         for key, val in payload.items():
-            endpoint = endpoint.replace(f"{{{key}}}", str(val))
+            safe_val = re.sub(r"[^a-zA-Z0-9_\-.]", "", str(val))
+            endpoint = endpoint.replace(f"{{{key}}}", safe_val)
 
     url = f"{bff_url}{endpoint}"
+    if not url.startswith(bff_url):
+        return {"success": False, "error": "Invalid action endpoint"}
     logger.info(f"domain_action: {action_type} -> {method} {url}")
 
     try:
@@ -94,6 +99,8 @@ async def domain_action_tool(action_type: str, payload: dict | None = None) -> d
                 "result": resp.json() if resp.headers.get("content-type", "").startswith("application/json") else {"message": resp.text[:500]},
             }
     except httpx.ConnectError:
-        return {"success": False, "error": f"Cannot reach BFF at {bff_url}. Is the BFF running?"}
+        logger.error(f"domain_action: BFF unreachable at {bff_url}")
+        return {"success": False, "error": "Service temporarily unavailable. Please try again later."}
     except Exception as e:
-        return {"success": False, "error": str(e)[:500]}
+        logger.error(f"domain_action: {action_type} failed: {e}")
+        return {"success": False, "error": "Action failed. Please try again later."}
