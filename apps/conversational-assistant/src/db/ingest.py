@@ -33,11 +33,28 @@ CONFIGS_DIR = Path(__file__).resolve().parent.parent.parent / "configs" / "data"
 
 
 def load_data_config(config_id: str) -> dict[str, Any]:
+    """Load a data config by its internal 'id' field.
+
+    Scans all JSON files in configs/data/ and matches by the 'id' field
+    inside the file. Falls back to filename match for backward compat.
+    """
+    if CONFIGS_DIR.exists():
+        for f in CONFIGS_DIR.glob("*.json"):
+            try:
+                with open(f) as fp:
+                    cfg = json.load(fp)
+                if cfg.get("id") == config_id:
+                    return cfg
+            except (json.JSONDecodeError, KeyError):
+                continue
+
+    # Fallback: filename match
     path = CONFIGS_DIR / f"{config_id}.json"
-    if not path.exists():
-        raise FileNotFoundError(f"Data config not found: {path}")
-    with open(path) as f:
-        return json.load(f)
+    if path.exists():
+        with open(path) as f:
+            return json.load(f)
+
+    raise FileNotFoundError(f"Data config not found for id: {config_id}")
 
 
 def load_source_data(source_cfg: dict) -> list[dict]:

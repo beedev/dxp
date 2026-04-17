@@ -20,12 +20,30 @@ CONFIGS_DIR = Path(__file__).resolve().parent.parent.parent / "configs"
 
 @lru_cache(maxsize=16)
 def load_persona(config_id: str) -> dict[str, Any]:
-    """Load a persona config by id (filename without .json)."""
+    """Load a persona config by its internal 'id' field.
+
+    Scans all JSON files in the configs directory and matches by the 'id'
+    field inside the file, not by filename. Falls back to filename match
+    for backward compatibility.
+    """
+    # First: scan all files and match by internal id
+    if CONFIGS_DIR.exists():
+        for f in CONFIGS_DIR.glob("*.json"):
+            try:
+                with open(f) as fp:
+                    cfg = json.load(fp)
+                if cfg.get("id") == config_id:
+                    return cfg
+            except (json.JSONDecodeError, KeyError):
+                continue
+
+    # Fallback: try filename match (backward compat)
     path = CONFIGS_DIR / f"{config_id}.json"
-    if not path.exists():
-        raise FileNotFoundError(f"Persona config not found: {path}")
-    with open(path) as f:
-        return json.load(f)
+    if path.exists():
+        with open(path) as f:
+            return json.load(f)
+
+    raise FileNotFoundError(f"Persona config not found for id: {config_id}")
 
 
 def render_persona_prompt(config: dict[str, Any]) -> str:
