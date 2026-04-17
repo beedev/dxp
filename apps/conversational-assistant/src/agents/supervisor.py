@@ -53,9 +53,30 @@ def build_agent(config_id: str = DEFAULT_CONFIG_ID):
 
 
 def get_ui_config(config_id: str = DEFAULT_CONFIG_ID) -> dict:
-    """Return the UI hints (title, suggestions, greeting) for the frontend."""
+    """Return the UI hints (title, suggestions, greeting) for the frontend.
+
+    Also includes entity_config (card_layout + action) from the data config
+    so the frontend knows how to render entity cards for this vertical.
+    """
     cfg = load_persona(config_id)
-    return cfg.get("ui", {})
+    ui = dict(cfg.get("ui", {}))
+
+    # Load entity config from the matching data config
+    try:
+        from src.db.ingest import load_data_config
+        # Try data config with same id as persona config
+        data_cfg = load_data_config(config_id)
+        entity_cfg = data_cfg.get("entity", {})
+        ui["entity_config"] = {
+            "card_layout": entity_cfg.get("card_layout"),
+            "action": entity_cfg.get("action"),
+            "display_name": entity_cfg.get("display_name"),
+            "display_name_plural": entity_cfg.get("display_name_plural"),
+        }
+    except FileNotFoundError:
+        pass  # No data config for this persona — entity_config stays absent
+
+    return ui
 
 
 # Backward-compat alias used by chat.py

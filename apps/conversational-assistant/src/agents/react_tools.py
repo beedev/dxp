@@ -1,4 +1,4 @@
-"""LangChain tool definitions for the ReAct shopping agent.
+"""LangChain tool definitions for the ReAct agent.
 
 These are thin wrappers over existing data-access helpers in `src.agents.tools.*`,
 exposed with structured input schemas so the LLM can invoke them via function calling.
@@ -155,8 +155,8 @@ async def search_products_tool(
 ) -> dict[str, Any]:
     """Search the catalog for items matching a natural-language query.
 
-    Use this whenever the user asks for a product or recommendation.
-    Returns ranked results with name, description, and domain-specific data.
+    Use this whenever the user asks to find, compare, or explore available items.
+    Returns ranked results with name, description, and relevant details.
     """
     results = await semantic_product_search(
         query=query,
@@ -187,7 +187,7 @@ async def search_products_tool(
 
 @tool("get_product_details", args_schema=GetProductDetailsInput)
 async def get_product_details_tool(product_id: str) -> dict[str, Any]:
-    """Get full details of a specific product including specs, reviews, pros/cons."""
+    """Get full details of a specific item by its ID."""
     result = await get_product_details(product_id)
     if not result:
         return {"error": "Product not found", "product_id": product_id}
@@ -196,9 +196,8 @@ async def get_product_details_tool(product_id: str) -> dict[str, Any]:
 
 @tool("find_complements", args_schema=FindComplementsInput)
 async def find_complements_tool(product_id: str, limit: int = 4) -> dict[str, Any]:
-    """Find products that complement this one (customers frequently buy them together,
-    or they work as part of the same project). Use this proactively after a user shows
-    interest in a product — e.g., drill → drill bits, paint → primer + brush.
+    """Find items that complement or are related to this one.
+    Use this proactively after a user shows interest in an item to suggest related options.
     """
     # Semantic search fallback: look up the product, then search for complements
     # by description. This replaces the former AGE Cypher graph traversal.
@@ -227,8 +226,8 @@ async def find_complements_tool(product_id: str, limit: int = 4) -> dict[str, An
 
 @tool("find_deals", args_schema=FindDealsInput)
 async def find_deals_tool(product_ids: list[str], user_id: str) -> dict[str, Any]:
-    """Find applicable coupons and loyalty rewards for a set of products.
-    Use this when the user asks about deals/savings, or proactively near checkout.
+    """Find applicable discounts, promotions, or rewards for a set of items.
+    Use this when the user asks about deals or savings.
     """
     # Load product details to get categories and brands
     categories: set[str] = set()
@@ -257,9 +256,9 @@ async def find_deals_tool(product_ids: list[str], user_id: str) -> dict[str, Any
 async def explain_product_tool(
     question: str, product_ids: Optional[list[str]] = None
 ) -> dict[str, Any]:
-    """Answer a product-related question (e.g., 'what's the difference between latex and oil paint?',
-    'is this waterproof?'). Use this when the user asks informational questions rather than
-    search/purchase requests. Returns relevant product knowledge to inform your response.
+    """Answer a question about items in the catalog. Use this when the user asks
+    informational questions rather than search or action requests. Returns relevant
+    context to inform your response.
     """
     # Gather product context if IDs are provided
     products_context = []
@@ -283,9 +282,9 @@ async def explain_product_tool(
 
 @tool("add_to_cart", args_schema=AddToCartInput)
 async def add_to_cart_tool(product_id: str, quantity: int = 1) -> dict[str, Any]:
-    """Add a product to the user's cart. Use when the user explicitly asks to add
-    ("add this", "add the Hoka to my cart", "I'll take the drill"). Adding to cart
-    is a cheap, reversible action — no confirmation needed."""
+    """Add an item to the user's selection. Use when the user explicitly wants to
+    proceed with an item ("add this", "I'll take that", "select this one").
+    This is a reversible action — no confirmation needed."""
     details = await get_product_details(product_id)
     if not details:
         return {"success": False, "error": "Product not found"}
@@ -491,12 +490,10 @@ async def analyze_upload_tool(file_id: str) -> dict[str, Any]:
 
 @tool("get_cart_contents")
 async def get_cart_contents_tool() -> dict[str, Any]:
-    """Get the contents of the user's current shopping cart.
+    """Get the user's current selected items.
 
-    Use this whenever the user asks about their cart, asks "what else do I need",
-    references an ongoing project, or when you need to find complements for items
-    they've already added. Returns item names, brands, prices, quantities, and
-    the cart subtotal.
+    Use this whenever the user asks about their selections, wants a summary,
+    or when you need context about what they've already chosen.
     """
     session_id = current_session_id.get()
     cart = SESSION_CARTS.get(session_id, [])
