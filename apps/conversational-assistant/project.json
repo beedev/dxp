@@ -15,35 +15,35 @@
     "dev": {
       "executor": "nx:run-commands",
       "options": {
-        "command": ". .venv/bin/activate && uvicorn src.main:app --host 0.0.0.0 --port 8002 --reload",
+        "command": ". ~/.appregistry/venvs/ai-full/bin/activate && uvicorn src.main:app --host 0.0.0.0 --port 8002 --reload",
         "cwd": "apps/conversational-assistant"
       }
     },
     "serve": {
       "executor": "nx:run-commands",
       "options": {
-        "command": ". .venv/bin/activate && uvicorn src.main:app --host 0.0.0.0 --port 8002",
+        "command": ". ~/.appregistry/venvs/ai-full/bin/activate && uvicorn src.main:app --host 0.0.0.0 --port 8002",
         "cwd": "apps/conversational-assistant"
       }
     },
     "ingest": {
       "executor": "nx:run-commands",
       "options": {
-        "command": ". .venv/bin/activate && python -m src.db.ingest {args.config}",
+        "command": ". ~/.appregistry/venvs/ai-full/bin/activate && python -m src.db.ingest {args.config}",
         "cwd": "apps/conversational-assistant"
       }
     },
     "enrich": {
       "executor": "nx:run-commands",
       "options": {
-        "command": ". .venv/bin/activate && python -m src.db.enrich_graph",
+        "command": ". ~/.appregistry/venvs/ai-full/bin/activate && python -m src.db.enrich_graph",
         "cwd": "apps/conversational-assistant"
       }
     },
     "lint": {
       "executor": "nx:run-commands",
       "options": {
-        "command": ". .venv/bin/activate && ruff check src/",
+        "command": ". ~/.appregistry/venvs/ai-full/bin/activate && ruff check src/",
         "cwd": "apps/conversational-assistant"
       }
     }

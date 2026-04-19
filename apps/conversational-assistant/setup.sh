@@ -12,13 +12,21 @@ echo "============================================"
 echo "  Conversational AI Assistant — Setup"
 echo "============================================"
 
-# 1. Python venv
-if [ ! -d ".venv" ]; then
+# 1. Python venv — use appreg shared venv if available, else local .venv
+SHARED_VENV="$HOME/.appregistry/venvs/ai-full"
+if [ -f "$SHARED_VENV/bin/activate" ]; then
   echo ""
-  echo "Creating Python virtual environment..."
-  python3 -m venv .venv
+  echo "Using shared venv: $SHARED_VENV"
+  source "$SHARED_VENV/bin/activate"
+else
+  echo ""
+  echo "Shared venv not found — using local .venv"
+  if [ ! -d ".venv" ]; then
+    echo "Creating Python virtual environment..."
+    python3 -m venv .venv
+  fi
+  source .venv/bin/activate
 fi
-source .venv/bin/activate
 echo "Using Python: $(python3 --version)"
 
 # 2. Install dependencies
