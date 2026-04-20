@@ -76,8 +76,9 @@ export function TradingTerminal() {
 
   // Paper trading orders — fetch from BFF, merge with region mock data
   const [liveOrders, setLiveOrders] = useState<any[]>([]);
+  const BFF = 'http://localhost:4201/api';
   const fetchOrders = () => {
-    fetch('/api/v1/paper/orders')
+    fetch(`${BFF}/v1/paper/orders`)
       .then((r) => r.ok ? r.json() : [])
       .then((data) => setLiveOrders(Array.isArray(data) ? data : data.orders || []))
       .catch(() => {});
@@ -89,14 +90,14 @@ export function TradingTerminal() {
   const pendingOrders = allOrders.filter((o) => o.status === 'pending');
   const recentOrders = allOrders.slice(0, 5);
   const handleCancel = (id: string) => {
-    fetch(`/api/v1/paper/orders/${id}`, { method: 'DELETE' })
+    fetch(`${BFF}/v1/paper/orders/${id}`, { method: 'DELETE' })
       .then(() => fetchOrders())
       .catch(() => {});
   };
 
   const handleSubmit = (order: OrderData) => {
     // Submit to BFF paper trading, then refresh order list
-    fetch('/api/v1/paper/orders', {
+    fetch(`${BFF}/v1/paper/orders`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -345,14 +346,14 @@ export function TradingTerminal() {
           <Card className="p-4">
             <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--dxp-text-muted)] mb-3">Recent Orders</h3>
             <div className="space-y-2">
-              {recentOrders.map((o) => (
+              {recentOrders.filter((o) => o.side && o.symbol).map((o) => (
                 <div key={o.id} className="flex items-center justify-between text-xs">
                   <div>
-                    <span className={`font-bold ${o.side === 'buy' ? 'text-emerald-600' : 'text-rose-600'}`}>{o.side.toUpperCase()}</span>
+                    <span className={`font-bold ${o.side === 'buy' ? 'text-emerald-600' : 'text-rose-600'}`}>{o.side?.toUpperCase()}</span>
                     <span className="ml-2 font-mono text-[var(--dxp-text)]">{o.symbol}</span>
                     <span className="ml-1 text-[var(--dxp-text-muted)]">×{o.qty}</span>
                   </div>
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${STATUS_STYLES[o.status]}`}>{o.status}</span>
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${STATUS_STYLES[o.status] || ''}`}>{o.status}</span>
                 </div>
               ))}
             </div>
@@ -370,7 +371,7 @@ export function TradingTerminal() {
                 <div>
                   <p className="text-xs font-bold font-mono">{o.symbol}</p>
                   <p className={`text-[10px] font-semibold ${o.side === 'buy' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                    {o.side.toUpperCase()} {o.qty} @ {o.price} {o.validity}
+                    {o.side?.toUpperCase()} {o.qty} @ {o.price} {o.validity}
                   </p>
                 </div>
                 <button

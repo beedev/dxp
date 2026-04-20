@@ -10,8 +10,9 @@ export function Orders() {
 
   // Fetch live orders from BFF paper trading, merge with mock
   const [liveOrders, setLiveOrders] = useState<any[]>([]);
+  const BFF = 'http://localhost:4201/api';
   const fetchOrders = () => {
-    fetch('/api/v1/paper/orders')
+    fetch(`${BFF}/v1/paper/orders`)
       .then((r) => r.ok ? r.json() : [])
       .then((data) => setLiveOrders(Array.isArray(data) ? data : data.orders || []))
       .catch(() => {});
@@ -21,7 +22,7 @@ export function Orders() {
   const orders = [...liveOrders, ...mockOrders];
 
   const handleCancel = (id: string) => {
-    fetch(`/api/v1/paper/orders/${id}`, { method: 'DELETE' })
+    fetch(`${BFF}/v1/paper/orders/${id}`, { method: 'DELETE' })
       .then(() => fetchOrders())
       .catch(() => {});
   };
