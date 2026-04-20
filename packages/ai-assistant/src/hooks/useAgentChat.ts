@@ -285,8 +285,18 @@ export function useAgentChat(): UseAgentChatResult {
 
   const sendMessage = useCallback(
     (content: string) => {
-      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN || !currentUser) {
-        console.warn('Cannot send: WebSocket not connected');
+      if (!currentUser) return;
+      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+        // Queue: retry when WebSocket connects (up to 3s)
+        const retryUntil = Date.now() + 3000;
+        const retry = () => {
+          if (wsRef.current?.readyState === WebSocket.OPEN) {
+            sendMessage(content);
+          } else if (Date.now() < retryUntil) {
+            setTimeout(retry, 200);
+          }
+        };
+        setTimeout(retry, 200);
         return;
       }
       pendingProductsRef.current = null;

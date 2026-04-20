@@ -60,7 +60,6 @@ export function AgenticAssistant() {
   };
 
   const handleSuggestionClick = (s: string) => {
-    if (!chat.connected) return;
     chat.sendMessage(s);
   };
 
