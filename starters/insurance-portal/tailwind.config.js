@@ -3,6 +3,7 @@ export default {
   content: [
     './src/**/*.{ts,tsx}',
     '../../packages/ui/src/**/*.{ts,tsx}',
+    '../../packages/ai-assistant/src/**/*.{ts,tsx}',
   ],
   theme: {
     extend: {
