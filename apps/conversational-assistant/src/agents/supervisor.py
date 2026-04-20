@@ -12,7 +12,6 @@ deployment — just swap the config file.
 
 import copy
 import logging
-import os
 from functools import lru_cache
 
 from langchain_openai import ChatOpenAI
@@ -26,7 +25,9 @@ from src.config import settings
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_CONFIG_ID = os.environ.get("AGENTIC_CONFIG_ID", "ace-hardware")
+# Read from pydantic settings (which loads from .env) so AGENTIC_CONFIG_ID
+# in .env is picked up without needing to pass it as a shell env var.
+DEFAULT_CONFIG_ID = settings.agentic_config_id
 
 
 def _make_llm() -> ChatOpenAI:

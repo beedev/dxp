@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     langfuse_public_key: str = ""
     langfuse_base_url: str = "https://cloud.langfuse.com"
 
+    # Persona config — which agent personality to load
+    agentic_config_id: str = "ace-hardware-retail"
+
     # BFF integration (for domain_action tool)
     bff_base_url: str = "http://localhost:4201/api"
 
