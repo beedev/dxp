@@ -12,6 +12,7 @@ import {
   Activity,
   Bot,
   Brain,
+  RotateCcw,
   Send,
   ShoppingCart,
   Sparkles,
@@ -101,6 +102,10 @@ export function AgenticAssistant() {
         cartTotal={cartTotal}
         cartNoun={cartNoun}
         connected={chat.connected}
+        onNewChat={() => {
+          chat.clearSession();
+          chat.selectUser(chat.currentUser!.id);
+        }}
       />
 
       <div className="grid grid-cols-[1fr_300px] gap-4 flex-1 min-h-0">
@@ -219,9 +224,10 @@ interface HeaderProps {
   cartTotal: number;
   cartNoun: string;
   connected: boolean;
+  onNewChat?: () => void;
 }
 
-function Header({ title, currentUserName, showCart, cartCount, cartTotal, cartNoun, connected }: HeaderProps) {
+function Header({ title, currentUserName, showCart, cartCount, cartTotal, cartNoun, connected, onNewChat }: HeaderProps) {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -253,6 +259,15 @@ function Header({ title, currentUserName, showCart, cartCount, cartTotal, cartNo
               </>
             )}
           </div>
+        )}
+        {onNewChat && (
+          <button
+            onClick={onNewChat}
+            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-[var(--dxp-radius)] bg-[var(--dxp-border-light)] text-[var(--dxp-text-secondary)] hover:bg-[var(--dxp-border)] hover:text-[var(--dxp-text)] transition-colors"
+          >
+            <RotateCcw size={12} />
+            New Chat
+          </button>
         )}
         <div className="flex items-center gap-2">
           <div
