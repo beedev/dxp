@@ -8,18 +8,20 @@ export function Orders() {
   const { paperOrders: mockOrders } = useRegionMock();
   const [activeTab, setActiveTab] = useState<'open' | 'history'>('open');
 
-  // Fetch live orders from BFF paper trading, merge with mock
-  const [liveOrders, setLiveOrders] = useState<any[]>([]);
+  // Fetch live orders from BFF paper trading, fall back to mock if unavailable
+  const [liveOrders, setLiveOrders] = useState<any[] | null>(null);
   const BFF = 'http://localhost:4201/api';
   const fetchOrders = () => {
     fetch(`${BFF}/v1/paper/orders`)
-      .then((r) => r.ok ? r.json() : [])
-      .then((data) => setLiveOrders(Array.isArray(data) ? data : data.orders || []))
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data) setLiveOrders(Array.isArray(data) ? data : data.orders || []);
+      })
       .catch(() => {});
   };
   useEffect(() => { fetchOrders(); }, []);
 
-  const orders = [...liveOrders, ...mockOrders];
+  const orders = liveOrders ?? mockOrders;
 
   const handleCancel = (id: string) => {
     fetch(`${BFF}/v1/paper/orders/${id}`, { method: 'DELETE' })

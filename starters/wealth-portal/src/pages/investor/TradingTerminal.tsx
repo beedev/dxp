@@ -74,19 +74,21 @@ export function TradingTerminal() {
   // Live price history for chart
   const { data: history } = usePriceHistory(selectedSymbol, RANGE_MAP[chartRange] ?? '3m');
 
-  // Paper trading orders — fetch from BFF, merge with region mock data
-  const [liveOrders, setLiveOrders] = useState<any[]>([]);
+  // Paper trading orders — fetch from BFF, fall back to region mock if unavailable
+  const [liveOrders, setLiveOrders] = useState<any[] | null>(null);
   const BFF = 'http://localhost:4201/api';
   const fetchOrders = () => {
     fetch(`${BFF}/v1/paper/orders`)
-      .then((r) => r.ok ? r.json() : [])
-      .then((data) => setLiveOrders(Array.isArray(data) ? data : data.orders || []))
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data) setLiveOrders(Array.isArray(data) ? data : data.orders || []);
+      })
       .catch(() => {});
   };
   useEffect(() => { fetchOrders(); }, []);
 
   const portfolio = portfolioSummary;
-  const allOrders = [...liveOrders, ...regionPaperOrders];
+  const allOrders = liveOrders ?? regionPaperOrders;
   const pendingOrders = allOrders.filter((o) => o.status === 'pending');
   const recentOrders = allOrders.slice(0, 5);
   const handleCancel = (id: string) => {
