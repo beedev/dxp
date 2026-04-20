@@ -127,7 +127,17 @@ export function AgenticAssistant() {
                     entities={m.products}
                     cardLayout={ec?.card_layout}
                     action={ec?.action}
-                    onAction={chat.addProductToCart}
+                    onAction={(entity, formValues) => {
+                      if (formValues) {
+                        // Form submitted — send as a natural language trade instruction
+                        const parts = Object.entries(formValues)
+                          .filter(([, v]) => v !== '' && v !== undefined)
+                          .map(([k, v]) => `${k}: ${v}`);
+                        chat.sendMessage(`Execute ${ec?.action?.type || 'action'}: ${entity.name} (${parts.join(', ')})`);
+                      } else {
+                        chat.addProductToCart(entity);
+                      }
+                    }}
                   />
                 )}
               </div>

@@ -54,9 +54,19 @@ export interface EntityCardLayout {
   badge: string;
 }
 
+export interface ActionFormField {
+  field: string;
+  type: 'number' | 'select' | 'toggle' | 'text';
+  label?: string;
+  options?: string[];
+  default?: any;
+  show_when?: string;  // e.g., "type != market"
+}
+
 export interface EntityAction {
   label: string;
   type: string;
+  form?: ActionFormField[];
 }
 
 export interface EntityConfig {

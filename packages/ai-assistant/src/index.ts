@@ -32,6 +32,7 @@ export { useAgentChat } from './hooks/useAgentChat';
 
 // === Types ===
 export type {
+  ActionFormField,
   AgentEntity,
   AgentProduct,
   AgentStep,

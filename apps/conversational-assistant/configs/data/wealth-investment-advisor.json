@@ -38,7 +38,17 @@
       ],
       "badge": "sector"
     },
-    "action": { "label": "Invest", "type": "invest" }
+    "action": {
+      "label": "Trade",
+      "type": "place_order",
+      "form": [
+        { "field": "side", "type": "toggle", "options": ["buy", "sell"], "default": "buy" },
+        { "field": "type", "type": "select", "options": ["market", "limit", "stop"], "default": "market" },
+        { "field": "qty", "type": "number", "label": "Qty", "default": 100 },
+        { "field": "price", "type": "number", "label": "Limit Price", "show_when": "type != market" },
+        { "field": "validity", "type": "select", "options": ["DAY", "GTC"], "default": "GTC" }
+      ]
+    }
   },
   "embeddings": {
     "provider": "openai",
