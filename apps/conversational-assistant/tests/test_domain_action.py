@@ -42,7 +42,7 @@ class TestActionRoutes:
 
 class TestPersonaActions:
     def test_ace_hardware_has_actions(self):
-        cfg = load_persona("ace-hardware")
+        cfg = load_persona("ace-hardware-retail")
         actions = cfg.get("actions", {})
         assert "create_order" in actions
         assert actions["create_order"]["bff_endpoint"] == "/orders"
@@ -51,7 +51,7 @@ class TestPersonaActions:
         cfg = load_persona("wealth-investment-advisor")
         actions = cfg.get("actions", {})
         assert "place_order" in actions
-        assert "start_sip" in actions
+        assert "get_live_quote" in actions
         assert actions["place_order"]["method"] == "POST"
         assert "symbol" in actions["place_order"]["required_fields"]
 
@@ -66,7 +66,7 @@ class TestPersonaActions:
 
     def test_all_actions_have_required_structure(self):
         """Every action in every config must have bff_endpoint and method."""
-        for config_name in ["ace-hardware", "wealth-investment-advisor", "insurance-claims-advisor"]:
+        for config_name in ["ace-hardware-retail", "wealth-investment-advisor", "insurance-claims-advisor"]:
             cfg = load_persona(config_name)
             actions = cfg.get("actions", {})
             for action_type, meta in actions.items():
@@ -88,7 +88,7 @@ class TestPersonaActions:
 
 class TestPersonaToolLists:
     def test_ace_has_tools_key(self):
-        cfg = load_persona("ace-hardware")
+        cfg = load_persona("ace-hardware-retail")
         assert "tools" in cfg
         assert "domain_action" in cfg["tools"]
 
@@ -108,7 +108,7 @@ class TestPersonaToolLists:
     def test_all_tool_keys_are_valid(self):
         """Every tool key in every config must exist in TOOL_REGISTRY."""
         from src.agents.react_tools import TOOL_REGISTRY
-        for config_name in ["ace-hardware", "wealth-investment-advisor", "insurance-claims-advisor"]:
+        for config_name in ["ace-hardware-retail", "wealth-investment-advisor", "insurance-claims-advisor"]:
             cfg = load_persona(config_name)
             for tool_key in cfg.get("tools", []):
                 assert tool_key in TOOL_REGISTRY, (

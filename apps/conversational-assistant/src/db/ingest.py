@@ -30,14 +30,33 @@ from src.db.models import Base, Entity
 from src.db.session import async_session_factory, engine
 
 CONFIGS_DIR = Path(__file__).resolve().parent.parent.parent / "configs" / "data"
+PERSONA_CONFIGS_DIR = Path(__file__).resolve().parent.parent.parent / "configs"
 
 
 def load_data_config(config_id: str) -> dict[str, Any]:
     """Load a data config by its internal 'id' field.
 
-    Scans all JSON files in configs/data/ and matches by the 'id' field
-    inside the file. Falls back to filename match for backward compat.
+    First checks persona configs for an inline 'data' block (merged format).
+    Falls back to separate configs/data/ directory (legacy format).
     """
+    # Primary: look for 'data' block inside persona config (merged format)
+    if PERSONA_CONFIGS_DIR.exists():
+        for f in PERSONA_CONFIGS_DIR.glob("*.json"):
+            try:
+                with open(f) as fp:
+                    cfg = json.load(fp)
+                if cfg.get("id") == config_id and cfg.get("data"):
+                    # Return the data block shaped like a standalone data config
+                    data = dict(cfg["data"])
+                    data["id"] = config_id
+                    if "entity" in data:
+                        data["entity"]["display_name"] = data["entity"].get("display_name", data["entity"].get("name", ""))
+                        data["entity"]["display_name_plural"] = data["entity"].get("display_name_plural", data["entity"].get("name", "") + "s")
+                    return data
+            except (json.JSONDecodeError, KeyError):
+                continue
+
+    # Fallback: separate configs/data/ directory (legacy format)
     if CONFIGS_DIR.exists():
         for f in CONFIGS_DIR.glob("*.json"):
             try:
@@ -47,12 +66,6 @@ def load_data_config(config_id: str) -> dict[str, Any]:
                     return cfg
             except (json.JSONDecodeError, KeyError):
                 continue
-
-    # Fallback: filename match
-    path = CONFIGS_DIR / f"{config_id}.json"
-    if path.exists():
-        with open(path) as f:
-            return json.load(f)
 
     raise FileNotFoundError(f"Data config not found for id: {config_id}")
 

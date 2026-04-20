@@ -109,7 +109,7 @@ class TestEmbeddingTemplate:
 
 class TestDataConfig:
     def test_load_ace_hardware(self):
-        cfg = load_data_config("ace-hardware")
+        cfg = load_data_config("ace-hardware-retail")
         assert cfg["entity"]["name"] == "product"
         assert "field_map" in cfg["entity"]
         assert "card_layout" in cfg["entity"]
@@ -131,7 +131,7 @@ class TestDataConfig:
             load_data_config("nonexistent-vertical-xyz")
 
     def test_all_configs_have_required_fields(self):
-        for config_id in ["ace-hardware", "wealth-investment-advisor", "insurance-claims-advisor"]:
+        for config_id in ["ace-hardware-retail", "wealth-investment-advisor", "insurance-claims-advisor"]:
             cfg = load_data_config(config_id)
             entity = cfg["entity"]
             assert "name" in entity

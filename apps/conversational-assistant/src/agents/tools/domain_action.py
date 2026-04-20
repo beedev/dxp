@@ -76,6 +76,7 @@ async def domain_action_tool(action_type: str, payload: dict | None = None) -> d
     if not url.startswith(bff_url):
         return {"success": False, "error": "Invalid action endpoint"}
     logger.info(f"domain_action: {action_type} -> {method} {url}")
+    logger.info(f"domain_action payload: {payload}")
 
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:

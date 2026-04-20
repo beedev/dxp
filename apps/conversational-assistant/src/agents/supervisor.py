@@ -67,7 +67,20 @@ def _resolve_tools(config: dict) -> list:
 # ---------------------------------------------------------------------------
 
 def _get_entity_names(config_id: str) -> tuple[str, str]:
-    """Return (display_name, display_name_plural) from the data config."""
+    """Return (display_name, display_name_plural) from the config."""
+    # Try inline data block first (merged format)
+    try:
+        cfg = load_persona(config_id)
+        entity_cfg = cfg.get("data", {}).get("entity", {})
+        if entity_cfg:
+            return (
+                entity_cfg.get("display_name", "product"),
+                entity_cfg.get("display_name_plural", "products"),
+            )
+    except FileNotFoundError:
+        pass
+
+    # Fallback: separate data config (legacy)
     try:
         from src.db.ingest import load_data_config
         data_cfg = load_data_config(config_id)
@@ -170,24 +183,36 @@ def build_agent(config_id: str = DEFAULT_CONFIG_ID):
 def get_ui_config(config_id: str = DEFAULT_CONFIG_ID) -> dict:
     """Return the UI hints (title, suggestions, greeting) for the frontend.
 
-    Also includes entity_config (card_layout + action) from the data config
+    Also includes entity_config (card_layout + action) from the data block
     so the frontend knows how to render entity cards for this vertical.
     """
     cfg = load_persona(config_id)
     ui = dict(cfg.get("ui", {}))
 
-    try:
-        from src.db.ingest import load_data_config
-        data_cfg = load_data_config(config_id)
-        entity_cfg = data_cfg.get("entity", {})
+    # Read entity config from inline data block (merged format)
+    entity_cfg = cfg.get("data", {}).get("entity", {})
+    if entity_cfg:
         ui["entity_config"] = {
             "card_layout": entity_cfg.get("card_layout"),
             "action": entity_cfg.get("action"),
             "display_name": entity_cfg.get("display_name"),
             "display_name_plural": entity_cfg.get("display_name_plural"),
         }
-    except FileNotFoundError:
-        pass
+
+    # Fallback: try separate data config (legacy format)
+    if "entity_config" not in ui:
+        try:
+            from src.db.ingest import load_data_config
+            data_cfg = load_data_config(config_id)
+            legacy_entity = data_cfg.get("entity", {})
+            ui["entity_config"] = {
+                "card_layout": legacy_entity.get("card_layout"),
+                "action": legacy_entity.get("action"),
+                "display_name": legacy_entity.get("display_name"),
+                "display_name_plural": legacy_entity.get("display_name_plural"),
+            }
+        except FileNotFoundError:
+            pass
 
     return ui
 

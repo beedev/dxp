@@ -156,7 +156,7 @@ class TestDescriptionCustomization:
 
 class TestEntityNames:
     def test_ace_hardware(self):
-        name, plural = _get_entity_names("ace-hardware")
+        name, plural = _get_entity_names("ace-hardware-retail")
         assert name == "Product"
         assert plural == "Products"
 
