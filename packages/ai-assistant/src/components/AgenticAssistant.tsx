@@ -103,7 +103,7 @@ export function AgenticAssistant() {
         connected={chat.connected}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 flex-1 min-h-0">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-4 flex-1 min-h-0">
         <Card className="flex flex-col min-h-0">
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
             {chat.messages.length === 0 && (
