@@ -97,30 +97,42 @@
   },
   "tools": ["search", "details", "explain", "preferences", "learn_preference", "upload", "domain_action"],
   "actions": {
+    "get_live_quote": {
+      "bff_endpoint": "/v1/market/quote/{symbol}",
+      "method": "GET",
+      "description": "Get the live real-time price quote for a stock, ETF, or REIT by its ticker symbol (e.g., D05.SI for DBS, O39.SI for OCBC). Returns current price, day change, volume, 52-week range. ALWAYS use this before telling the user a price.",
+      "required_fields": ["symbol"]
+    },
+    "search_market": {
+      "bff_endpoint": "/v1/market/search?q={query}",
+      "method": "GET",
+      "description": "Search for a stock/ETF by name or ticker when the user asks about an instrument not in the catalog. Returns matching symbols with exchange and type.",
+      "required_fields": ["query"]
+    },
     "place_order": {
-      "bff_endpoint": "/paper/orders",
+      "bff_endpoint": "/v1/paper/orders",
       "method": "POST",
       "description": "Place a paper trading order (buy or sell — market, limit, or stop)",
       "required_fields": ["symbol", "side", "quantity", "orderType"]
     },
     "cancel_order": {
-      "bff_endpoint": "/paper/orders/{order_id}",
+      "bff_endpoint": "/v1/paper/orders/{order_id}",
       "method": "DELETE",
       "description": "Cancel an open paper trading order",
       "required_fields": ["order_id"]
     },
     "get_portfolio": {
-      "bff_endpoint": "/paper/portfolio",
+      "bff_endpoint": "/v1/paper/portfolio",
       "method": "GET",
       "description": "Get the user's current paper trading portfolio — positions, P&L, cash balance"
     },
     "get_orders": {
-      "bff_endpoint": "/paper/orders",
+      "bff_endpoint": "/v1/paper/orders",
       "method": "GET",
       "description": "Get the user's paper trading order history"
     },
     "create_alert": {
-      "bff_endpoint": "/paper/alerts",
+      "bff_endpoint": "/v1/paper/alerts",
       "method": "POST",
       "description": "Create a price alert for an instrument",
       "required_fields": ["symbol", "targetPrice", "direction"]

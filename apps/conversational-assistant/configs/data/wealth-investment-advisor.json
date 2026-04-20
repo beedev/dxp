@@ -23,13 +23,15 @@
       "return_3y": "return3Y",
       "expense_ratio": "expenseRatio",
       "min_investment": "minInvestment",
+      "price": "price",
       "currency": "currency",
+      "currency_symbol": "currencySymbol",
       "exchange": "exchange"
     },
     "card_layout": {
       "headline": "name",
       "subtitle": "asset_class",
-      "primary_metric": { "field": "min_investment", "format": "currency", "label": "Min Investment" },
+      "primary_metric": { "field": "price", "format": "currency", "label": "Price" },
       "secondary_metrics": [
         { "field": "return_1y", "format": "percent", "label": "1Y Return" },
         { "field": "risk_level", "label": "Risk" }
