@@ -1,15 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, DataTable, StatusBadge, Button, type Column } from '@dxp/ui';
 import type { PaperOrder } from '../../data/mock-portfolio';
 import { useRegion, useRegionMock } from '../../contexts/RegionContext';
 
 export function Orders() {
   const { region } = useRegion();
-  // Region mock is source of truth — BFF paper engine doesn't have multi-region orders
-  const { paperOrders: orders } = useRegionMock();
+  const { paperOrders: mockOrders } = useRegionMock();
   const [activeTab, setActiveTab] = useState<'open' | 'history'>('open');
 
-  const handleCancel = (_id: string) => { /* removed: BFF cancel only works for live SG orders */ };
+  // Fetch live orders from BFF paper trading, merge with mock
+  const [liveOrders, setLiveOrders] = useState<any[]>([]);
+  const fetchOrders = () => {
+    fetch('/api/v1/paper/orders')
+      .then((r) => r.ok ? r.json() : [])
+      .then((data) => setLiveOrders(Array.isArray(data) ? data : data.orders || []))
+      .catch(() => {});
+  };
+  useEffect(() => { fetchOrders(); }, []);
+
+  const orders = [...liveOrders, ...mockOrders];
+
+  const handleCancel = (id: string) => {
+    fetch(`/api/v1/paper/orders/${id}`, { method: 'DELETE' })
+      .then(() => fetchOrders())
+      .catch(() => {});
+  };
 
   const openOrders    = orders.filter((o) => o.status === 'pending');
   const historyOrders = orders.filter((o) => o.status === 'filled' || o.status === 'cancelled');

@@ -74,13 +74,42 @@ export function TradingTerminal() {
   // Live price history for chart
   const { data: history } = usePriceHistory(selectedSymbol, RANGE_MAP[chartRange] ?? '3m');
 
-  // Region mock provides paper portfolio + orders (BFF has no multi-region paper trading)
+  // Paper trading orders — fetch from BFF, merge with region mock data
+  const [liveOrders, setLiveOrders] = useState<any[]>([]);
+  const fetchOrders = () => {
+    fetch('/api/v1/paper/orders')
+      .then((r) => r.ok ? r.json() : [])
+      .then((data) => setLiveOrders(Array.isArray(data) ? data : data.orders || []))
+      .catch(() => {});
+  };
+  useEffect(() => { fetchOrders(); }, []);
+
   const portfolio = portfolioSummary;
-  const pendingOrders = regionPaperOrders.filter((o) => o.status === 'pending');
-  const recentOrders = regionPaperOrders.slice(0, 5);
-  const handleCancel = (_id: string) => { /* paper orders are read-only mocks per region */ };
+  const allOrders = [...liveOrders, ...regionPaperOrders];
+  const pendingOrders = allOrders.filter((o) => o.status === 'pending');
+  const recentOrders = allOrders.slice(0, 5);
+  const handleCancel = (id: string) => {
+    fetch(`/api/v1/paper/orders/${id}`, { method: 'DELETE' })
+      .then(() => fetchOrders())
+      .catch(() => {});
+  };
 
   const handleSubmit = (order: OrderData) => {
+    // Submit to BFF paper trading, then refresh order list
+    fetch('/api/v1/paper/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        symbol: order.symbol,
+        side: order.side,
+        orderType: order.type,
+        quantity: order.qty,
+        price: order.price,
+        validity: order.validity,
+      }),
+    })
+      .then(() => fetchOrders())
+      .catch(() => {});
     setSubmittedOrders((prev) => [
       `${order.side.toUpperCase()} ${order.qty} × ${order.symbol} @ ${order.type === 'market' ? 'MKT' : order.price}`,
       ...prev.slice(0, 4),

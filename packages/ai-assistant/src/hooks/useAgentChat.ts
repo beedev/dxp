@@ -100,7 +100,14 @@ export function useAgentChat(): UseAgentChatResult {
   useEffect(() => {
     fetch(`${API_BASE}/api/users`)
       .then((r) => r.json())
-      .then(setUsers)
+      .then((loadedUsers: DemoUser[]) => {
+        setUsers(loadedUsers);
+        // Auto-resume: if a user was previously selected, re-login and resume session
+        const lastUserId = sessionStorage.getItem('dxp-agent-last-user');
+        if (lastUserId && loadedUsers.some((u: DemoUser) => u.id === lastUserId)) {
+          selectUser(lastUserId);
+        }
+      })
       .catch((err) => console.error('Failed to load users:', err));
   }, []);
 
@@ -115,19 +122,42 @@ export function useAgentChat(): UseAgentChatResult {
       const user: DemoUser = await loginRes.json();
       setCurrentUser(user);
 
-      const sessionRes = await fetch(`${API_BASE}/api/sessions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userId }),
-      });
-      if (!sessionRes.ok) throw new Error('Session creation failed');
-      const session = await sessionRes.json();
-      setSessionId(session.id);
+      // Resume existing session if available, otherwise create new
+      const storageKey = `dxp-agent-session-${userId}`;
+      let sid: string | null = null;
+
+      const saved = sessionStorage.getItem(storageKey);
+      if (saved) {
+        // Verify the saved session is still valid
+        try {
+          const checkRes = await fetch(`${API_BASE}/api/sessions/${saved}/agent-history`);
+          if (checkRes.ok) {
+            sid = saved;
+          }
+        } catch {
+          // Session expired or invalid — create new
+        }
+      }
+
+      if (!sid) {
+        const sessionRes = await fetch(`${API_BASE}/api/sessions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId }),
+        });
+        if (!sessionRes.ok) throw new Error('Session creation failed');
+        const session = await sessionRes.json();
+        sid = session.id;
+      }
+
+      sessionStorage.setItem(storageKey, sid!);
+      sessionStorage.setItem('dxp-agent-last-user', userId);
+      setSessionId(sid!);
 
       setAgentSteps([]);
       setProducts([]);
       try {
-        const histRes = await fetch(`${API_BASE}/api/sessions/${session.id}/agent-history`);
+        const histRes = await fetch(`${API_BASE}/api/sessions/${sid}/agent-history`);
         if (histRes.ok) {
           const hist = await histRes.json();
           const restored = (hist.messages || []).map((m: any) => ({
@@ -355,7 +385,11 @@ export function useAgentChat(): UseAgentChatResult {
     setAgentSteps([]);
     setProducts([]);
     setUploads([]);
-  }, []);
+    // Clear saved session so next mount creates fresh
+    if (currentUser) {
+      sessionStorage.removeItem(`dxp-agent-session-${currentUser.id}`);
+    }
+  }, [currentUser]);
 
   return {
     connected,
