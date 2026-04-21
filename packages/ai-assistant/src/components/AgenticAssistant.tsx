@@ -128,8 +128,11 @@ export function AgenticAssistant() {
                     cardLayout={ec?.card_layout}
                     action={ec?.action}
                     onAction={(entity, formValues) => {
-                      if (formValues) {
-                        // Form submitted — send as a natural language trade instruction
+                      if (ec?.action?.type === 'add_to_cart') {
+                        // Retail: add to cart with optional quantity from form
+                        chat.addProductToCart(entity, formValues?.quantity);
+                      } else if (formValues) {
+                        // Non-retail: send as instruction to LLM for domain_action
                         const parts = Object.entries(formValues)
                           .filter(([, v]) => v !== '' && v !== undefined)
                           .map(([k, v]) => `${k}: ${v}`);

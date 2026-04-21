@@ -59,7 +59,7 @@ export interface UseAgentChatResult {
   entityConfig: EntityConfig | null;
   selectUser: (userId: string) => Promise<void>;
   sendMessage: (content: string) => void;
-  addProductToCart: (entity: AgentEntity) => void;
+  addProductToCart: (entity: AgentEntity, quantity?: number) => void;
   uploadFile: (file: File) => Promise<UploadRecord | null>;
   removeUpload: (fileId: string) => Promise<void>;
   clearSession: () => void;
@@ -322,13 +322,14 @@ export function useAgentChat(): UseAgentChatResult {
   );
 
   const addProductToCart = useCallback(
-    (entity: AgentEntity) => {
+    (entity: AgentEntity, quantity?: number) => {
+      const qty = quantity ?? 1;
       if (wsRef.current?.readyState === WebSocket.OPEN) {
         wsRef.current.send(
           JSON.stringify({
             type: 'add_to_cart_action',
             product_id: entity.id,
-            quantity: 1,
+            quantity: qty,
           }),
         );
       }
