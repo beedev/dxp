@@ -286,37 +286,43 @@ export function useAgentChat(): UseAgentChatResult {
   const sendMessage = useCallback(
     (content: string) => {
       if (!currentUser) return;
-      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-        // Queue: retry when WebSocket connects (up to 3s)
+
+      const doSend = () => {
+        if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
+        pendingProductsRef.current = null;
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: 'user',
+            content,
+            timestamp: new Date().toISOString(),
+          },
+        ]);
+        setIsThinking(true);
+        wsRef.current.send(
+          JSON.stringify({
+            type: 'user_message',
+            content,
+            user_id: currentUser.id,
+          }),
+        );
+      };
+
+      if (wsRef.current?.readyState === WebSocket.OPEN) {
+        doSend();
+      } else {
+        // Retry for up to 3s while WebSocket connects
         const retryUntil = Date.now() + 3000;
         const retry = () => {
           if (wsRef.current?.readyState === WebSocket.OPEN) {
-            sendMessage(content);
+            doSend();
           } else if (Date.now() < retryUntil) {
             setTimeout(retry, 200);
           }
         };
         setTimeout(retry, 200);
-        return;
       }
-      pendingProductsRef.current = null;
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
-          role: 'user',
-          content,
-          timestamp: new Date().toISOString(),
-        },
-      ]);
-      setIsThinking(true);
-      wsRef.current.send(
-        JSON.stringify({
-          type: 'user_message',
-          content,
-          user_id: currentUser.id,
-        }),
-      );
     },
     [currentUser],
   );
