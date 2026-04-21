@@ -171,7 +171,13 @@
         ],
         "badge": "category"
       },
-      "action": { "label": "Add to Cart", "type": "add_to_cart" }
+      "action": {
+        "label": "Add to Cart",
+        "type": "add_to_cart",
+        "form": [
+          { "field": "quantity", "type": "number", "label": "Qty", "default": 1 }
+        ]
+      }
     },
     "embeddings": {
       "provider": "openai",
