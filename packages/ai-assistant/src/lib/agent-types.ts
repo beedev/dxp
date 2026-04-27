@@ -63,9 +63,27 @@ export interface ActionFormField {
   show_when?: string;  // e.g., "type != market"
 }
 
+/**
+ * Icon name accepted by EntityAction.icon. Maps to a lucide-react icon in the
+ * card renderer. Add new mappings in ProductCard.tsx::ActionIcon.
+ */
+export type EntityActionIcon =
+  | 'plus'
+  | 'arrow-right'
+  | 'external-link'
+  | 'eye'
+  | 'check'
+  | 'send';
+
 export interface EntityAction {
   label: string;
   type: string;
+  /**
+   * Optional icon override. If omitted, the renderer picks a default by type
+   * (`add_to_cart` → plus, anything else → arrow-right). Persona configs can
+   * set this explicitly to use a domain-appropriate affordance.
+   */
+  icon?: EntityActionIcon;
   form?: ActionFormField[];
 }
 

@@ -18,7 +18,7 @@ export { Badge } from './primitives/Badge';
 export type { BadgeProps } from './primitives/Badge';
 
 export { Card, CardHeader, CardContent, CardFooter } from './primitives/Card';
-export type { CardProps } from './primitives/Card';
+export type { CardProps, CardVariant, CardAccent } from './primitives/Card';
 
 export { Tabs } from './primitives/Tabs';
 export type { TabsProps, Tab } from './primitives/Tabs';
@@ -107,6 +107,26 @@ export type { FieldSchema } from './composed/FormField';
 
 export { Citation } from './composed/Citation';
 export type { CitationProps } from './composed/Citation';
+
+export { Breadcrumb } from './composed/Breadcrumb';
+export type { BreadcrumbProps, BreadcrumbItem } from './composed/Breadcrumb';
+
+export { CoverageCard } from './composed/CoverageCard';
+export type { CoverageCardProps, CoverageType, CoverageHighlight } from './composed/CoverageCard';
+
+export { QuickActions } from './composed/QuickActions';
+export type { QuickActionsProps, QuickAction } from './composed/QuickActions';
+
+export { ProviderCard } from './composed/ProviderCard';
+export type {
+  ProviderCardProps,
+  ProviderCardVariant,
+  ProviderNetworkStatus,
+  ProviderCardAction,
+} from './composed/ProviderCard';
+
+export { Gauge } from './composed/Gauge';
+export type { GaugeProps, GaugeFormat, GaugeSize, GaugeThresholds } from './composed/Gauge';
 
 // === Layouts ===
 export { PageLayout } from './composed/PageLayout';

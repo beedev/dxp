@@ -57,6 +57,7 @@ export interface UseAgentChatResult {
   isThinking: boolean;
   uiConfig: AgentUIConfig | null;
   entityConfig: EntityConfig | null;
+  entityConfigs: Record<string, EntityConfig> | null;
   selectUser: (userId: string) => Promise<void>;
   sendMessage: (content: string) => void;
   addProductToCart: (entity: AgentEntity, quantity?: number) => void;
@@ -82,6 +83,7 @@ export function useAgentChat(): UseAgentChatResult {
   const [isThinking, setIsThinking] = useState(false);
   const [uiConfig, setUiConfig] = useState<AgentUIConfig | null>(null);
   const [entityConfig, setEntityConfig] = useState<EntityConfig | null>(null);
+  const [entityConfigs, setEntityConfigs] = useState<Record<string, EntityConfig> | null>(null);
   const [uploads, setUploads] = useState<UploadRecord[]>([]);
 
   useEffect(() => {
@@ -92,6 +94,9 @@ export function useAgentChat(): UseAgentChatResult {
         setUiConfig(cfg);
         if (cfg.entity_config) {
           setEntityConfig(cfg.entity_config);
+        }
+        if (cfg.entity_configs && typeof cfg.entity_configs === 'object') {
+          setEntityConfigs(cfg.entity_configs);
         }
       })
       .catch(() => {});
@@ -421,6 +426,7 @@ export function useAgentChat(): UseAgentChatResult {
     isThinking,
     uiConfig,
     entityConfig,
+    entityConfigs,
     selectUser,
     sendMessage,
     addProductToCart,

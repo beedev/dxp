@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '../primitives/Button';
+import { Breadcrumb, type BreadcrumbItem } from './Breadcrumb';
 
 export interface NavItem {
   label: string;
@@ -13,11 +14,13 @@ export interface PageLayoutProps {
   navItems: NavItem[];
   userMenu?: React.ReactNode;
   actions?: React.ReactNode;
+  /** Breadcrumb trail rendered above page content. Falls back to home only when not provided. */
+  breadcrumbs?: BreadcrumbItem[];
   children: React.ReactNode;
   onNavigate: (href: string) => void;
 }
 
-export function PageLayout({ appName, navItems, userMenu, actions, children, onNavigate }: PageLayoutProps) {
+export function PageLayout({ appName, navItems, userMenu, actions, breadcrumbs, children, onNavigate }: PageLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
@@ -55,7 +58,14 @@ export function PageLayout({ appName, navItems, userMenu, actions, children, onN
             {actions}
           </div>
         )}
-        <div className="mx-auto max-w-6xl px-6 py-6">{children}</div>
+        <div className="mx-auto max-w-6xl px-6 py-6">
+          {breadcrumbs && breadcrumbs.length > 1 && (
+            <div className="mb-4">
+              <Breadcrumb items={breadcrumbs} onNavigate={onNavigate} />
+            </div>
+          )}
+          {children}
+        </div>
       </main>
     </div>
   );

@@ -3,7 +3,10 @@
   "compilerOptions": {
     "outDir": "./dist",
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "importHelpers": false
   },
   "include": ["src/**/*"]
 }

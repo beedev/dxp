@@ -1319,4 +1319,260 @@ import { DataPipeline } from './pages/manager/DataPipeline';
 5. Click "Enrich Graph" → adds HAS_FEATURE + FREQUENTLY_BOUGHT_WITH edges
 6. Check Agent Readiness score → target 90+`,
   },
+  {
+    name: 'UCP Checkout',
+    domain: 'Retail — ACE Hardware',
+    badge: 'NEW',
+    description:
+      'Universal Commerce Protocol (ucp.dev) shopping checkout — open standard for agentic commerce. Exposes a /.well-known/ucp discovery doc plus a session lifecycle (create → update → complete) so any UCP-aware agent (our chat, ChatGPT, Claude desktop, third-party agents) can buy through DXP-powered retail portals. Adapter pattern means swap the backing commerce engine (Stripe Checkout, Shopify, custom orders) without changing controllers or callers.',
+    port: 'UcpCheckoutPort',
+    portInterface: `abstract class UcpCheckoutPort {
+  abstract getProfile(): Promise<UcpProfile>;
+  abstract createSession(tenantId: string, req: CreateSessionRequest): Promise<CheckoutSession>;
+  abstract getSession(tenantId: string, id: string): Promise<CheckoutSession>;
+  abstract updateSession(tenantId: string, id: string, req: UpdateSessionRequest): Promise<CheckoutSession>;
+  abstract completeSession(tenantId: string, id: string, req: CompleteSessionRequest): Promise<CheckoutResult>;
+  abstract cancelSession(tenantId: string, id: string): Promise<CheckoutSession>;
+}`,
+    adapters: [
+      {
+        name: 'MockUcpCheckoutAdapter',
+        envValue: 'mock',
+        description: 'In-memory session store keyed by tenantId:sessionId. Computes 8% tax, fakes payment success. Use for unit tests / no-Docker mode.',
+        config: `UCP_ADAPTER=mock`,
+      },
+      {
+        name: 'StripeUcpCheckoutAdapter',
+        envValue: 'stripe',
+        description:
+          'Real Stripe Node SDK against either stripe/stripe-mock (local Docker) or live Stripe in test mode. Returns real cs_test_* / pi_* ids. Switch from mock to prod by changing env vars only — no code change.',
+        config: `UCP_ADAPTER=stripe
+STRIPE_API_KEY=sk_test_xxx          # any value works against stripe-mock
+STRIPE_API_HOST=localhost           # omit to use api.stripe.com
+STRIPE_API_PORT=12111
+STRIPE_API_PROTOCOL=http`,
+      },
+    ],
+    envVar: 'UCP_ADAPTER',
+    endpoints: [
+      { method: 'GET', path: '/.well-known/ucp', description: 'UCP discovery — capabilities + transports (unprefixed per spec).' },
+      {
+        method: 'POST',
+        path: '/ucp/checkout-sessions',
+        description: 'Create a checkout session.',
+        sampleBody: JSON.stringify(
+          {
+            currency: 'USD',
+            line_items: [
+              { id: 'li_1', item: { id: 'sku_drill', title: 'DeWalt 20V Drill', price: 18999 }, quantity: 1 },
+            ],
+          },
+          null,
+          2,
+        ),
+      },
+      { method: 'GET', path: '/ucp/checkout-sessions/chk_demo123', description: 'Fetch a session by id.' },
+      {
+        method: 'PUT',
+        path: '/ucp/checkout-sessions/chk_demo123',
+        description: 'Patch buyer + fulfillment selection (transitions status to ready_for_complete).',
+        sampleBody: JSON.stringify(
+          {
+            buyer: { email: 'jane@example.com', first_name: 'Jane', last_name: 'Doe' },
+            fulfillment: {
+              methods: [{ id: 'fm_1', type: 'shipping', line_item_ids: ['li_1'] }],
+            },
+          },
+          null,
+          2,
+        ),
+      },
+      {
+        method: 'POST',
+        path: '/ucp/checkout-sessions/chk_demo123/complete',
+        description: 'Submit payment data — returns order_id + payment_id.',
+        sampleBody: JSON.stringify(
+          {
+            payment_data: {
+              id: 'pi_demo',
+              handler_id: 'com.demo.pay',
+              type: 'card',
+              credential: { type: 'PAYMENT_GATEWAY', token: 'tok_demo_xyz' },
+            },
+          },
+          null,
+          2,
+        ),
+      },
+      { method: 'POST', path: '/ucp/checkout-sessions/chk_demo123/cancel', description: 'Cancel an open session.' },
+      {
+        method: 'GET',
+        path: '/ucp/openapi.json',
+        description:
+          'Curated OpenAPI 3 spec covering only the UCP routes — import this URL into a ChatGPT Custom GPT Action so any GPT user can drive checkout.',
+      },
+      {
+        method: 'POST',
+        path: '/ucp/mcp',
+        description: 'JSON-RPC 2.0 transport. Methods: create_checkout, get_checkout, update_checkout, complete_checkout, cancel_checkout. Used by external agents (ChatGPT, Claude desktop) that prefer tool-call transports.',
+        sampleBody: JSON.stringify(
+          {
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'create_checkout',
+            params: {
+              _meta: { ucp: { profile: 'https://chatgpt.example/profile.json' } },
+              line_items: [
+                { id: 'li_1', item: { id: 'sku_drill', title: 'DeWalt 20V Drill', price: 18999 }, quantity: 1 },
+              ],
+              currency: 'USD',
+            },
+          },
+          null,
+          2,
+        ),
+      },
+    ],
+    sdkUsage: `// === In a portal page (React) — uses the SDK hooks ===
+import {
+  useUcpProfile,
+  useUcpCreateSession,
+  useUcpUpdateSession,
+  useUcpCompleteSession,
+} from '@dxp/sdk-react';
+
+const profile = useUcpProfile();           // /.well-known/ucp
+const create = useUcpCreateSession();
+const update = useUcpUpdateSession();
+const complete = useUcpCompleteSession();
+
+const session = await create.mutateAsync({
+  currency: 'USD',
+  line_items: [{ id: 'li_1', item: { id: 'sku', title: 'Drill', price: 18999 }, quantity: 1 }],
+});
+await update.mutateAsync({ id: session.id, patch: { buyer, fulfillment } });
+const result = await complete.mutateAsync({
+  id: session.id,
+  body: { payment_data: { id: 'pi_demo', handler_id: 'com.demo.pay', type: 'card', credential: { type: 'PAYMENT_GATEWAY', token: 'tok_demo' } } },
+});
+// result.order_id, result.payment_id
+
+
+// === In the conv-assistant (Python) — single tool, step discriminator ===
+// configs/ace-hardware.json:  "tools": [..., "ucp_checkout"]
+//
+// LLM picks the step itself:
+//   ucp_checkout(step='start',    line_items=[...], currency='USD')
+//   ucp_checkout(step='update',   buyer={...}, fulfillment={...})
+//   ucp_checkout(step='complete', payment_token='tok_xyz')
+
+
+// === From an external agent (ChatGPT, Claude desktop) — JSON-RPC over MCP ===
+// 1. Discover:
+const profile = await fetch('http://localhost:4201/.well-known/ucp').then(r => r.json());
+//    profile.ucp.services['dev.ucp.shopping'].mcp.endpoint  →  '/api/v1/ucp/mcp'
+//
+// 2. Drive checkout via JSON-RPC tool calls:
+const rpc = (method, params) => fetch('http://localhost:4201/api/v1/ucp/mcp', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ jsonrpc: '2.0', id: Date.now(), method, params }),
+}).then(r => r.json());
+
+const created = await rpc('create_checkout', { line_items: [...], currency: 'USD' });
+const sid = created.result.checkout.id;
+await rpc('update_checkout', { id: sid, buyer, fulfillment });
+const completed = await rpc('complete_checkout', { id: sid, payment_data: {...} });
+// completed.result.order_id, completed.result.payment_id`,
+    setupGuide: `Three integration paths — pick what your client is using.
+
+# Path 1: REST (browsers, server-to-server, mobile apps)
+   GET  /.well-known/ucp                                   (unprefixed per spec)
+   POST /api/v1/ucp/checkout-sessions
+   PUT  /api/v1/ucp/checkout-sessions/:id
+   POST /api/v1/ucp/checkout-sessions/:id/complete
+   POST /api/v1/ucp/checkout-sessions/:id/cancel
+
+   Smoke:  curl http://localhost:4201/.well-known/ucp | jq .ucp.version  →  "2026-01-11"
+
+# Path 2: MCP / JSON-RPC (ChatGPT, Claude desktop, agent frameworks)
+   POST /api/v1/ucp/mcp     {jsonrpc:'2.0', id, method, params}
+
+   Methods:
+     - create_checkout    {line_items, currency, buyer?}
+     - get_checkout       {id}
+     - update_checkout    {id, line_items?, buyer?, fulfillment?}
+     - complete_checkout  {id, payment_data, risk_signals?}
+     - cancel_checkout    {id}
+
+   Discovery doc advertises the MCP endpoint at services['dev.ucp.shopping'].mcp.endpoint.
+
+# Path 3: SDK hooks (DXP-built React portals)
+   import { useUcpCreateSession, useUcpUpdateSession, useUcpCompleteSession } from '@dxp/sdk-react';
+   See the live wiring at starters/ace-hardware-portal/src/pages/customer/CartCheckout.tsx.
+
+# Switch the backing engine via env var (true adapter swap)
+   UCP_ADAPTER=mock     → in-memory sessions, no external deps
+   UCP_ADAPTER=stripe   → real Stripe Node SDK against stripe/stripe-mock or production Stripe
+                          (same code path; flip STRIPE_API_HOST to switch envs)
+
+   stripe-mock runs as a Docker container started by make up:
+     docker compose up -d stripe-mock        # listens on :12111
+
+# How a ChatGPT custom GPT or Claude desktop would use it
+1. Configure the agent with the discovery URL: http://localhost:4201/.well-known/ucp
+2. Agent reads profile, sees \`mcp.endpoint = '/api/v1/ucp/mcp'\`.
+3. Agent issues tool calls via JSON-RPC POST to that endpoint.
+4. Send the agent's profile URI in the params._meta.ucp.profile field of every call.
+
+# Try the MCP transport from your shell (mimics what ChatGPT does)
+   curl -s http://localhost:4201/api/v1/ucp/mcp \\
+     -H 'Content-Type: application/json' \\
+     -d '{"jsonrpc":"2.0","id":1,"method":"create_checkout","params":{"line_items":[{"id":"li_1","item":{"id":"sku","title":"Drill","price":18999},"quantity":1}],"currency":"USD"}}' | jq .result.checkout.id
+
+# Try the chat-driven flow (LLM picks ucp_checkout itself)
+- Open http://localhost:4500/customer/ai-assistant
+- "Find me a cordless drill" → product card
+- "Add to cart" → existing flow
+- "Check out my cart" → LLM calls ucp_checkout(step='start') → 'update' → 'complete'
+
+# === Connect a ChatGPT Custom GPT (Option A: REST + OpenAPI Action) ===
+
+# 1. Tunnel localhost so ChatGPT (cloud) can reach the BFF
+   ngrok http 4201
+   # → https://xxxx.ngrok-free.app  (use this URL below)
+
+# 2. Verify the spec is reachable
+   curl https://xxxx.ngrok-free.app/api/v1/ucp/openapi.json | jq .info.title
+   # → "UCP Shopping Checkout"
+
+# 3. Create a Custom GPT
+   chat.openai.com → Explore GPTs → Create → Configure tab
+   - Name:        ACE Hardware Buyer
+   - Description: Shops at ACE Hardware via UCP; charges via Stripe in test mode.
+   - Instructions:
+       You are a shopping concierge for ACE Hardware. To buy something:
+       1. createCheckoutSession with the line items + currency: USD.
+       2. updateCheckoutSession with buyer.email + a fulfillment.methods[0]
+          of type 'shipping' covering all line item ids.
+       3. completeCheckoutSession with payment_data:
+            { id: 'pi_demo', handler_id: 'com.demo.pay', type: 'card',
+              credential: { type: 'PAYMENT_GATEWAY', token: 'tok_visa' } }
+       Always report the returned order_id and payment_id so the user can
+       look the payment up in the Stripe dashboard.
+
+# 4. Add the Action
+   Configure → Actions → Create new action
+   - Authentication: None  (works in dev with DEV_AUTH_BYPASS=true)
+   - Schema: Import from URL → https://xxxx.ngrok-free.app/api/v1/ucp/openapi.json
+
+# 5. Try it in the GPT preview
+   "Buy 2 DeWalt 20V drills at $189.99 each, ship to jane@example.com"
+   ChatGPT will call createCheckoutSession → updateCheckoutSession →
+   completeCheckoutSession in sequence and report the Stripe pi_… id.
+
+# 6. Verify in the Stripe dashboard
+   https://dashboard.stripe.com/test/payments — your ChatGPT-driven
+   transaction shows up alongside the ones from our portal cart and chat.`,
+  },
 ];

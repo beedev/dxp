@@ -49,6 +49,10 @@ export default defineConfig({
   plugins: [serveStaticSubpaths(), react()],
   server: {
     port: 4200,
+    // Fail fast when 4200 is taken instead of silently auto-incrementing
+    // onto a sibling port (which previously squatted on the BFF's :4201
+    // and broke cloudflared / external API access).
+    strictPort: true,
     proxy: {
       '/api': {
         target: 'http://localhost:4201',

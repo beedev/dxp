@@ -8,7 +8,10 @@ import { RequestContextInterceptor } from './common/interceptors/request-context
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.setGlobalPrefix('api/v1');
+  // UCP discovery doc must live at the unprefixed `/.well-known/ucp` per spec.
+  app.setGlobalPrefix('api/v1', {
+    exclude: ['.well-known/ucp', '.well-known/(.*)'],
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({

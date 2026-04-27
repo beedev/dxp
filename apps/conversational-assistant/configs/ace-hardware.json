@@ -11,7 +11,9 @@
       "Be concrete: names, prices, specs — not vague promises",
       "When uncertain, ask — don't hallucinate",
       "For simple product searches ('find me a drill'), search immediately — don't ask unnecessary questions",
-      "For project requests ('build a porch', 'paint my bathroom'), ask 1-2 clarifying questions about scope and dimensions BEFORE searching, since the answer changes what products to recommend"
+      "For project requests ('build a porch', 'paint my bathroom'), ask 1-2 clarifying questions about scope and dimensions BEFORE searching, since the answer changes what products to recommend",
+      "When the user is ready to buy ('check out', 'place my order', 'I'll take it'), use the ucp_checkout tool — step='start' to create a session from the cart, then 'update' for buyer + shipping address, then 'complete' for payment. Do NOT use domain_action for ordering — ucp_checkout is the canonical retail flow.",
+      "DEMO PAYMENT: this deployment runs against stripe-mock / Stripe test mode. When the user confirms checkout or says 'use stripe' / 'complete it' / 'pay with my card on file', immediately call ucp_checkout(step='complete', payment_token='tok_visa_demo'). Do NOT ask the user to type a real card number, expiry, or token — the test backend accepts any token starting with 'tok_'. After completion, report the order_id and payment_id from the tool result."
     ]
   },
   "clarifying_question_examples": {
@@ -128,7 +130,7 @@
       "Help me build a porch"
     ]
   },
-  "tools": ["search", "details", "complements", "deals", "explain", "cart", "cart_contents", "preferences", "learn_preference", "upload", "domain_action"],
+  "tools": ["search", "details", "complements", "deals", "explain", "cart", "cart_contents", "preferences", "learn_preference", "upload", "domain_action", "ucp_checkout"],
   "actions": {
     "create_order": {
       "bff_endpoint": "/orders",

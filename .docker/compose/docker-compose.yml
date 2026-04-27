@@ -87,6 +87,18 @@ services:
     networks:
       - dxp-net
 
+  # stripe-mock — official Stripe API mock for local Checkout/PaymentIntent
+  # development. Used by the Stripe UCP adapter when UCP_ADAPTER=stripe.
+  # Switch to real Stripe by removing STRIPE_API_HOST from .env.
+  stripe-mock:
+    image: stripe/stripe-mock:latest
+    container_name: dxp-stripe-mock
+    ports:
+      - "12111:12111"
+      - "12112:12112"
+    networks:
+      - dxp-net
+
 networks:
   dxp-net:
     driver: bridge

@@ -5,11 +5,13 @@ import { useQueryClient } from '@tanstack/react-query';
 
 // Member pages
 import { Dashboard } from './pages/member/Dashboard';
+import { PlanDetail } from './pages/member/PlanDetail';
 import { Benefits } from './pages/member/Benefits';
 import { DigitalIdCard } from './pages/member/DigitalIdCard';
 import { Claims } from './pages/member/Claims';
 import { ClaimDetail } from './pages/member/ClaimDetail';
 import { FindProvider } from './pages/member/FindProvider';
+import { PrimaryCare } from './pages/member/PrimaryCare';
 import { CostEstimate } from './pages/member/CostEstimate';
 import { PriorAuth } from './pages/member/PriorAuth';
 import { CareTimeline } from './pages/member/CareTimeline';
@@ -17,6 +19,7 @@ import { CareTeam } from './pages/member/CareTeam';
 import { Programs } from './pages/member/Programs';
 import { Messages } from './pages/member/Messages';
 import { Settings } from './pages/member/Settings';
+import { AgenticAssistant } from '@dxp/ai-assistant';
 
 // Provider pages
 import { ProviderDashboard } from './pages/provider/ProviderDashboard';
@@ -48,16 +51,19 @@ type PortalMode = 'member' | 'provider' | 'internal';
 
 const memberNav: NavItem[] = [
   { label: 'Dashboard', href: '/' },
+  { label: 'Plan Detail', href: '/plan' },
   { label: 'Benefits', href: '/benefits' },
   { label: 'Digital ID', href: '/id-card' },
   { label: 'Claims', href: '/claims' },
   { label: 'Cost Estimate', href: '/cost-estimate' },
   { label: 'Find Provider', href: '/find-provider' },
+  { label: 'Primary Care', href: '/primary-care' },
   { label: 'Prior Auth', href: '/prior-auth' },
   { label: 'Care Timeline', href: '/care-timeline' },
   { label: 'Care Team', href: '/care-team' },
   { label: 'Programs', href: '/programs' },
   { label: 'Messages', href: '/messages' },
+  { label: 'Ask Assistant', href: '/assistant' },
   { label: 'Settings', href: '/settings' },
 ];
 
@@ -105,21 +111,24 @@ const appNameByMode: Record<PortalMode, string> = {
 // Page router
 // ---------------------------------------------------------------------------
 
-function renderPage(path: string) {
+function renderPage(path: string, onNavigate: (href: string) => void) {
   switch (path) {
     // Member
-    case '/':               return <Dashboard />;
+    case '/':               return <Dashboard onNavigate={onNavigate} />;
+    case '/plan':           return <PlanDetail />;
     case '/benefits':       return <Benefits />;
     case '/id-card':        return <DigitalIdCard />;
     case '/claims':         return <Claims />;
-    case '/claim-detail':   return <ClaimDetail />;
+    case '/claim-detail':   return <ClaimDetail onNavigate={onNavigate} />;
     case '/cost-estimate':  return <CostEstimate />;
     case '/find-provider':  return <FindProvider />;
+    case '/primary-care':   return <PrimaryCare />;
     case '/prior-auth':     return <PriorAuth />;
     case '/care-timeline':  return <CareTimeline />;
     case '/care-team':      return <CareTeam />;
     case '/programs':       return <Programs />;
     case '/messages':       return <Messages />;
+    case '/assistant':      return <AgenticAssistant />;
     case '/settings':       return <Settings />;
 
     // Provider
@@ -238,6 +247,26 @@ function MemberSwitcher() {
 // App
 // ---------------------------------------------------------------------------
 
+// Build a breadcrumb trail from the active nav so every page has a "back to Dashboard"
+// link. Special-cases known detail routes that aren't in the sidebar nav.
+function breadcrumbsFor(mode: PortalMode, path: string, nav: NavItem[]): { label: string; href?: string }[] {
+  const home: { label: string; href?: string } = { label: 'Home', href: defaultPathByMode[mode] };
+  if (path === defaultPathByMode[mode]) return [{ label: 'Home' }];
+
+  // Detail routes — derive parent from the path.
+  if (path === '/claim-detail') {
+    return [home, { label: 'Claims', href: '/claims' }, { label: 'Claim' }];
+  }
+  if (path === '/primary-care') {
+    return [home, { label: 'Find Provider', href: '/find-provider' }, { label: 'Primary Care' }];
+  }
+
+  const navMatch = nav.find((n) => n.href === path);
+  if (navMatch) return [home, { label: navMatch.label }];
+
+  return [home, { label: 'Page' }];
+}
+
 export function App() {
   const [portalMode, setPortalMode] = useState<PortalMode>('member');
   const [currentPath, setCurrentPath] = useState('/');
@@ -252,11 +281,14 @@ export function App() {
     active: item.href === currentPath,
   }));
 
+  const breadcrumbs = breadcrumbsFor(portalMode, currentPath, navByMode[portalMode]);
+
   return (
     <PageLayout
       appName={appNameByMode[portalMode]}
       navItems={nav}
       onNavigate={setCurrentPath}
+      breadcrumbs={breadcrumbs}
       userMenu={
         <div className="space-y-4">
           <MemberSwitcher />
@@ -269,7 +301,7 @@ export function App() {
         </div>
       }
     >
-      {renderPage(currentPath)}
+      {renderPage(currentPath, setCurrentPath)}
     </PageLayout>
   );
 }

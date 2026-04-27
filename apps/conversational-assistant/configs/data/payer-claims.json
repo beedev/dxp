@@ -1,0 +1,38 @@
+[
+  {
+    "claim_number": "e8a2c70e-2668-4e91-a416-6d2705afd4dd",
+    "external_number": "E8A2C70E",
+    "name": "Claim E8A2C70E",
+    "type": "professional",
+    "status": "submitted",
+    "service_date": "2025-06-01",
+    "provider": "4ba7d415-2c7f-4106-b253-91c6da0917b7",
+    "billed_amount": 950,
+    "paid_amount": 760,
+    "member_owes": 0
+  },
+  {
+    "claim_number": "a05c9350-04ef-405d-9de6-ea7d174b3fa3",
+    "external_number": "A05C9350",
+    "name": "Claim A05C9350",
+    "type": "professional",
+    "status": "submitted",
+    "service_date": "2025-07-13",
+    "provider": "01f8a82f-8767-413e-975d-8148d4bdf340",
+    "billed_amount": 950,
+    "paid_amount": 760,
+    "member_owes": 0
+  },
+  {
+    "claim_number": "063bbdd2-5c0c-45db-96f6-2c149b5c0b31",
+    "external_number": "063BBDD2",
+    "name": "Claim 063BBDD2",
+    "type": "professional",
+    "status": "submitted",
+    "service_date": "2025-10-31",
+    "provider": "d995f990-5b18-42bf-9cf8-2c7958c2bf72",
+    "billed_amount": 150,
+    "paid_amount": 120,
+    "member_owes": 0
+  }
+]

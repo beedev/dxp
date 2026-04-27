@@ -11,7 +11,6 @@ Zero Python changes.
 
 import logging
 import re
-from contextvars import ContextVar
 from typing import Any
 
 import httpx
@@ -24,16 +23,23 @@ logger = logging.getLogger(__name__)
 
 # Loaded at agent build time from persona config's "actions" section.
 # Maps action_type -> {"bff_endpoint": str, "method": str, "description": str, "required_fields": [...]}
-_action_routes: ContextVar[dict[str, dict]] = ContextVar("_action_routes", default={})
+#
+# Process-singleton: the conv-assistant runs ONE persona per process (selected
+# via AGENTIC_CONFIG_ID), so a plain module-level dict is correct. Previously
+# this was a ContextVar — that was a bug because each async task gets its own
+# context, so values set during agent build were invisible to request handlers
+# running in different tasks.
+_action_routes: dict[str, dict] = {}
 
 
 def set_action_routes(routes: dict[str, dict]) -> None:
     """Called by supervisor at agent build time to configure available actions."""
-    _action_routes.set(routes)
+    _action_routes.clear()
+    _action_routes.update(routes or {})
 
 
 def get_action_routes() -> dict[str, dict]:
-    return _action_routes.get()
+    return dict(_action_routes)
 
 
 class DomainActionInput(BaseModel):
@@ -65,12 +71,16 @@ async def domain_action_tool(action_type: str, payload: dict | None = None) -> d
     endpoint = route["bff_endpoint"]
     method = route.get("method", "POST").upper()
 
-    # Substitute path params (e.g., /api/claims/{claim_id})
-    # Sanitize values to prevent path traversal
-    if payload:
-        for key, val in payload.items():
-            safe_val = re.sub(r"[^a-zA-Z0-9_\-.]", "", str(val))
+    # Substitute path params (e.g., /api/claims/{claim_id}) and remove the
+    # consumed keys from the payload so they aren't *also* sent as query
+    # string / body. Sanitize values to prevent path traversal.
+    payload = dict(payload or {})
+    path_keys = re.findall(r"\{(\w+)\}", endpoint)
+    for key in path_keys:
+        if key in payload:
+            safe_val = re.sub(r"[^a-zA-Z0-9_\-.]", "", str(payload[key]))
             endpoint = endpoint.replace(f"{{{key}}}", safe_val)
+            payload.pop(key, None)
 
     url = f"{bff_url}{endpoint}"
     if not url.startswith(bff_url):
@@ -81,7 +91,7 @@ async def domain_action_tool(action_type: str, payload: dict | None = None) -> d
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             if method == "GET":
-                resp = await client.get(url, params=payload)
+                resp = await client.get(url, params=payload or None)
             elif method == "DELETE":
                 resp = await client.delete(url)
             else:

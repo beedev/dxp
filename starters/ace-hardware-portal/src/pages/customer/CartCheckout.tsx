@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { Card, MultiStepForm, Input, Select, OptionList, OrderSummary, Button, Badge } from '@dxp/ui';
-import { ShoppingCart, Truck, Store as StoreIcon, CreditCard, CheckCircle } from 'lucide-react';
+import { ShoppingCart, Truck, Store as StoreIcon, CreditCard, CheckCircle, Zap } from 'lucide-react';
+import {
+  useUcpCreateSession,
+  useUcpUpdateSession,
+  useUcpCompleteSession,
+  useUcpProfile,
+} from '@dxp/sdk-react';
 import { stores } from '../../data/mock-stores';
 
 const cartItems = [
@@ -27,6 +33,14 @@ interface CartCheckoutProps {
   onNavigate: (page: string) => void;
 }
 
+interface UcpReceipt {
+  sessionId: string;
+  orderId: string;
+  paymentId: string;
+  totalCents: number;
+  adapter: string;
+}
+
 export function CartCheckout({ onNavigate }: CartCheckoutProps) {
   const [quantities, setQuantities] = useState<Record<string, number>>(
     Object.fromEntries(cartItems.map((i) => [i.id, i.qty]))
@@ -35,7 +49,15 @@ export function CartCheckout({ onNavigate }: CartCheckoutProps) {
   const [selectedStore, setSelectedStore] = useState('S001');
   const [address, setAddress] = useState({ street: '', city: '', state: '', zip: '' });
   const [payment, setPayment] = useState({ card: '', expiry: '', cvv: '' });
-  const [orderPlaced, setOrderPlaced] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [ucpError, setUcpError] = useState<string | null>(null);
+  const [receipt, setReceipt] = useState<UcpReceipt | null>(null);
+
+  // UCP wiring — every checkout submit drives a real /api/v1/ucp/checkout-sessions flow.
+  const createSession = useUcpCreateSession();
+  const updateSession = useUcpUpdateSession();
+  const completeSession = useUcpCompleteSession();
+  const ucpProfile = useUcpProfile();
 
   const activeItems = cartItems.filter((i) => quantities[i.id] > 0);
   const subtotal = activeItems.reduce((sum, i) => sum + i.price * quantities[i.id], 0);
@@ -47,21 +69,94 @@ export function CartCheckout({ onNavigate }: CartCheckoutProps) {
     setQuantities((prev) => ({ ...prev, [id]: Math.max(0, (prev[id] || 0) + delta) }));
   };
 
-  if (orderPlaced) {
+  const placeOrderViaUcp = async () => {
+    setUcpError(null);
+    setSubmitting(true);
+    try {
+      // 1. Create — line items priced in minor units (cents).
+      const session = await createSession.mutateAsync({
+        currency: 'USD',
+        line_items: activeItems.map((i, idx) => ({
+          id: `li_${idx + 1}`,
+          item: { id: i.id, title: i.name, price: Math.round(i.price * 100) },
+          quantity: quantities[i.id],
+        })),
+      });
+
+      // 2. Update — buyer + fulfillment selection (drives status → ready_for_complete).
+      const fulfillmentMethod = {
+        id: 'fm_1',
+        type: delivery === 'delivery' ? ('shipping' as const) : ('pickup' as const),
+        line_item_ids: activeItems.map((_, idx) => `li_${idx + 1}`),
+        ...(delivery === 'delivery'
+          ? {
+              destinations: [
+                {
+                  id: 'dest_home',
+                  street_address: address.street,
+                  address_locality: address.city,
+                  address_region: address.state,
+                  postal_code: address.zip,
+                  address_country: 'US',
+                },
+              ],
+              selected_destination_id: 'dest_home',
+            }
+          : {}),
+      };
+      await updateSession.mutateAsync({
+        id: session.id,
+        patch: {
+          buyer: { email: 'jane@example.com', first_name: 'Jane', last_name: 'Doe' },
+          fulfillment: { methods: [fulfillmentMethod] },
+        },
+      });
+
+      // 3. Complete — submit a (mocked) tokenized card.
+      const result = await completeSession.mutateAsync({
+        id: session.id,
+        body: {
+          payment_data: {
+            id: 'pi_demo',
+            handler_id: 'com.demo.pay',
+            type: 'card',
+            credential: { type: 'PAYMENT_GATEWAY', token: 'tok_demo_xyz' },
+          },
+        },
+      });
+
+      const totalCents = result.session.totals.find((t) => t.type === 'total')?.amount ?? 0;
+      // Adapter id is not on the wire today — infer it from the session id shape.
+      const adapter = session.id.startsWith('cs_test_') ? 'stripe' : 'mock';
+      setReceipt({
+        sessionId: session.id,
+        orderId: result.order_id ?? '—',
+        paymentId: result.payment_id ?? '—',
+        totalCents,
+        adapter,
+      });
+    } catch (err) {
+      setUcpError((err as Error).message || 'Checkout failed');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (receipt) {
     return (
       <div>
-        <div className="max-w-lg mx-auto mt-12">
+        <div className="max-w-xl mx-auto mt-12">
           <Card className="p-8 text-center">
             <CheckCircle size={48} className="mx-auto text-emerald-500 mb-4" />
-            <h2 className="text-2xl font-extrabold text-[var(--dxp-text)] mb-2">Order Placed!</h2>
-            <p className="text-[var(--dxp-text-secondary)] mb-4">Your order has been confirmed.</p>
-            <div className="bg-[var(--dxp-border-light)] rounded-lg p-4 mb-6">
-              <p className="text-sm text-[var(--dxp-text-muted)]">Order Number</p>
-              <p className="text-xl font-bold text-[var(--dxp-text)]">ORD-4830</p>
-              <p className="text-sm text-[var(--dxp-text-muted)] mt-2">Estimated {delivery === 'pickup' ? 'ready for pickup' : 'delivery'}</p>
-              <p className="text-base font-semibold text-[var(--dxp-text)]">
-                {delivery === 'pickup' ? 'Today by 5:00 PM' : 'April 14, 2026'}
-              </p>
+            <h2 className="text-2xl font-extrabold text-[var(--dxp-text)] mb-1">Order Placed</h2>
+            <p className="text-[var(--dxp-text-secondary)] mb-4">
+              Settled via the UCP <span className="font-semibold uppercase">{receipt.adapter}</span> adapter.
+            </p>
+            <div className="bg-[var(--dxp-border-light)] rounded-lg p-4 mb-6 text-left space-y-1.5">
+              <KV label="Order ID" value={receipt.orderId} />
+              <KV label="Payment ID" value={receipt.paymentId} />
+              <KV label="UCP Session" value={receipt.sessionId} />
+              <KV label="Total Charged" value={`$${(receipt.totalCents / 100).toFixed(2)}`} />
             </div>
             <div className="flex gap-3 justify-center">
               <Button variant="primary" onClick={() => onNavigate('/customer/orders')}>
@@ -268,11 +363,38 @@ export function CartCheckout({ onNavigate }: CartCheckoutProps) {
         <p className="text-[var(--dxp-text-secondary)]">{activeItems.length} items in your cart</p>
       </div>
 
+      {ucpProfile.data && (
+        <Card className="mb-4 p-3 flex items-center gap-2 bg-[var(--dxp-border-light)]">
+          <Zap size={16} className="text-[var(--dxp-brand)]" />
+          <span className="text-xs text-[var(--dxp-text-secondary)]">
+            Checkout powered by{' '}
+            <span className="font-semibold text-[var(--dxp-text)]">UCP {ucpProfile.data.ucp.version}</span>
+            {' · capabilities: '}
+            {ucpProfile.data.ucp.capabilities.map((c) => c.name).join(', ')}
+          </span>
+        </Card>
+      )}
+
+      {ucpError && (
+        <Card className="mb-4 p-3 border-l-4 border-red-500">
+          <p className="text-sm text-red-700">UCP checkout failed: {ucpError}</p>
+        </Card>
+      )}
+
       <MultiStepForm
         steps={steps}
-        onSubmit={() => setOrderPlaced(true)}
-        submitLabel="Place Order"
+        onSubmit={placeOrderViaUcp}
+        submitLabel={submitting ? 'Placing order…' : 'Place Order'}
       />
+    </div>
+  );
+}
+
+function KV({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between items-baseline gap-3">
+      <span className="text-xs text-[var(--dxp-text-muted)] uppercase tracking-wider">{label}</span>
+      <span className="text-sm font-mono text-[var(--dxp-text)] truncate">{value}</span>
     </div>
   );
 }

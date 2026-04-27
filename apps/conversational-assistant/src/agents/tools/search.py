@@ -47,7 +47,7 @@ _KEY_PATTERN = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
 async def semantic_search(
     query: str,
     *,
-    entity_type: str | None = None,
+    entity_type: str | list[str] | None = None,
     filters: dict[str, Any] | None = None,
     limit: int = 20,
     # Legacy keyword args for backward compatibility
@@ -86,10 +86,21 @@ async def semantic_search(
         where_clauses: list[str] = []
         params: dict[str, Any] = {"limit": limit}
 
-        # Entity type filter (column-level, not JSONB)
+        # Entity type filter (column-level, not JSONB). Supports both a single
+        # type (legacy) and a list (multi-source personas).
         if entity_type:
-            where_clauses.append("e.entity_type = :entity_type")
-            params["entity_type"] = entity_type
+            if isinstance(entity_type, str):
+                where_clauses.append("e.entity_type = :entity_type")
+                params["entity_type"] = entity_type
+            elif isinstance(entity_type, (list, tuple)) and entity_type:
+                placeholders = []
+                for i, t in enumerate(entity_type):
+                    key = f"entity_type_{i}"
+                    placeholders.append(f":{key}")
+                    params[key] = t
+                where_clauses.append(
+                    f"e.entity_type IN ({', '.join(placeholders)})"
+                )
 
         # JSONB filters — keys are validated against allowlist to prevent injection
         for key, value in merged.items():

@@ -12,18 +12,20 @@ Environment variables:
 """
 
 import logging
-import os
 
 from fastapi import HTTPException, Request, WebSocket
 
+from src.config import settings
+
 logger = logging.getLogger(__name__)
 
-# ── Configuration (read once at import time) ──────────────────────────────
+# ── Configuration (read once at import time, sourced from pydantic settings
+# which loads .env so a plain `uvicorn` restart picks up new values) ──────
 
-API_KEY: str = os.environ.get("AGENTIC_API_KEY", "")
-ADMIN_API_KEY: str = os.environ.get("AGENTIC_ADMIN_KEY", "")
-DEV_AUTH_BYPASS: bool = os.environ.get("DEV_AUTH_BYPASS", "false").lower() == "true"
-ENV: str = os.environ.get("ENV", "development")
+API_KEY: str = settings.agentic_api_key
+ADMIN_API_KEY: str = settings.agentic_admin_key
+DEV_AUTH_BYPASS: bool = settings.dev_auth_bypass
+ENV: str = settings.env
 
 
 # ── Startup safety check ─────────────────────────────────────────────────

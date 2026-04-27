@@ -1,0 +1,47 @@
+{
+  "id": "kb-assistant",
+  "description": "Published KB articles (healthcare IT) exported from kbgen — used to hydrate the entities table so the standard Data Pipeline + Agent Readiness dashboards work alongside kbgen's own kb.article / kb.chunk ownership.",
+  "source": {
+    "type": "json_file",
+    "path": "/tmp/kb_articles.json"
+  },
+  "entity": {
+    "name": "kb_article",
+    "display_name": "KB Article",
+    "display_name_plural": "KB Articles",
+    "primary_key_field": "article_id",
+    "group_field": "category",
+    "group_label_field": "category",
+    "field_map": {
+      "article_id": "article_id",
+      "name": "title",
+      "description": "summary",
+      "category": "category",
+      "steps_md": "steps_md",
+      "itsm_kb_id": "itsm_kb_id",
+      "source_ticket_id": "source_ticket_id",
+      "status": "status"
+    },
+    "card_layout": {
+      "headline": "name",
+      "subtitle": "category",
+      "primary_metric": {
+        "field": "itsm_kb_id",
+        "label": "KB ID"
+      },
+      "secondary_metrics": [
+        { "field": "source_ticket_id", "label": "From ticket" },
+        { "field": "status", "label": "Status" }
+      ],
+      "badge": "category"
+    },
+    "action": { "label": "Open KB", "type": "open_kb" }
+  },
+  "embeddings": {
+    "provider": "openai",
+    "model": "text-embedding-3-small",
+    "dimensions": 1536,
+    "template": "{name}. Category: {category}. {description}. Steps: {steps_md}"
+  },
+  "graph": { "enabled": false }
+}

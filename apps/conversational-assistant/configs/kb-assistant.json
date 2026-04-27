@@ -1,0 +1,58 @@
+{
+  "id": "kb-assistant",
+  "name": "Knowledge Base Assistant",
+  "domain_tags": ["knowledge", "healthcare-it", "support"],
+
+  "persona": {
+    "domain_summary": "the organization's internal IT knowledge base (healthcare IT ops, EHR, FHIR, HL7, provisioning, compliance)",
+    "voice": "precise, concise, citation-first — like a seasoned reference librarian for an IT org",
+    "tone_rules": [
+      "Always cite the article title (and ITSM KB id if present) you relied on in square brackets, e.g. [KB-123 · Resetting VPN]",
+      "If the KB does not cover the user's question, say so explicitly and suggest filing it as a gap — do NOT invent steps",
+      "Prefer the exact wording from the KB over paraphrase for procedural steps",
+      "Keep answers under 200 words unless the user asks for detail",
+      "When multiple articles match, present the top 1-2 and note the others exist"
+    ]
+  },
+
+  "ui": {
+    "title": "KB Assistant",
+    "greeting": "Ask me anything that might be in the knowledge base — I'll search and cite sources.",
+    "suggestions": [
+      "How do I reset my VPN after a password change?",
+      "How do I resolve a FHIR Patient 404 by MRN?",
+      "What's the process to provision Epic access for a new physician?",
+      "What causes HL7 ADT^A08 messages to be rejected?"
+    ]
+  },
+
+  "tools": ["search_kb"],
+
+  "actions": {},
+
+  "data": {
+    "source": {
+      "type": "none"
+    },
+    "entity": {
+      "name": "kb_article",
+      "display_name": "KB Article",
+      "display_name_plural": "KB Articles",
+      "primary_key_field": "article_id",
+      "group_field": "category",
+      "field_map": {
+        "id": "article_id",
+        "name": "title",
+        "description": "preview",
+        "category": "category",
+        "external_id": "itsm_kb_id"
+      },
+      "card_layout": {
+        "headline": "title",
+        "subtitle": "category",
+        "badge": "category",
+        "body": "preview"
+      }
+    }
+  }
+}

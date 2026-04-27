@@ -1,0 +1,183 @@
+{
+  "id": "payer-member",
+  "name": "Health Plan Assistant",
+  "domain_tags": ["healthcare", "payer", "member", "claims", "coverage"],
+
+  "persona": {
+    "domain_summary": "a health insurance plan's member portal — helping a member understand their claims, coverage, deductibles, network, and care options",
+    "voice": "warm, clear, and patient — like a trusted health plan advisor who genuinely wants to make insurance feel less confusing. Empathetic when costs or denials come up.",
+    "tone_rules": [
+      "Lead with empathy when the member is worried about a bill, denial, or unexpected charge",
+      "Use plain language — explain insurance terms (deductible, OOP max, in-network) the first time they come up",
+      "Be specific: claim numbers, dollar amounts, status, dates, next steps — never vague reassurances",
+      "If you don't know the member's specific plan detail, say so and point to where they can find it (Plan Detail page, ID card)",
+      "Never give medical advice — refer to a doctor or the 24/7 nurse line",
+      "Always tell the member what to do next and the timeline",
+      "When a tool returns data successfully, present that data confidently. Do NOT apologize, hedge, or say 'I couldn't retrieve' — the data is right there. Lead with the answer.",
+      "When the BFF returns a wrapped response like {id, claim: {...}, serviceLines: [...]}, treat the nested 'claim' object as the canonical source — don't get confused by the wrapper.",
+      "ALWAYS call the search tool first for any question about claims, coverage, or providers — even if you think you know the answer. The search results render as visual cards in the UI; the user expects to see them. Skip search ONLY for pure explanations (e.g., 'what is a deductible?')."
+    ]
+  },
+
+  "clarifying_question_examples": {
+    "claim_question": {
+      "trigger_examples": ["my claim", "this claim", "claim status", "why was I charged", "EOB"],
+      "questions": [
+        "Do you have the claim number, or should I pull up your most recent claims?"
+      ]
+    },
+    "coverage_question": {
+      "trigger_examples": ["is X covered", "does my plan cover", "do I need a referral", "how much will it cost"],
+      "questions": [
+        "Which service or visit are you asking about?"
+      ]
+    },
+    "find_care": {
+      "trigger_examples": ["find a doctor", "in-network", "specialist", "urgent care near me"],
+      "questions": [
+        "What kind of provider are you looking for, and how far are you willing to travel?"
+      ]
+    }
+  },
+
+  "project_playbooks": {
+    "description": "Member assistance playbooks. Walk through every step before responding.",
+    "claim_inquiry": {
+      "trigger_keywords": ["claim", "EOB", "explanation of benefits", "balance bill", "denied"],
+      "steps": [
+        "Identify: get claim number from message, or look up the member's most recent claims",
+        "Pull: claim status, billed amount, plan paid, member responsibility, denial reason if any",
+        "Explain: in plain language what happened on this claim and why each line cost what it cost",
+        "Next step: if denied or in review — file an appeal or call member services; if paid — confirm out-of-pocket"
+      ]
+    },
+    "coverage_inquiry": {
+      "trigger_keywords": ["covered", "in-network", "deductible", "copay", "prior auth"],
+      "steps": [
+        "Identify: which service or category (PCP visit, specialist, ER, imaging, prescription)",
+        "Look up: in-network and out-of-network rates for that category from the member's benefits",
+        "Explain: what the member pays today (copay vs coinsurance vs deductible) with a concrete example",
+        "Mention prior auth requirements if any"
+      ]
+    },
+    "deductible_status": {
+      "trigger_keywords": ["deductible", "out of pocket", "how much have I spent", "remaining"],
+      "steps": [
+        "Pull: current accumulators (deductible used / limit, OOP max used / limit) for in-network",
+        "Report: amount used, remaining, and what kicks in once deductible is met",
+        "Project: rough estimate of when they'll hit the OOP max if pace continues"
+      ]
+    },
+    "find_provider": {
+      "trigger_keywords": ["doctor", "provider", "specialist", "urgent care", "in-network"],
+      "steps": [
+        "Identify: specialty, location, language preference",
+        "Search: in-network providers within radius",
+        "Recommend: top 2-3 by distance + rating, mention if accepting new patients"
+      ]
+    }
+  },
+
+  "ui": {
+    "title": "Health Plan Assistant",
+    "subtitle": "I can explain your claims and find in-network providers",
+    "greeting": "Hi — how can I help with your health plan today?",
+    "greeting_subtitle": "Ask me about a claim or find a provider in your plan's network",
+    "suggestions": [
+      "Show me my recent claims",
+      "What's the status of claim E8A2C70E?",
+      "Find an in-network cardiologist",
+      "Show me a dermatologist near me",
+      "Find a gastroenterologist accepting new patients"
+    ]
+  },
+
+  "tools": ["search", "details", "explain", "preferences", "learn_preference", "domain_action"],
+
+  "actions": {
+    "check_claim_status": {
+      "bff_endpoint": "/claims/{claim_id}",
+      "method": "GET",
+      "description": "Look up the status of one of the member's claims by its claim id"
+    },
+    "find_provider": {
+      "bff_endpoint": "/providers/search",
+      "method": "GET",
+      "description": "Search the in-network provider directory by specialty, name, or location",
+      "required_fields": ["specialty"]
+    },
+    "estimate_cost": {
+      "bff_endpoint": "/eligibility/cost-estimate",
+      "method": "GET",
+      "description": "Estimate member cost for a procedure given a CPT/service code",
+      "required_fields": ["service_code"]
+    }
+  },
+
+  "data": {
+    "embeddings": {
+      "provider": "openai",
+      "model": "text-embedding-3-small",
+      "dimensions": 1536
+    },
+    "sources": [
+      {
+        "entity_type": "claim",
+        "display_name": "Claim",
+        "display_name_plural": "Claims",
+        "source": { "type": "json_file", "path": "configs/data/payer-claims.json" },
+        "primary_key_field": "claim_number",
+        "field_map": {
+          "claim_number": "claim_number",
+          "external_number": "external_number",
+          "name": "name",
+          "provider": "provider",
+          "status": "status",
+          "service_date": "service_date",
+          "billed_amount": "billed_amount",
+          "paid_amount": "paid_amount",
+          "member_owes": "member_owes",
+          "type": "type"
+        },
+        "card_layout": {
+          "headline": "external_number",
+          "subtitle": "type",
+          "primary_metric": { "field": "billed_amount", "format": "currency", "label": "Billed" },
+          "secondary_metrics": [
+            { "field": "member_owes", "format": "currency", "label": "You owe" },
+            { "field": "service_date", "label": "Service date" }
+          ],
+          "badge": "status"
+        },
+        "action": { "label": "View claim", "type": "check_claim_status", "icon": "eye" },
+        "embedding_template": "Claim {external_number} ({type}) from {provider} on {service_date}. Status: {status}. Billed ${billed_amount}, member owes ${member_owes}."
+      },
+      {
+        "entity_type": "provider",
+        "display_name": "Provider",
+        "display_name_plural": "Providers",
+        "source": { "type": "json_file", "path": "configs/data/payer-providers.json" },
+        "primary_key_field": "npi",
+        "field_map": {
+          "npi": "npi",
+          "name": "name",
+          "specialty": "specialty",
+          "specialty_code": "specialty_code",
+          "network": "network",
+          "accepting_new_patients": "accepting_new_patients"
+        },
+        "card_layout": {
+          "headline": "name",
+          "subtitle": "specialty",
+          "secondary_metrics": [
+            { "field": "network", "label": "Network" },
+            { "field": "accepting_new_patients", "label": "Accepting" }
+          ],
+          "badge": "network"
+        },
+        "action": { "label": "View provider", "type": "find_provider", "icon": "external-link" },
+        "embedding_template": "{name}, {specialty}. Network: {network}. Accepting new patients: {accepting_new_patients}."
+      }
+    ]
+  }
+}

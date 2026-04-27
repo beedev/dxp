@@ -61,8 +61,41 @@ from src.agents.tools.pricing import (
     get_loyalty_balance,
 )
 from src.agents.tools.domain_action import domain_action_tool
+from src.agents.tools.kb import search_kb
 from src.agents.tools.products import get_product_details
 from src.agents.tools.search import semantic_product_search
+from src.agents.tools.ucp_checkout import ucp_checkout_tool
+from src.agents.persona import load_persona
+from src.config import settings
+
+
+def _resolve_persona_entity_types() -> list[str]:
+    """Read the active persona's allowed entity types once at module load.
+
+    Supports both schemas:
+    - Multi-source (new): cfg["data"]["sources"][i]["entity_type"]
+    - Single-entity (legacy): cfg["data"]["entity"]["name"]
+
+    The conv-assistant runs one persona per process (AGENTIC_CONFIG_ID). Tools
+    that hit the entities table must filter to this allow-list so a deployment
+    for one vertical doesn't surface another vertical's data. Empty list means
+    "no filter" (legacy behavior).
+    """
+    try:
+        cfg = load_persona(settings.agentic_config_id)
+        data = cfg.get("data", {}) or {}
+        sources = data.get("sources") or []
+        if sources:
+            return [s["entity_type"] for s in sources if s.get("entity_type")]
+        legacy = (data.get("entity") or {}).get("name")
+        return [legacy] if legacy else []
+    except Exception:
+        return []
+
+
+_PERSONA_ENTITY_TYPES: list[str] = _resolve_persona_entity_types()
+# Back-compat alias for callers that only need the primary type.
+_PERSONA_ENTITY_TYPE: Optional[str] = _PERSONA_ENTITY_TYPES[0] if _PERSONA_ENTITY_TYPES else None
 
 
 # ── Input schemas ──────────────────────────────────────────────────────────
@@ -165,6 +198,7 @@ async def search_products_tool(
         max_price=max_price,
         min_rating=min_rating,
         limit=limit,
+        entity_type=_PERSONA_ENTITY_TYPES or None,
     )
     # Return a compact summary for the LLM + full entity list for the UI
     def _summarize(p: dict) -> str:
@@ -213,7 +247,11 @@ async def find_complements_tool(product_id: str, limit: int = 4) -> dict[str, An
         category = d.get("category", d.get("sector", ""))
         query = f"items that complement or go well with {name} in {category}"
 
-        results = await semantic_product_search(query=query, limit=limit + 2)
+        results = await semantic_product_search(
+            query=query,
+            limit=limit + 2,
+            entity_type=_PERSONA_ENTITY_TYPES or None,
+        )
         complements = [
             {"id": r["id"], "name": r["name"], "data": r.get("data", {})}
             for r in results
@@ -513,6 +551,34 @@ async def get_cart_contents_tool() -> dict[str, Any]:
     }
 
 
+class SearchKBInput(BaseModel):
+    query: str = Field(
+        description=(
+            "Natural-language question about the knowledge base — e.g. "
+            "'how do I reset the VPN after a password change?'"
+        ),
+    )
+    category: Optional[str] = Field(
+        default=None,
+        description="Optional KB category filter (e.g. 'FHIR', 'VPN', 'Pharmacy').",
+    )
+    limit: int = Field(default=10, description="Max KB articles to return (default 10)")
+
+
+@tool("search_kb", args_schema=SearchKBInput)
+async def search_kb_tool(
+    query: str, category: Optional[str] = None, limit: int = 10
+) -> dict[str, Any]:
+    """Search the indexed knowledge base for articles that answer the user's question.
+
+    Returns ranked KB articles with title, category, preview snippet, relevance
+    score, and the upstream ITSM KB id. Always cite the returned title(s) in
+    your response so the user can verify the source.
+    """
+    hits = await search_kb(query=query, category=category, limit=limit)
+    return {"count": len(hits), "articles": hits}
+
+
 # Export the canonical tool list (backward compat — all tools, unfiltered)
 AGENT_TOOLS = [
     search_products_tool,
@@ -542,4 +608,6 @@ TOOL_REGISTRY: dict[str, Any] = {
     "learn_preference": learn_preference_tool,
     "upload": analyze_upload_tool,
     "domain_action": domain_action_tool,
+    "search_kb": search_kb_tool,
+    "ucp_checkout": ucp_checkout_tool,
 }

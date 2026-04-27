@@ -44,3 +44,14 @@ export { useProducts, useProduct, useStockLevels, useBarcodeLookup } from './hoo
 export { useDailySales, useSalesRange, useCategoryBreakdown, useTopSellers } from './hooks/use-pos';
 export { useProjectTemplates, useProjectTemplate, useMaterialsList } from './hooks/use-project-planner';
 export { useLoyaltyMember, usePointsBalance, usePointsHistory, useRewardsCatalog } from './hooks/use-loyalty';
+
+// UCP (Universal Commerce Protocol) hooks — agentic checkout
+export {
+  useUcpProfile,
+  useUcpCreateSession,
+  useUcpGetSession,
+  useUcpUpdateSession,
+  useUcpCompleteSession,
+  useUcpCancelSession,
+} from './hooks/use-ucp-checkout';
+

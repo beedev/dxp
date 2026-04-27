@@ -1,7 +1,48 @@
 import React, { useState } from 'react';
 import { Badge, Button } from '@dxp/ui';
-import { CheckCircle2, Plus, ChevronDown, ChevronUp } from 'lucide-react';
-import type { AgentEntity, EntityCardLayout, EntityAction, ActionFormField } from '../lib/agent-types';
+import {
+  CheckCircle2,
+  Plus,
+  ChevronDown,
+  ChevronUp,
+  ArrowRight,
+  ExternalLink,
+  Eye,
+  Send,
+} from 'lucide-react';
+import type {
+  AgentEntity,
+  EntityCardLayout,
+  EntityAction,
+  EntityActionIcon,
+  ActionFormField,
+} from '../lib/agent-types';
+
+// Persona configs can declare `action.icon` in JSON. We resolve it here. Falls
+// back to a sensible default by action type when not specified, so existing
+// configs (no icon field) continue to work.
+const ICON_MAP: Record<EntityActionIcon, React.ComponentType<{ size?: number }>> = {
+  plus: Plus,
+  'arrow-right': ArrowRight,
+  'external-link': ExternalLink,
+  eye: Eye,
+  check: CheckCircle2,
+  send: Send,
+};
+
+function ActionIcon({
+  iconName,
+  actionType,
+  size = 14,
+}: {
+  iconName?: EntityActionIcon;
+  actionType?: string;
+  size?: number;
+}) {
+  const fallback: EntityActionIcon = actionType === 'add_to_cart' ? 'plus' : 'arrow-right';
+  const Icon = ICON_MAP[iconName ?? fallback];
+  return <Icon size={size} />;
+}
 
 function formatValue(value: any, format?: string): string {
   if (value == null) return '';
@@ -125,7 +166,7 @@ export function EntityCard({ entity, cardLayout, action, onAction }: EntityCardP
             </>
           ) : (
             <>
-              <Plus size={14} />
+              <ActionIcon iconName={action?.icon} actionType={action?.type} />
               {actionLabel}
             </>
           )}
@@ -268,7 +309,7 @@ export function EntityCard({ entity, cardLayout, action, onAction }: EntityCardP
             </>
           ) : (
             <>
-              <Plus size={14} />
+              <ActionIcon iconName={action?.icon} actionType={action?.type} />
               {actionLabel}
             </>
           )}
@@ -280,17 +321,35 @@ export function EntityCard({ entity, cardLayout, action, onAction }: EntityCardP
 
 interface EntityGridProps {
   entities: AgentEntity[];
+  /** Default layout/action — used for any entity_type not in `configs`. */
   cardLayout?: EntityCardLayout;
   action?: EntityAction;
+  /**
+   * Per-entity-type layouts. When set, each card picks `configs[entity.entity_type]`
+   * before falling back to the top-level `cardLayout` / `action`. This lets a
+   * single search response render mixed types (claims + providers) correctly.
+   */
+  configs?: Record<string, { card_layout?: EntityCardLayout; action?: EntityAction }>;
   onAction?: (entity: AgentEntity, formValues?: Record<string, any>) => void;
 }
 
-export function EntityGrid({ entities, cardLayout, action, onAction }: EntityGridProps) {
+export function EntityGrid({ entities, cardLayout, action, configs, onAction }: EntityGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
-      {entities.map((e) => (
-        <EntityCard key={e.id} entity={e} cardLayout={cardLayout} action={action} onAction={onAction} />
-      ))}
+      {entities.map((e) => {
+        const cfg = configs?.[e.entity_type];
+        const layoutForCard = cfg?.card_layout ?? cardLayout;
+        const actionForCard = cfg?.action ?? action;
+        return (
+          <EntityCard
+            key={e.id}
+            entity={e}
+            cardLayout={layoutForCard}
+            action={actionForCard}
+            onAction={onAction}
+          />
+        );
+      })}
     </div>
   );
 }

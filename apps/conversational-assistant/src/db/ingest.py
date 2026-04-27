@@ -29,8 +29,9 @@ from src.config import settings
 from src.db.models import Base, Entity
 from src.db.session import async_session_factory, engine
 
-CONFIGS_DIR = Path(__file__).resolve().parent.parent.parent / "configs" / "data"
-PERSONA_CONFIGS_DIR = Path(__file__).resolve().parent.parent.parent / "configs"
+APP_ROOT = Path(__file__).resolve().parent.parent.parent
+CONFIGS_DIR = APP_ROOT / "configs" / "data"
+PERSONA_CONFIGS_DIR = APP_ROOT / "configs"
 
 
 def load_data_config(config_id: str) -> dict[str, Any]:
@@ -73,7 +74,12 @@ def load_data_config(config_id: str) -> dict[str, Any]:
 def load_source_data(source_cfg: dict) -> list[dict]:
     stype = source_cfg.get("type")
     if stype == "json_file":
-        p = Path(source_cfg["path"])
+        raw = source_cfg["path"]
+        p = Path(raw)
+        # Relative paths resolve against the conv-assistant app root, so
+        # personas can reference configs/data/<file>.json from any CWD.
+        if not p.is_absolute():
+            p = APP_ROOT / p
         if not p.exists():
             raise FileNotFoundError(f"Source file not found: {p}")
         with open(p) as f:
@@ -81,11 +87,25 @@ def load_source_data(source_cfg: dict) -> list[dict]:
     raise NotImplementedError(f"Source type {stype} not yet supported")
 
 
+def _resolve_dotted(record: dict, path: str) -> Any:
+    """Read a possibly-dotted path from a nested dict (e.g. 'billedAmount.value')."""
+    cur: Any = record
+    for part in path.split("."):
+        if not isinstance(cur, dict):
+            return None
+        cur = cur.get(part)
+    return cur
+
+
 def apply_field_map(source: dict, field_map: dict) -> dict:
-    """Transform a source record using field_map. Maps target_field -> source_field."""
+    """Transform a source record using field_map. Maps target_field -> source_field.
+
+    Source paths support dotted access for nested BFF responses
+    (e.g. `billedAmount.value` flattens to `billed_amount`).
+    """
     out = {}
     for target_field, source_field in field_map.items():
-        out[target_field] = source.get(source_field)
+        out[target_field] = _resolve_dotted(source, source_field) if isinstance(source_field, str) else None
     return out
 
 
@@ -120,37 +140,59 @@ async def clear_entities(entity_type: str | None = None) -> None:
         await db.commit()
 
 
-async def run_ingest(config_id: str, skip_graph: bool = False) -> None:
-    print("=" * 60)
-    print(f"  Config-driven Ingestion: {config_id}")
-    print("=" * 60)
+def _normalize_to_sources(cfg: dict) -> list[dict]:
+    """Return a uniform list of per-entity_type source specs.
 
-    cfg = load_data_config(config_id)
-    source_records = load_source_data(cfg["source"])
-    print(f"\nLoaded {len(source_records)} records from source")
+    Supports two persona schemas:
+    - Multi-source (new): cfg["sources"] = [{entity_type, source, field_map, ...}, ...]
+    - Single-entity (legacy): cfg["source"] + cfg["entity"] + cfg["embeddings"]["template"]
+    """
+    if cfg.get("sources"):
+        return list(cfg["sources"])
 
-    entity_cfg = cfg["entity"]
-    entity_type = entity_cfg["name"]
-    field_map = entity_cfg["field_map"]
-    primary_key_field = entity_cfg.get("primary_key_field", "sku")
+    entity = cfg.get("entity") or {}
+    legacy = {
+        "entity_type": entity.get("name"),
+        "display_name": entity.get("display_name", entity.get("name", "")),
+        "display_name_plural": entity.get("display_name_plural", entity.get("name", "") + "s"),
+        "source": cfg.get("source", {}),
+        "primary_key_field": entity.get("primary_key_field", "sku"),
+        "field_map": entity.get("field_map", {}),
+        "card_layout": entity.get("card_layout"),
+        "action": entity.get("action"),
+        "embedding_template": (cfg.get("embeddings") or {}).get(
+            "template", "{name}"
+        ),
+    }
+    return [legacy] if legacy["entity_type"] else []
 
-    # Ensure tables exist
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
 
-    await clear_entities(entity_type)
+async def _ingest_one_source(spec: dict, emb_cfg: dict, openai: AsyncOpenAI) -> int:
+    entity_type = spec["entity_type"]
+    field_map = spec["field_map"]
+    primary_key_field = spec.get("primary_key_field") or next(iter(field_map), "id")
+    template = spec.get("embedding_template") or "{name}"
 
-    # Transform: map source fields, extract name/description, put rest in data JSONB
+    print(f"\n--- {entity_type} ---")
+    source_records = load_source_data(spec["source"])
+    print(f"Loaded {len(source_records)} records")
+
+    if not source_records:
+        await clear_entities(entity_type)
+        return 0
+
     transformed = []
     for raw in source_records:
         mapped = apply_field_map(raw, field_map)
         eid = uuid.uuid4()
-        external_id = str(mapped.get(primary_key_field) or mapped.get("sku") or mapped.get("name") or f"E-{str(eid)[:8]}")
+        external_id = str(
+            mapped.get(primary_key_field)
+            or mapped.get("name")
+            or f"E-{str(eid)[:8]}"
+        )
         name = str(mapped.get("name") or "(unnamed)")
         description = str(mapped.get("description") or "")
         image_url = mapped.get("image_url")
-
-        # Everything goes into data — including name/description for tool access
         data = {k: v for k, v in mapped.items() if v is not None}
 
         transformed.append({
@@ -163,17 +205,11 @@ async def run_ingest(config_id: str, skip_graph: bool = False) -> None:
             "image_url": image_url,
         })
 
-    # Embeddings — template uses all mapped field names
-    emb_cfg = cfg["embeddings"]
-    template = emb_cfg["template"]
     texts = [render_embedding_text(e["data"], template) for e in transformed]
-    print(f"\nGenerating {len(texts)} embeddings (model={emb_cfg['model']})...")
-    client = AsyncOpenAI(api_key=settings.openai_api_key)
-    embeddings = await embed_all(texts, client, emb_cfg["model"])
+    print(f"Embedding {len(texts)} {entity_type} records (model={emb_cfg['model']})...")
+    embeddings = await embed_all(texts, openai, emb_cfg["model"])
 
-    # Insert
-    display_name = entity_cfg.get("display_name", entity_type)
-    print(f"\nInserting {len(transformed)} {display_name} entities...")
+    await clear_entities(entity_type)
     async with async_session_factory() as db:
         for ent, emb in zip(transformed, embeddings):
             db.add(Entity(
@@ -187,17 +223,42 @@ async def run_ingest(config_id: str, skip_graph: bool = False) -> None:
                 embedding=emb,
             ))
         await db.commit()
-    print(f"  Inserted {len(transformed)} entities")
+
+    print(f"Inserted {len(transformed)} {entity_type} entities")
+    return len(transformed)
+
+
+async def run_ingest(config_id: str, skip_graph: bool = False) -> None:
+    print("=" * 60)
+    print(f"  Config-driven Ingestion: {config_id}")
+    print("=" * 60)
+
+    cfg = load_data_config(config_id)
+    sources = _normalize_to_sources(cfg)
+    if not sources:
+        raise ValueError(f"No data sources declared in persona '{config_id}'")
+
+    # Ensure tables exist
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    emb_cfg = cfg.get("embeddings") or {"provider": "openai", "model": "text-embedding-3-small", "dimensions": 1536}
+    client = AsyncOpenAI(api_key=settings.openai_api_key)
+
+    total = 0
+    for spec in sources:
+        total += await _ingest_one_source(spec, emb_cfg, client)
+    print(f"\nTotal: {total} entities across {len(sources)} type(s)")
 
     # Graph seeding removed (AGE no longer required).
     # graph_cfg in data config JSON is ignored.
 
     print()
     print("=" * 60)
-    print(f"  Ingestion complete: {len(transformed)} {display_name} entities")
+    print(f"  Ingestion complete: {total} entities across {len(sources)} type(s)")
     print("=" * 60)
 
 
 if __name__ == "__main__":
-    config_id = sys.argv[1] if len(sys.argv) > 1 else "ace-hardware"
+    config_id = sys.argv[1] if len(sys.argv) > 1 else settings.agentic_config_id
     asyncio.run(run_ingest(config_id))

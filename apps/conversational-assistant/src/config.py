@@ -3,7 +3,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=[".env", "../../.env"],
+        # Load repo-root first, local override last — pydantic-settings v2
+        # gives priority to later entries in the list.
+        env_file=["../../.env", ".env"],
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -33,10 +35,10 @@ class Settings(BaseSettings):
     langfuse_base_url: str = "https://cloud.langfuse.com"
 
     # Persona config — which agent personality to load
-    agentic_config_id: str = "ace-hardware-retail"
+    agentic_config_id: str = "payer-member"
 
-    # BFF integration (for domain_action tool)
-    bff_base_url: str = "http://localhost:4201/api"
+    # BFF integration (for domain_action tool). DXP BFF mounts routes under /api/v1.
+    bff_base_url: str = "http://localhost:4201/api/v1"
 
     # Application
     api_host: str = "0.0.0.0"
@@ -47,6 +49,7 @@ class Settings(BaseSettings):
     # Auth — service-to-service API keys
     agentic_api_key: str = ""
     agentic_admin_key: str = ""
+    dev_auth_bypass: bool = False
 
     @property
     def sync_database_url(self) -> str:

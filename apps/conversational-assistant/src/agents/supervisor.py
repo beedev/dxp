@@ -12,6 +12,7 @@ deployment — just swap the config file.
 
 import copy
 import logging
+import re
 from functools import lru_cache
 
 from langchain_openai import ChatOpenAI
@@ -118,25 +119,57 @@ def _customize_tool_descriptions(tools: list, entity_name: str, entity_name_plur
 # Domain action setup (Gap 4: BFF bridge)
 # ---------------------------------------------------------------------------
 
-def _setup_domain_actions(config: dict, config_id: str) -> None:
+def _setup_domain_actions(config: dict, config_id: str, tools: list) -> list:
     """Load action routes from persona config and configure the domain_action tool.
 
-    Also injects available action descriptions into the domain_action tool's
-    docstring so the LLM knows what actions are available for this deployment.
+    Side effects:
+    - Registers action routes via `set_action_routes` so the tool can dispatch.
+    - Mutates the `domain_action` tool's description in `tools` to include the
+      action catalog (action_type, description, required payload fields). The
+      LLM only learns what actions exist via this description — without it,
+      it has to guess, and the supervisor's guess hint isn't visible to the
+      model.
+
+    Path params from `bff_endpoint` (e.g., `{claim_id}` from `/claims/{claim_id}`)
+    are auto-extracted and merged into `required_fields` so the LLM knows what
+    payload keys it needs to populate.
     """
     actions = config.get("actions", {})
     set_action_routes(actions)
 
-    if actions:
-        # Build a description addendum for the domain_action tool
-        action_lines = []
-        for action_type, meta in actions.items():
-            desc = meta.get("description", action_type)
-            fields = meta.get("required_fields", [])
-            fields_str = f" (requires: {', '.join(fields)})" if fields else ""
-            action_lines.append(f"  - '{action_type}': {desc}{fields_str}")
+    if not actions:
+        return tools
 
-        logger.info(f"Loaded {len(actions)} domain actions for {config_id}: {list(actions.keys())}")
+    action_lines = []
+    for action_type, meta in actions.items():
+        desc = meta.get("description", action_type)
+        path = meta.get("bff_endpoint", "")
+        path_params = re.findall(r"\{(\w+)\}", path)
+        required = list(dict.fromkeys([*meta.get("required_fields", []), *path_params]))
+        fields_str = f" (payload: {', '.join(required)})" if required else ""
+        action_lines.append(f"  - '{action_type}': {desc}{fields_str}")
+
+    catalog = (
+        "\n\nAvailable action_type values for this deployment:\n"
+        + "\n".join(action_lines)
+        + "\n\nWhen the user clicks an entity action button, you'll receive a message "
+        "of the form `Use the domain_action tool with action_type \"X\" for \"<name>\" "
+        "with entity_id=<id>, ...`. Map `entity_id` to the correct payload field for "
+        "that action's path (the `payload` hints above tell you which field name to use)."
+    )
+
+    # Mutate the domain_action tool's description in-place — copy the tool
+    # object first so other personas using the same registry don't pick up
+    # this deployment's catalog.
+    customized: list = []
+    for t in tools:
+        if getattr(t, "name", None) == "domain_action":
+            t = copy.copy(t)
+            t.description = (t.description or "") + catalog
+        customized.append(t)
+
+    logger.info(f"Loaded {len(actions)} domain actions for {config_id}: {list(actions.keys())}")
+    return customized
 
 
 # ---------------------------------------------------------------------------
@@ -160,8 +193,9 @@ def _build_agent_for(config_id: str):
     entity_name, entity_name_plural = _get_entity_names(config_id)
     tools = _customize_tool_descriptions(tools, entity_name, entity_name_plural)
 
-    # Gap 4: domain action routes
-    _setup_domain_actions(persona_config, config_id)
+    # Gap 4: domain action routes — also amends the domain_action tool's
+    # description with the available action catalog for this persona.
+    tools = _setup_domain_actions(persona_config, config_id, tools)
 
     logger.info(
         f"Built agent for '{config_id}': {len(tools)} tools, "
@@ -183,34 +217,50 @@ def build_agent(config_id: str = DEFAULT_CONFIG_ID):
 def get_ui_config(config_id: str = DEFAULT_CONFIG_ID) -> dict:
     """Return the UI hints (title, suggestions, greeting) for the frontend.
 
-    Also includes entity_config (card_layout + action) from the data block
-    so the frontend knows how to render entity cards for this vertical.
+    Also includes:
+    - `entity_config`: layout + action for the FIRST declared entity type
+      (back-compat with frontends that read a single config).
+    - `entity_configs`: full map keyed by entity_type, so the frontend can
+      pick the right layout per result when search returns mixed types.
     """
     cfg = load_persona(config_id)
     ui = dict(cfg.get("ui", {}))
 
-    # Read entity config from inline data block (merged format)
-    entity_cfg = cfg.get("data", {}).get("entity", {})
-    if entity_cfg:
-        ui["entity_config"] = {
-            "card_layout": entity_cfg.get("card_layout"),
-            "action": entity_cfg.get("action"),
-            "display_name": entity_cfg.get("display_name"),
-            "display_name_plural": entity_cfg.get("display_name_plural"),
+    data = cfg.get("data", {}) or {}
+    sources = data.get("sources") or []
+    legacy_entity = data.get("entity") or {}
+
+    def _shape(entry: dict) -> dict:
+        return {
+            "card_layout": entry.get("card_layout"),
+            "action": entry.get("action"),
+            "display_name": entry.get("display_name"),
+            "display_name_plural": entry.get("display_name_plural"),
         }
 
-    # Fallback: try separate data config (legacy format)
+    if sources:
+        ui["entity_configs"] = {
+            s["entity_type"]: _shape(s) for s in sources if s.get("entity_type")
+        }
+        # Pick the first as the default single-config (back-compat).
+        first = sources[0]
+        ui["entity_config"] = _shape(first)
+    elif legacy_entity:
+        ui["entity_config"] = _shape(legacy_entity)
+        et = legacy_entity.get("name")
+        if et:
+            ui["entity_configs"] = {et: ui["entity_config"]}
+
+    # Fallback: separate data config in configs/data/<id>.json (legacy).
     if "entity_config" not in ui:
         try:
             from src.db.ingest import load_data_config
             data_cfg = load_data_config(config_id)
-            legacy_entity = data_cfg.get("entity", {})
-            ui["entity_config"] = {
-                "card_layout": legacy_entity.get("card_layout"),
-                "action": legacy_entity.get("action"),
-                "display_name": legacy_entity.get("display_name"),
-                "display_name_plural": legacy_entity.get("display_name_plural"),
-            }
+            ent = data_cfg.get("entity") or {}
+            ui["entity_config"] = _shape(ent)
+            et = ent.get("name")
+            if et:
+                ui["entity_configs"] = {et: ui["entity_config"]}
         except FileNotFoundError:
             pass
 

@@ -26,10 +26,11 @@ import { PreferencesPanel } from './PreferencesPanel';
 import { UploadButton, UploadChips } from './UploadButton';
 import { MicButton } from './MicButton';
 
+// Domain-neutral fallbacks — only render when /api/agent-config is unreachable.
+// Real per-vertical suggestions come from the persona config.
 const DEFAULT_SUGGESTIONS = [
-  'Find me a cordless drill under $200',
-  'Help me plan a project',
-  'What deals are available?',
+  'How can I help?',
+  'Ask me a question',
 ];
 
 export function AgenticAssistant() {
@@ -60,6 +61,11 @@ export function AgenticAssistant() {
   };
 
   const handleSuggestionClick = (s: string) => {
+    // Mirror handleSend: skip when not connected so the message isn't dropped
+    // before the WebSocket and user session are ready. sendMessage's retry
+    // loop also covers slow connects, but this avoids firing into a closed
+    // socket on rapid clicks right after page load.
+    if (!chat.connected) return;
     chat.sendMessage(s);
   };
 
@@ -127,19 +133,36 @@ export function AgenticAssistant() {
                     entities={m.products}
                     cardLayout={ec?.card_layout}
                     action={ec?.action}
+                    configs={chat.entityConfigs ?? undefined}
                     onAction={(entity, formValues) => {
-                      if (ec?.action?.type === 'add_to_cart') {
+                      // Pick the action specific to this entity's type — falls
+                      // back to the persona-level action when no per-type config.
+                      const perType = chat.entityConfigs?.[entity.entity_type];
+                      const effectiveAction = perType?.action ?? ec?.action;
+                      const actionType = effectiveAction?.type;
+                      if (actionType === 'add_to_cart') {
                         // Retail: add to cart with optional quantity from form
                         chat.addProductToCart(entity, formValues?.quantity);
-                      } else if (formValues) {
-                        // Non-retail: send as instruction to LLM for domain_action
-                        const parts = Object.entries(formValues)
-                          .filter(([, v]) => v !== '' && v !== undefined)
-                          .map(([k, v]) => `${k}: ${v}`);
-                        chat.sendMessage(`Execute ${ec?.action?.type || 'action'}: ${entity.name} (${parts.join(', ')})`);
-                      } else {
-                        chat.addProductToCart(entity);
+                        return;
                       }
+                      if (!actionType) return;
+                      // Domain action: send a deterministic instruction so the LLM
+                      // calls the domain_action tool with action_type + the entity's
+                      // primary key + any form values. The backend's domain_action
+                      // tool description lists available actions and their payload
+                      // fields, so the LLM can map our entity_id → the right path
+                      // param (e.g., claim_id for /claims/{claim_id}).
+                      const formParts = formValues
+                        ? Object.entries(formValues)
+                            .filter(([, v]) => v !== '' && v !== undefined && v !== null)
+                            .map(([k, v]) => `${k}=${v}`)
+                        : [];
+                      const idArg = entity.external_id ? `entity_id=${entity.external_id}` : '';
+                      const args = [idArg, ...formParts].filter(Boolean);
+                      const argList = args.length ? ` with ${args.join(', ')}` : '';
+                      chat.sendMessage(
+                        `Use the domain_action tool with action_type "${actionType}" for "${entity.name}"${argList}.`,
+                      );
                     }}
                   />
                 )}

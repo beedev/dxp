@@ -7,6 +7,14 @@
 </head>
 <body>
   <div id="root"></div>
+  <!--
+    Override the conv-assistant base URL so this portal talks to the
+    ace-hardware-retail persona on :8003. The payer portal keeps :8002.
+    The override is read by useAgentChat at module init.
+  -->
+  <script>
+    window.__DXP_AGENTIC_API_BASE__ = 'http://localhost:8003';
+  </script>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

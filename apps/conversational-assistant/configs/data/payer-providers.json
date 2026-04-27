@@ -1,0 +1,2402 @@
+[
+  {
+    "npi": "1000000018",
+    "name": "James Chen",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000059",
+    "name": "Lisa Rodriguez",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000040",
+    "name": "Thomas Lee",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000032",
+    "name": "Jennifer Wilson",
+    "specialty": "Family Medicine",
+    "specialty_code": "207Q00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000090",
+    "name": "Lisa Chen",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000014",
+    "name": "Michael Park",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000018",
+    "name": "Jennifer Chen",
+    "specialty": "Pediatrics",
+    "specialty_code": "208000000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000058",
+    "name": "Sarah Park",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000074",
+    "name": "Thomas Lee",
+    "specialty": "Family Medicine",
+    "specialty_code": "207Q00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000018",
+    "name": "Maria Brown",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000071",
+    "name": "Lisa Wilson",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000043",
+    "name": "Michael Chen",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000004",
+    "name": "James Kim",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000057",
+    "name": "Robert Wu",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000090",
+    "name": "Jennifer Garcia",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000055",
+    "name": "Maria Garcia",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000041",
+    "name": "Sarah Kim",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000028",
+    "name": "Sarah Brown",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000088",
+    "name": "Maria Wilson",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000011",
+    "name": "Michael Wilson",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000077",
+    "name": "Jennifer Patel",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000076",
+    "name": "Thomas Lee",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000036",
+    "name": "Sarah Rodriguez",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000098",
+    "name": "Sarah Park",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000068",
+    "name": "Robert Brown",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000056",
+    "name": "Emily Patel",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000094",
+    "name": "Maria Lee",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000013",
+    "name": "Jennifer Wu",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000000",
+    "name": "Maria Lee",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000090",
+    "name": "James Rodriguez",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000024",
+    "name": "Thomas Garcia",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000055",
+    "name": "Michael Chen",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000085",
+    "name": "David Kim",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000058",
+    "name": "Thomas Wilson",
+    "specialty": "General Practice",
+    "specialty_code": "208D00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000030",
+    "name": "Sarah Park",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000011",
+    "name": "Sarah Wu",
+    "specialty": "Internal Medicine",
+    "specialty_code": "207R00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000044",
+    "name": "Thomas Rodriguez",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000066",
+    "name": "Emily Patel",
+    "specialty": "General Practice",
+    "specialty_code": "208D00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000022",
+    "name": "Sarah Lee",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000026",
+    "name": "David Wu",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000050",
+    "name": "Jennifer Chen",
+    "specialty": "General Practice",
+    "specialty_code": "208D00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000010",
+    "name": "Maria Kim",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000028",
+    "name": "James Wu",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000050",
+    "name": "Thomas Garcia",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000053",
+    "name": "Lisa Rodriguez",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000073",
+    "name": "James Garcia",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000021",
+    "name": "Emily Patel",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000015",
+    "name": "Lisa Patel",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000075",
+    "name": "Lisa Wilson",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000027",
+    "name": "Emily Garcia",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000054",
+    "name": "Emily Lee",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000047",
+    "name": "Maria Rodriguez",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000062",
+    "name": "Emily Brown",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000041",
+    "name": "Michael Wilson",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000047",
+    "name": "David Brown",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000070",
+    "name": "Sarah Park",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000007",
+    "name": "Lisa Wilson",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000086",
+    "name": "David Wilson",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000088",
+    "name": "Michael Park",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000070",
+    "name": "Lisa Chen",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000096",
+    "name": "Robert Wilson",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000025",
+    "name": "David Lee",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000007",
+    "name": "David Wu",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000095",
+    "name": "Sarah Patel",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000054",
+    "name": "Sarah Garcia",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000053",
+    "name": "David Wu",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000073",
+    "name": "Robert Park",
+    "specialty": "Neurology",
+    "specialty_code": "2084N0400X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000019",
+    "name": "David Brown",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000075",
+    "name": "Jennifer Rodriguez",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000069",
+    "name": "Robert Park",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000049",
+    "name": "David Brown",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000048",
+    "name": "Maria Lee",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000048",
+    "name": "Jennifer Garcia",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000043",
+    "name": "Maria Kim",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000098",
+    "name": "Michael Chen",
+    "specialty": "Neurology",
+    "specialty_code": "2084N0400X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000034",
+    "name": "James Garcia",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000071",
+    "name": "Emily Rodriguez",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000063",
+    "name": "Jennifer Rodriguez",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000032",
+    "name": "Robert Garcia",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000062",
+    "name": "Maria Chen",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000045",
+    "name": "David Garcia",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000057",
+    "name": "Sarah Patel",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000073",
+    "name": "Sarah Chen",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000064",
+    "name": "David Brown",
+    "specialty": "Internal Medicine",
+    "specialty_code": "207R00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000031",
+    "name": "David Rodriguez",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000028",
+    "name": "Lisa Kim",
+    "specialty": "Neurology",
+    "specialty_code": "2084N0400X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000030",
+    "name": "Robert Rodriguez",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000020",
+    "name": "Sarah Garcia",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000029",
+    "name": "Robert Brown",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000023",
+    "name": "Emily Garcia",
+    "specialty": "General Practice",
+    "specialty_code": "208D00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000015",
+    "name": "Lisa Kim",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000089",
+    "name": "Thomas Lee",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000061",
+    "name": "David Wilson",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000057",
+    "name": "Michael Wu",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000005",
+    "name": "Emily Patel",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000004",
+    "name": "James Wu",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000096",
+    "name": "Maria Wilson",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000084",
+    "name": "Maria Park",
+    "specialty": "Family Medicine",
+    "specialty_code": "207Q00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000032",
+    "name": "Jennifer Garcia",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000071",
+    "name": "David Park",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000045",
+    "name": "James Garcia",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000012",
+    "name": "Lisa Rodriguez",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000006",
+    "name": "Lisa Wilson",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000083",
+    "name": "Sarah Wu",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000052",
+    "name": "James Chen",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000046",
+    "name": "Thomas Brown",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000008",
+    "name": "Jennifer Patel",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000078",
+    "name": "Michael Kim",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000072",
+    "name": "Sarah Chen",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000094",
+    "name": "Michael Wu",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000025",
+    "name": "Emily Chen",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000009",
+    "name": "James Chen",
+    "specialty": "General Practice",
+    "specialty_code": "208D00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000080",
+    "name": "David Wu",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000026",
+    "name": "David Lee",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000061",
+    "name": "Thomas Brown",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000037",
+    "name": "Thomas Park",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000042",
+    "name": "Lisa Lee",
+    "specialty": "General Practice",
+    "specialty_code": "208D00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000046",
+    "name": "Michael Chen",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000085",
+    "name": "James Brown",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000029",
+    "name": "James Rodriguez",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000005",
+    "name": "Michael Rodriguez",
+    "specialty": "General Practice",
+    "specialty_code": "208D00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000002",
+    "name": "James Wu",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000067",
+    "name": "Lisa Lee",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000013",
+    "name": "Lisa Wilson",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000067",
+    "name": "Robert Wu",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000064",
+    "name": "Sarah Rodriguez",
+    "specialty": "General Practice",
+    "specialty_code": "208D00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000060",
+    "name": "Maria Lee",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000029",
+    "name": "Lisa Lee",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000025",
+    "name": "Sarah Rodriguez",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000002",
+    "name": "Robert Kim",
+    "specialty": "Neurology",
+    "specialty_code": "2084N0400X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000041",
+    "name": "David Brown",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000003",
+    "name": "Maria Garcia",
+    "specialty": "Internal Medicine",
+    "specialty_code": "207R00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000061",
+    "name": "David Lee",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000035",
+    "name": "Michael Brown",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000017",
+    "name": "James Garcia",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000079",
+    "name": "Michael Lee",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000074",
+    "name": "David Park",
+    "specialty": "General Practice",
+    "specialty_code": "208D00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000085",
+    "name": "Emily Rodriguez",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000080",
+    "name": "Lisa Rodriguez",
+    "specialty": "Pediatrics",
+    "specialty_code": "208000000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000037",
+    "name": "Sarah Wilson",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000097",
+    "name": "Lisa Kim",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000036",
+    "name": "Maria Patel",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000093",
+    "name": "James Lee",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000092",
+    "name": "Robert Patel",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000031",
+    "name": "Maria Rodriguez",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000086",
+    "name": "Lisa Kim",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000021",
+    "name": "Sarah Chen",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000065",
+    "name": "Robert Patel",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000051",
+    "name": "Sarah Brown",
+    "specialty": "Neurology",
+    "specialty_code": "2084N0400X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000000",
+    "name": "James Patel",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000087",
+    "name": "Sarah Rodriguez",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000069",
+    "name": "Michael Wilson",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000026",
+    "name": "Emily Kim",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000049",
+    "name": "Jennifer Lee",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000015",
+    "name": "Michael Wu",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000095",
+    "name": "Thomas Kim",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000003",
+    "name": "Emily Garcia",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000093",
+    "name": "James Rodriguez",
+    "specialty": "Neurology",
+    "specialty_code": "2084N0400X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000034",
+    "name": "James Brown",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000088",
+    "name": "Thomas Kim",
+    "specialty": "Family Medicine",
+    "specialty_code": "207Q00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000023",
+    "name": "Michael Patel",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000035",
+    "name": "Emily Patel",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000024",
+    "name": "James Chen",
+    "specialty": "Pediatrics",
+    "specialty_code": "208000000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000089",
+    "name": "James Chen",
+    "specialty": "General Practice",
+    "specialty_code": "208D00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000082",
+    "name": "Robert Brown",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000038",
+    "name": "Maria Park",
+    "specialty": "General Practice",
+    "specialty_code": "208D00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000043",
+    "name": "Michael Kim",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000053",
+    "name": "Thomas Patel",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000006",
+    "name": "David Rodriguez",
+    "specialty": "Internal Medicine",
+    "specialty_code": "207R00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000011",
+    "name": "David Patel",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000010",
+    "name": "David Kim",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000052",
+    "name": "Lisa Chen",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000099",
+    "name": "Jennifer Park",
+    "specialty": "General Practice",
+    "specialty_code": "208D00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000016",
+    "name": "James Park",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000039",
+    "name": "Maria Park",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000051",
+    "name": "Sarah Wu",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000001",
+    "name": "Michael Patel",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000097",
+    "name": "Jennifer Chen",
+    "specialty": "Family Medicine",
+    "specialty_code": "207Q00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000014",
+    "name": "James Chen",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000030",
+    "name": "Jennifer Brown",
+    "specialty": "Neurology",
+    "specialty_code": "2084N0400X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000091",
+    "name": "Lisa Brown",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000006",
+    "name": "Sarah Park",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000019",
+    "name": "Maria Patel",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000033",
+    "name": "James Patel",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000048",
+    "name": "James Rodriguez",
+    "specialty": "Pediatrics",
+    "specialty_code": "208000000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000016",
+    "name": "Sarah Garcia",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000033",
+    "name": "David Garcia",
+    "specialty": "Neurology",
+    "specialty_code": "2084N0400X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000099",
+    "name": "Jennifer Chen",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000098",
+    "name": "Thomas Rodriguez",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000079",
+    "name": "Maria Park",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000020",
+    "name": "Robert Wu",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000079",
+    "name": "Sarah Lee",
+    "specialty": "Neurology",
+    "specialty_code": "2084N0400X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000052",
+    "name": "Thomas Chen",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000022",
+    "name": "Lisa Lee",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000092",
+    "name": "David Chen",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000009",
+    "name": "David Lee",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000027",
+    "name": "Maria Kim",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000017",
+    "name": "Maria Patel",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000091",
+    "name": "Jennifer Garcia",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000023",
+    "name": "Thomas Kim",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000081",
+    "name": "Maria Garcia",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000049",
+    "name": "Sarah Garcia",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000024",
+    "name": "James Brown",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000021",
+    "name": "Sarah Wilson",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000004",
+    "name": "Jennifer Chen",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000077",
+    "name": "James Kim",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000094",
+    "name": "Emily Park",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000056",
+    "name": "James Patel",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000064",
+    "name": "Sarah Rodriguez",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000059",
+    "name": "Michael Garcia",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000060",
+    "name": "Sarah Rodriguez",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000042",
+    "name": "Sarah Brown",
+    "specialty": "General Practice",
+    "specialty_code": "208D00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000078",
+    "name": "Michael Garcia",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000081",
+    "name": "Jennifer Wu",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000051",
+    "name": "Maria Garcia",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000058",
+    "name": "Robert Kim",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000007",
+    "name": "David Park",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000038",
+    "name": "Thomas Patel",
+    "specialty": "Family Medicine",
+    "specialty_code": "207Q00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000038",
+    "name": "Jennifer Chen",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000096",
+    "name": "Lisa Patel",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000065",
+    "name": "Jennifer Rodriguez",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000036",
+    "name": "Maria Wu",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000086",
+    "name": "Lisa Park",
+    "specialty": "General Practice",
+    "specialty_code": "208D00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000059",
+    "name": "Emily Patel",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000001",
+    "name": "James Brown",
+    "specialty": "Internal Medicine",
+    "specialty_code": "207R00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000033",
+    "name": "David Chen",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000042",
+    "name": "Thomas Wu",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000008",
+    "name": "Thomas Kim",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000080",
+    "name": "Thomas Park",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000074",
+    "name": "James Garcia",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000027",
+    "name": "James Chen",
+    "specialty": "Neurology",
+    "specialty_code": "2084N0400X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000078",
+    "name": "Robert Chen",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000067",
+    "name": "Thomas Patel",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000072",
+    "name": "David Wilson",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000020",
+    "name": "Maria Rodriguez",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000046",
+    "name": "Sarah Garcia",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000000",
+    "name": "Lisa Rodriguez",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000035",
+    "name": "Sarah Lee",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000047",
+    "name": "Sarah Brown",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000055",
+    "name": "Jennifer Rodriguez",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000087",
+    "name": "James Kim",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000002",
+    "name": "Emily Chen",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000016",
+    "name": "Sarah Wu",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000009",
+    "name": "Lisa Lee",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000063",
+    "name": "David Brown",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000039",
+    "name": "Lisa Wu",
+    "specialty": "Family Medicine",
+    "specialty_code": "207Q00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000082",
+    "name": "Jennifer Chen",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000068",
+    "name": "David Wilson",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000083",
+    "name": "Thomas Brown",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000005",
+    "name": "Sarah Chen",
+    "specialty": "General Practice",
+    "specialty_code": "208D00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000082",
+    "name": "David Lee",
+    "specialty": "Pediatrics",
+    "specialty_code": "208000000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000054",
+    "name": "Lisa Wu",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000010",
+    "name": "Sarah Garcia",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000062",
+    "name": "James Wu",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000069",
+    "name": "David Wilson",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000019",
+    "name": "James Brown",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000068",
+    "name": "Maria Garcia",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000097",
+    "name": "Maria Garcia",
+    "specialty": "General Practice",
+    "specialty_code": "208D00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000056",
+    "name": "Lisa Park",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000093",
+    "name": "Emily Garcia",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000084",
+    "name": "James Garcia",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000083",
+    "name": "Michael Chen",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000014",
+    "name": "Maria Park",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000092",
+    "name": "Sarah Wu",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000070",
+    "name": "Emily Patel",
+    "specialty": "Family Medicine",
+    "specialty_code": "207Q00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000040",
+    "name": "Robert Park",
+    "specialty": "Internal Medicine",
+    "specialty_code": "207R00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000089",
+    "name": "Thomas Wilson",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000066",
+    "name": "Robert Wu",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000012",
+    "name": "Jennifer Chen",
+    "specialty": "General Practice",
+    "specialty_code": "208D00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000044",
+    "name": "Michael Garcia",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000087",
+    "name": "Jennifer Kim",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000040",
+    "name": "Sarah Lee",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000099",
+    "name": "Thomas Wu",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000065",
+    "name": "Jennifer Rodriguez",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000091",
+    "name": "Emily Brown",
+    "specialty": "Neurology",
+    "specialty_code": "2084N0400X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000045",
+    "name": "Sarah Park",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000063",
+    "name": "Michael Brown",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000077",
+    "name": "David Wilson",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000081",
+    "name": "Lisa Brown",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000034",
+    "name": "Jennifer Garcia",
+    "specialty": "Psychiatry",
+    "specialty_code": "2084P0800X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000017",
+    "name": "Lisa Park",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000044",
+    "name": "David Rodriguez",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000008",
+    "name": "Lisa Kim",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000012",
+    "name": "Lisa Park",
+    "specialty": "Pediatrics",
+    "specialty_code": "208000000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000084",
+    "name": "Robert Brown",
+    "specialty": "General Practice",
+    "specialty_code": "208D00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000066",
+    "name": "Robert Rodriguez",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000060",
+    "name": "Michael Rodriguez",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000039",
+    "name": "James Wilson",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000076",
+    "name": "Lisa Wilson",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000076",
+    "name": "Lisa Brown",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000075",
+    "name": "David Park",
+    "specialty": "Gastroenterology",
+    "specialty_code": "207RG0100X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000013",
+    "name": "Robert Lee",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000095",
+    "name": "David Rodriguez",
+    "specialty": "Dermatology",
+    "specialty_code": "207N00000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000031",
+    "name": "Jennifer Wilson",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000022",
+    "name": "Thomas Wu",
+    "specialty": "Endocrinology",
+    "specialty_code": "207RE0101X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000072",
+    "name": "Jennifer Lee",
+    "specialty": "Pulmonary Disease",
+    "specialty_code": "207RP1001X",
+    "network": "in-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000003",
+    "name": "Michael Wilson",
+    "specialty": "Orthopedic Surgery",
+    "specialty_code": "207X00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000037",
+    "name": "Robert Park",
+    "specialty": "Urgent Care",
+    "specialty_code": "261QU0200X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000001",
+    "name": "Robert Wu",
+    "specialty": "Cardiovascular Disease",
+    "specialty_code": "207RC0000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  },
+  {
+    "npi": "1000000050",
+    "name": "Thomas Rodriguez",
+    "specialty": "Obstetrics & Gynecology",
+    "specialty_code": "207V00000X",
+    "network": "out-of-network",
+    "accepting_new_patients": true
+  }
+]

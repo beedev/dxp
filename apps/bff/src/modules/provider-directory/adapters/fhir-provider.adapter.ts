@@ -12,6 +12,82 @@ import { ProviderDirectoryPort } from '../ports/provider-directory.port';
 import { FhirClient, FhirBundle } from '../../fhir-core/fhir-client.service';
 
 /**
+ * Common specialty terms → NPI Healthcare Provider Taxonomy codes.
+ * Used to translate human-friendly inputs (`cardiology`, `pediatrician`) into
+ * the codes FHIR's PractitionerRole.specialty parameter expects. Add entries
+ * as needed; unrecognized terms fall through unchanged so callers can still
+ * pass a literal taxonomy code.
+ */
+const SPECIALTY_ALIASES: Record<string, string> = {
+  // Cardiology
+  'cardiology': '207RC0000X',
+  'cardiologist': '207RC0000X',
+  'cardiovascular disease': '207RC0000X',
+  'heart': '207RC0000X',
+  // Primary care
+  'family medicine': '207Q00000X',
+  'family practice': '207Q00000X',
+  'primary care': '207Q00000X',
+  'internal medicine': '207R00000X',
+  'internist': '207R00000X',
+  'general practice': '208D00000X',
+  'gp': '208D00000X',
+  // Pediatrics
+  'pediatrics': '208000000X',
+  'pediatrician': '208000000X',
+  'kids': '208000000X',
+  'children': '208000000X',
+  // Women's health
+  'ob/gyn': '207V00000X',
+  'obgyn': '207V00000X',
+  'obstetrics': '207V00000X',
+  'gynecology': '207V00000X',
+  // Surgery / ortho
+  'orthopedics': '207X00000X',
+  'orthopedic surgery': '207X00000X',
+  'orthopedic': '207X00000X',
+  'orthopaedics': '207X00000X',
+  // Other common
+  'dermatology': '207N00000X',
+  'dermatologist': '207N00000X',
+  'neurology': '2084N0400X',
+  'neurologist': '2084N0400X',
+  'psychiatry': '2084P0800X',
+  'psychiatrist': '2084P0800X',
+  'urology': '208800000X',
+  'urologist': '208800000X',
+  'oncology': '207RX0202X',
+  'oncologist': '207RX0202X',
+  // Internal-medicine subspecialties
+  'gastroenterology': '207RG0100X',
+  'gastroenterologist': '207RG0100X',
+  'gi': '207RG0100X',
+  'pulmonary': '207RP1001X',
+  'pulmonary disease': '207RP1001X',
+  'pulmonologist': '207RP1001X',
+  'lung': '207RP1001X',
+  'endocrinology': '207RE0101X',
+  'endocrinologist': '207RE0101X',
+  'diabetes': '207RE0101X',
+  'urgent care': '261QU0200X',
+  'walk-in': '261QU0200X',
+};
+
+const TAXONOMY_CODE_PATTERN = /^\d{3}[A-Z][A-Z0-9]{5}X$/;
+
+/**
+ * Resolve a user-supplied specialty filter to an NPI taxonomy code.
+ * - Already a code (e.g. `207RC0000X`) → pass through
+ * - Known alias (e.g. `cardiology`) → translate
+ * - Unknown → pass through (FHIR will return empty if it doesn't match)
+ */
+function resolveSpecialtyFilter(input: string): string {
+  const trimmed = input.trim();
+  if (TAXONOMY_CODE_PATTERN.test(trimmed)) return trimmed;
+  return SPECIALTY_ALIASES[trimmed.toLowerCase()] ?? trimmed;
+}
+
+/**
  * FHIR-based Provider Directory adapter.
  * Queries Practitioner, PractitionerRole, Organization, and Location resources
  * following the DaVinci PDEX Plan Net IG.
@@ -58,7 +134,7 @@ export class FhirProviderAdapter extends ProviderDirectoryPort {
         _include: 'PractitionerRole:practitioner',
         _count: String(ids.length * 2),
       };
-      if (query.specialty) roleParams.specialty = query.specialty;
+      if (query.specialty) roleParams.specialty = resolveSpecialtyFilter(query.specialty);
 
       const rolesBundle = await this.fhir.search<Record<string, unknown>>('PractitionerRole', roleParams);
       const roles: Record<string, unknown>[] = [];
@@ -94,7 +170,7 @@ export class FhirProviderAdapter extends ProviderDirectoryPort {
       _include: 'PractitionerRole:practitioner',
       _offset: String(offset),
     };
-    if (query.specialty) params.specialty = query.specialty;
+    if (query.specialty) params.specialty = resolveSpecialtyFilter(query.specialty);
     if (query.postalCode) params['location.address-postalcode'] = query.postalCode;
     if (query.acceptingNew !== undefined) params['new-patient'] = String(query.acceptingNew);
     if (query.language) params.communication = query.language;
