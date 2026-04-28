@@ -161,7 +161,7 @@ export function HostedPay({ onNavigate }: HostedPayProps) {
         totalCents={total}
         currency={data.currency}
         onSuccess={handleStripeSuccess}
-        onCancel={() => onNavigate('/customer')}
+        onBack={() => onNavigate('/customer')}
       />
 
       {completionError && (

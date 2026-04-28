@@ -17,6 +17,11 @@ export interface DxpTheme {
     textMuted: string;
     border: string;
     borderLight: string;
+    /** Chat user-message bubble background. Optional — when unset, the
+     * chat falls back to `brand`. Lets tenants whose brand color is
+     * very prominent (Meijer red, ACE red) paint user bubbles in a
+     * complementary secondary color instead of doubling up. */
+    chatUserBubble?: string;
   };
   radius: 'none' | 'sm' | 'md' | 'lg' | 'full';
   density: 'compact' | 'comfortable' | 'spacious';
@@ -80,5 +85,6 @@ export function themeToCSS(theme: DxpTheme): string {
   --dxp-chart-3: ${theme.colors.warning};
   --dxp-chart-4: ${theme.colors.info};
   --dxp-chart-5: ${theme.colors.danger};
+  --dxp-chat-user-bubble: ${theme.colors.chatUserBubble ?? theme.colors.brand};
 }`;
 }

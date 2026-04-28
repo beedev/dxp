@@ -22,11 +22,15 @@ export function MessageBubble({ role, content }: MessageBubbleProps) {
     );
   }
 
+  // User bubble uses --dxp-chat-user-bubble (theme token, defaults to
+  // --dxp-brand for backward compat). Tenants whose brand is a strong
+  // signal color (Meijer red, ACE red) can paint user bubbles in a
+  // complementary secondary by setting `chatUserBubble` in their theme.
   return (
     <div className={`flex gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
       <div
         className={`h-7 w-7 flex-shrink-0 rounded-full flex items-center justify-center ${
-          isUser ? 'bg-[var(--dxp-brand)]' : 'bg-[var(--dxp-border-light)]'
+          isUser ? 'bg-[var(--dxp-chat-user-bubble)]' : 'bg-[var(--dxp-border-light)]'
         }`}
       >
         {isUser ? (
@@ -39,7 +43,7 @@ export function MessageBubble({ role, content }: MessageBubbleProps) {
         <div
           className={`rounded-[var(--dxp-radius)] px-3.5 py-2.5 text-sm leading-relaxed ${
             isUser
-              ? 'bg-[var(--dxp-brand)] text-white'
+              ? 'bg-[var(--dxp-chat-user-bubble)] text-white'
               : 'bg-[var(--dxp-border-light)] text-[var(--dxp-text)]'
           }`}
         >

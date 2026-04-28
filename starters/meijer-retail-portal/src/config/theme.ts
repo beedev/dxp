@@ -24,6 +24,11 @@ export const meijerTheme: DeepPartial<DxpTheme> = {
     textMuted: '#9CA3AF',
     border: '#E5E7EB',
     borderLight: '#F3F4F6',
+    // Paint user-message chat bubbles in Meijer navy instead of brand
+    // red — gives the conversation a 2-tone feel (red brand on the
+    // dashboard, navy bubbles in the assistant) that's instantly
+    // distinguishable from ACE's all-red chat.
+    chatUserBubble: '#1B365D',
   },
   radius: 'md',
   density: 'comfortable',
