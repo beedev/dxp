@@ -36,6 +36,7 @@ _ALLOWED_ORIGINS = [
     "http://localhost:4300",  # payer portal
     "http://localhost:4400",  # wealth portal
     "http://localhost:4500",  # ace hardware portal
+    "http://localhost:4501",  # meijer retail portal
     "http://localhost:4600",  # playground
     "http://localhost:3000",  # generic dev
 ]

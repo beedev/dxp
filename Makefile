@@ -66,13 +66,18 @@ audit-portal: ## Audit one portal: make audit-portal PORTAL=wealth-portal
 test: ## Run all tests
 	pnpm nx run-many -t test
 
-demo-ucp: ## Bring up ChatGPT × UCP demo (cloudflared + BFF + ACE conv-assistant + portal)
+demo-ucp: ## Bring up UCP × ChatGPT demo. Pass TENANT=ace (default) or TENANT=meijer
 	@bash scripts/start-ucp-demo.sh
 
-demo-ucp-stop: ## Stop the UCP demo (tunnels + servers)
-	@lsof -ti :4201 :4500 :8003 2>/dev/null | xargs -r kill 2>/dev/null || true
-	@pkill -f "cloudflared.*localhost:4201" 2>/dev/null || true
-	@pkill -f "cloudflared.*localhost:4500" 2>/dev/null || true
+demo-ucp-stop: ## Stop both ACE and Meijer demos (tunnels + servers)
+	@-lsof -ti :4201 2>/dev/null | xargs kill 2>/dev/null
+	@-lsof -ti :4500 2>/dev/null | xargs kill 2>/dev/null
+	@-lsof -ti :4501 2>/dev/null | xargs kill 2>/dev/null
+	@-lsof -ti :8003 2>/dev/null | xargs kill 2>/dev/null
+	@-lsof -ti :8005 2>/dev/null | xargs kill 2>/dev/null
+	@-pkill -f "cloudflared.*localhost:4201" 2>/dev/null
+	@-pkill -f "cloudflared.*localhost:4500" 2>/dev/null
+	@-pkill -f "cloudflared.*localhost:4501" 2>/dev/null
 	@echo "UCP demo stopped"
 
 lint: ## Run linters

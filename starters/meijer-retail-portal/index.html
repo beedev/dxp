@@ -9,11 +9,11 @@
   <div id="root"></div>
   <!--
     Override the conv-assistant base URL so this portal talks to the
-    meijer-retail persona on :8004. ACE keeps :8003, payer keeps :8002.
-    The override is read by useAgentChat at module init.
+    meijer-retail persona on :8005. ACE keeps :8003, payer keeps :8002.
+    (:8004 was reserved by Docker on this dev machine.)
   -->
   <script>
-    window.__DXP_AGENTIC_API_BASE__ = 'http://localhost:8004';
+    window.__DXP_AGENTIC_API_BASE__ = 'http://localhost:8005';
   </script>
   <script type="module" src="/src/main.tsx"></script>
 </body>

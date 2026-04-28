@@ -31,6 +31,7 @@ async function bootstrap() {
       'http://localhost:4300', // payer
       'http://localhost:4400', // wealth
       'http://localhost:4500', // ace-hardware
+      'http://localhost:4501', // meijer-retail
       // Dev tools (standalone vite dev servers)
       'http://localhost:4600', // playground
       'http://localhost:4700', // storybook
