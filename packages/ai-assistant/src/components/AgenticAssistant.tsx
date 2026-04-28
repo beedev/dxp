@@ -12,11 +12,13 @@ import {
   Activity,
   Bot,
   Brain,
+  ChevronDown,
   RotateCcw,
   Send,
   ShoppingCart,
   Sparkles,
 } from 'lucide-react';
+import type { CartItem } from '../lib/agent-types';
 import { useAgentChat } from '../hooks/useAgentChat';
 import { MessageBubble } from './MessageBubble';
 import { EntityGrid } from './ProductCard';
@@ -104,9 +106,11 @@ export function AgenticAssistant() {
         title={title}
         currentUserName={chat.currentUser.display_name}
         showCart={showCart}
+        cart={chat.cart}
         cartCount={chat.cart.reduce((s, c) => s + c.quantity, 0)}
         cartTotal={cartTotal}
         cartNoun={cartNoun}
+        priceField={priceField}
         connected={chat.connected}
         onNewChat={() => {
           chat.clearSession();
@@ -265,14 +269,17 @@ interface HeaderProps {
   title: string;
   currentUserName: string;
   showCart: boolean;
+  cart: CartItem[];
   cartCount: number;
   cartTotal: number;
   cartNoun: string;
+  /** Persona's primary_metric.field, used to read per-item price from `data`. */
+  priceField?: string;
   connected: boolean;
   onNewChat?: () => void;
 }
 
-function Header({ title, currentUserName, showCart, cartCount, cartTotal, cartNoun, connected, onNewChat }: HeaderProps) {
+function Header({ title, currentUserName, showCart, cart, cartCount, cartTotal, cartNoun, priceField, connected, onNewChat }: HeaderProps) {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -288,22 +295,13 @@ function Header({ title, currentUserName, showCart, cartCount, cartTotal, cartNo
       </div>
       <div className="flex items-center gap-3">
         {showCart && (
-          <div
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--dxp-radius)] ${
-              cartCount > 0
-                ? 'bg-[var(--dxp-brand-light)] text-[var(--dxp-brand)]'
-                : 'bg-[var(--dxp-border-light)] text-[var(--dxp-text-muted)]'
-            }`}
-          >
-            <ShoppingCart size={14} />
-            <span className="text-xs font-semibold">{cartCount} in {cartNoun}</span>
-            {cartCount > 0 && (
-              <>
-                <span className="text-xs">·</span>
-                <span className="text-xs font-semibold">${cartTotal.toFixed(2)}</span>
-              </>
-            )}
-          </div>
+          <CartButton
+            cart={cart}
+            cartCount={cartCount}
+            cartTotal={cartTotal}
+            cartNoun={cartNoun}
+            priceField={priceField}
+          />
         )}
         {onNewChat && (
           <button
@@ -325,6 +323,128 @@ function Header({ title, currentUserName, showCart, cartCount, cartTotal, cartNo
           </span>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ── Cart popover ─────────────────────────────────────────────────────────────
+
+interface CartButtonProps {
+  cart: CartItem[];
+  cartCount: number;
+  cartTotal: number;
+  cartNoun: string;
+  /** Persona's primary_metric.field — read unit price from CartItem.data when present. */
+  priceField?: string;
+}
+
+function CartButton({ cart, cartCount, cartTotal, cartNoun, priceField }: CartButtonProps) {
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // Close on outside click + Escape so keyboard users can dismiss without
+  // hunting for the toggle.
+  useEffect(() => {
+    if (!open) return;
+    const onClick = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', onClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const isEmpty = cartCount === 0;
+  const unitPrice = (item: CartItem): number => {
+    const fromData = priceField ? Number(item.data?.[priceField]) : NaN;
+    if (Number.isFinite(fromData)) return fromData;
+    return Number(item.price ?? 0);
+  };
+
+  return (
+    <div ref={wrapperRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--dxp-radius)] transition-colors cursor-pointer ${
+          !isEmpty
+            ? 'bg-[var(--dxp-brand-light)] text-[var(--dxp-brand)] hover:bg-[var(--dxp-border-light)]'
+            : 'bg-[var(--dxp-border-light)] text-[var(--dxp-text-muted)] hover:bg-[var(--dxp-border)]'
+        }`}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+      >
+        <ShoppingCart size={14} />
+        <span className="text-xs font-semibold">{cartCount} in {cartNoun}</span>
+        {!isEmpty && (
+          <>
+            <span className="text-xs">·</span>
+            <span className="text-xs font-semibold">${cartTotal.toFixed(2)}</span>
+          </>
+        )}
+        <ChevronDown
+          size={12}
+          className={`transition-transform ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      {open && (
+        <div
+          role="dialog"
+          aria-label={`${cartNoun} contents`}
+          className="absolute right-0 top-full mt-2 w-80 rounded-[var(--dxp-radius)] border border-[var(--dxp-border)] bg-[var(--dxp-surface)] shadow-lg z-50"
+        >
+          <div className="px-4 py-3 border-b border-[var(--dxp-border-light)]">
+            <p className="text-xs font-bold uppercase tracking-widest text-[var(--dxp-text-muted)]">
+              Your {cartNoun}
+            </p>
+          </div>
+
+          {isEmpty ? (
+            <div className="px-4 py-6 text-center text-sm text-[var(--dxp-text-muted)]">
+              Nothing in your {cartNoun} yet. Ask the assistant to find something.
+            </div>
+          ) : (
+            <>
+              <ul className="max-h-72 overflow-y-auto divide-y divide-[var(--dxp-border-light)]">
+                {cart.map((item) => {
+                  const u = unitPrice(item);
+                  return (
+                    <li key={item.product_id} className="px-4 py-3 flex items-start gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-[var(--dxp-text)] truncate" title={item.name}>
+                          {item.name}
+                        </p>
+                        {item.brand && (
+                          <p className="text-xs text-[var(--dxp-text-muted)] truncate">{item.brand}</p>
+                        )}
+                        <p className="text-xs text-[var(--dxp-text-muted)] mt-0.5">
+                          ${u.toFixed(2)} × {item.quantity}
+                        </p>
+                      </div>
+                      <p className="text-sm font-semibold text-[var(--dxp-text)] flex-shrink-0">
+                        ${(u * item.quantity).toFixed(2)}
+                      </p>
+                    </li>
+                  );
+                })}
+              </ul>
+              <div className="px-4 py-3 border-t border-[var(--dxp-border-light)] flex items-center justify-between">
+                <span className="text-sm font-semibold text-[var(--dxp-text)]">Subtotal</span>
+                <span className="text-sm font-bold text-[var(--dxp-text)]">
+                  ${cartTotal.toFixed(2)}
+                </span>
+              </div>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
