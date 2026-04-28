@@ -2,18 +2,24 @@ import type { DxpTheme } from '@dxp/ui';
 
 type DeepPartial<T> = { [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P] };
 
-export const aceTheme: DeepPartial<DxpTheme> = {
+/**
+ * Meijer brand palette. The CSS variable `--dxp-brand` is set from this
+ * theme at runtime (via @dxp/ui's ThemeProvider) and that's what every
+ * component actually reads. Tailwind's `brand.*` color scale in
+ * `tailwind.config.js` is kept aligned with these values.
+ */
+export const meijerTheme: DeepPartial<DxpTheme> = {
   colors: {
-    brand: '#D50032',
-    brandDark: '#A30027',
-    brandLight: '#FFF1F3',
+    brand: '#E5202E',
+    brandDark: '#C91A26',
+    brandLight: '#FEEAEC',
     success: '#16A34A',
-    warning: '#D97706',
+    warning: '#F0A91B',
     danger: '#DC2626',
-    info: '#2563EB',
+    info: '#1B365D',
     background: '#F9FAFB',
     surface: '#FFFFFF',
-    textPrimary: '#333333',
+    textPrimary: '#1F2937',
     textSecondary: '#4B5563',
     textMuted: '#9CA3AF',
     border: '#E5E7EB',

@@ -47,6 +47,21 @@ export function CustomerDashboard({ onNavigate }: CustomerDashboardProps) {
 
   return (
     <div>
+      {/* Tenant brand strip — uses theme tokens (var(--dxp-info) for the
+          navy band, var(--dxp-warning) for the accent line). Both come
+          from `src/config/theme.ts` and cascade everywhere via the
+          @dxp/ui ThemeProvider. */}
+      <div
+        className="-mx-6 -mt-6 mb-6 px-6 py-4 flex items-center gap-3"
+        style={{
+          backgroundColor: 'var(--dxp-info)',
+          borderBottom: '4px solid var(--dxp-warning)',
+        }}
+      >
+        <span className="text-white text-lg font-black tracking-tight">meijer</span>
+        <span className="text-white/70 text-xs">↗ Higher standards · Lower prices</span>
+      </div>
+
       {/* Welcome Banner */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-1">
@@ -72,8 +87,14 @@ export function CustomerDashboard({ onNavigate }: CustomerDashboardProps) {
         />
       </div>
 
-      {/* Spring Sale Promo Banner */}
-      <Card className="p-6 mb-6 bg-gradient-to-r from-red-700 via-red-600 to-amber-500 text-white">
+      {/* Game-Day Promo Banner — driven by theme tokens (info → warning),
+          so swapping the tenant theme changes the gradient automatically. */}
+      <Card
+        className="p-6 mb-6 text-white"
+        style={{
+          background: 'linear-gradient(to right, var(--dxp-info), var(--dxp-warning))',
+        }}
+      >
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-wider opacity-80 mb-1">Limited Time Offer</p>

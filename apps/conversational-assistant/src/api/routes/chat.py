@@ -418,6 +418,18 @@ async def _stream_agent_turn(
                         "currency": parsed.get("currency", "USD"),
                     })
 
+                # Empty the cart on successful UCP checkout completion.
+                # The order has been placed, so the in-session cart that
+                # drove it shouldn't keep showing items in the badge.
+                if (
+                    ename == "ucp_checkout"
+                    and isinstance(parsed, dict)
+                    and parsed.get("step") == "complete"
+                    and parsed.get("success") is True
+                ):
+                    SESSION_CARTS[session_id] = []
+                    await _emit_cart_state(session_id)
+
             # ── Final assistant message ──
             elif etype == "on_chain_end" and ename == "LangGraph":
                 output = data.get("output", {})
