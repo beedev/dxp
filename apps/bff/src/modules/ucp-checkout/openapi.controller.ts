@@ -288,22 +288,24 @@ export class UcpOpenApiController {
           },
           Product: {
             type: 'object',
+            // OpenAPI 3.1 nullable form — `type: [..., 'null']`.
+            // Don't use `nullable: true` here; that's 3.0 syntax and the
+            // ChatGPT importer (strict 3.1 parser) silently rejects it.
             properties: {
               id: { type: 'string', description: 'Stable SKU. Use as `item.id` in createCheckoutSession.', example: 'T001' },
-              sku: { type: 'string', nullable: true },
+              sku: { type: ['string', 'null'] },
               name: { type: 'string', example: 'DeWalt 12V MAX Drill/Driver Kit' },
-              brand: { type: 'string', nullable: true, example: 'DeWalt' },
-              category: { type: 'string', nullable: true, example: 'Power Tools' },
+              brand: { type: ['string', 'null'], example: 'DeWalt' },
+              category: { type: ['string', 'null'], example: 'Power Tools' },
               price_cents: {
-                type: 'integer',
-                nullable: true,
+                type: ['integer', 'null'],
                 description: 'Unit price in minor units (cents). Use as `item.price` in createCheckoutSession.',
                 example: 12900,
               },
-              description: { type: 'string', nullable: true },
-              rating: { type: 'number', nullable: true, example: 4.7 },
-              review_count: { type: 'integer', nullable: true },
-              image_url: { type: 'string', nullable: true },
+              description: { type: ['string', 'null'] },
+              rating: { type: ['number', 'null'], example: 4.7 },
+              review_count: { type: ['integer', 'null'] },
+              image_url: { type: ['string', 'null'] },
             },
           },
           ProductSearchResult: {
