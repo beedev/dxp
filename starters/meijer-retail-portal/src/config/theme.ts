@@ -3,19 +3,30 @@ import type { DxpTheme } from '@dxp/ui';
 type DeepPartial<T> = { [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P] };
 
 /**
- * Meijer brand palette. The CSS variable `--dxp-brand` is set from this
- * theme at runtime (via @dxp/ui's ThemeProvider) and that's what every
- * component actually reads. Tailwind's `brand.*` color scale in
- * `tailwind.config.js` is kept aligned with these values.
+ * Meijer demo palette.
+ *
+ * Picks navy as the *primary* brand surface (the `--dxp-brand` token).
+ * Every component that uses `var(--dxp-brand)` — sidebar pills, send
+ * button, action highlights, chat bubbles via the chatUserBubble
+ * fallback — instantly turns navy. Meijer's red and mustard live in
+ * `danger` and `warning` respectively, which gives us the secondary
+ * accents (status badges, the dashboard promo banner gradient) that
+ * make this *not* look like ACE.
+ *
+ * Yes, Meijer's real-world brand is red — but red-on-red was visually
+ * indistinguishable from ACE. The demo's job is to prove "swap the
+ * theme, swap the look", and navy as primary does that in one config
+ * line. Real engagements would dial this back to red-primary if the
+ * stakeholder cared more about brand authenticity than visual A/B.
  */
 export const meijerTheme: DeepPartial<DxpTheme> = {
   colors: {
-    brand: '#E5202E',
-    brandDark: '#C91A26',
-    brandLight: '#FEEAEC',
+    brand: '#1B365D',
+    brandDark: '#102341',
+    brandLight: '#DDE5F2',
     success: '#16A34A',
-    warning: '#F0A91B',
-    danger: '#DC2626',
+    warning: '#F0A91B', // Meijer mustard — drives promo accents
+    danger: '#E5202E',  // Meijer red — drives error/decline states
     info: '#1B365D',
     background: '#F9FAFB',
     surface: '#FFFFFF',
@@ -24,11 +35,6 @@ export const meijerTheme: DeepPartial<DxpTheme> = {
     textMuted: '#9CA3AF',
     border: '#E5E7EB',
     borderLight: '#F3F4F6',
-    // Paint user-message chat bubbles in Meijer navy instead of brand
-    // red — gives the conversation a 2-tone feel (red brand on the
-    // dashboard, navy bubbles in the assistant) that's instantly
-    // distinguishable from ACE's all-red chat.
-    chatUserBubble: '#1B365D',
   },
   radius: 'md',
   density: 'comfortable',
