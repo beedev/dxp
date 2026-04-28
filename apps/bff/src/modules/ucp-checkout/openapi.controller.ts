@@ -44,19 +44,14 @@ export class UcpOpenApiController {
       info: {
         title: 'UCP Shopping Checkout',
         description:
-          'Universal Commerce Protocol (ucp.dev) — open standard for agentic commerce. ' +
-          'AGENT WORKFLOW: ' +
-          '(1) Call `searchProducts` first to find real SKUs and prices in the merchant\'s ' +
-          'catalog. NEVER invent products or prices — always derive them from this call. ' +
-          '(2) `createCheckoutSession` with the returned `id` and `price_cents` as `item.id` ' +
-          'and `item.price`. ' +
-          '(3) `updateCheckoutSession` with buyer + fulfillment until status is ' +
-          '`ready_for_complete`. ' +
-          '(4) Surface the response\'s `payment_url` to the user as a clickable link — that ' +
-          'hosted page captures their card via Stripe Elements and calls `complete` for you. ' +
-          '(5) Poll `getCheckoutSession` until status is `completed`, then report the order. ' +
-          'Do NOT call `complete` yourself with a fake token. Stripe test mode is real.',
-        version: '2026-01-11',
+          'Agentic commerce per the UCP open standard (ucp.dev). Search products, ' +
+          'create a checkout, attach buyer + fulfillment, then surface payment_url ' +
+          'so the buyer pays on the hosted Stripe Elements page (which calls ' +
+          'complete for you). Poll getCheckoutSession to confirm.',
+        // Semver in info.version — ChatGPT's strict OpenAPI validator
+        // rejects date strings here. The protocol version (2026-01-11)
+        // lives on the discovery doc, not on this spec's metadata.
+        version: '1.0.0',
         contact: { name: 'UCP', url: 'https://ucp.dev' },
       },
       servers: [{ url: serverUrl, description: 'DXP BFF' }],
@@ -163,6 +158,9 @@ export class UcpOpenApiController {
             tags: ['checkout'],
             operationId: 'getCheckoutSession',
             summary: 'Get a checkout session by id',
+            description:
+              'Read the current state of a checkout session. Use this to poll for ' +
+              '`status: completed` after the buyer has paid via the hosted page.',
             parameters: [sessionIdParam],
             responses: {
               '200': {
@@ -225,6 +223,9 @@ export class UcpOpenApiController {
             tags: ['checkout'],
             operationId: 'cancelCheckoutSession',
             summary: 'Cancel an open session',
+            description:
+              'Abandon a checkout session that was created but not completed. ' +
+              'Idempotent for already-canceled sessions.',
             parameters: [sessionIdParam],
             responses: {
               '200': {
