@@ -185,6 +185,6 @@ cat <<BANNER
      Then start a fresh chat: "Find me a cordless drill"
 
    Logs : $LOG_DIR/
-   Stop : lsof -ti :4201 :4500 :8003 | xargs kill && pkill -f cloudflared
+   Stop : make demo-ucp-stop
 ────────────────────────────────────────────────────────────────────
 BANNER
