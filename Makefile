@@ -66,6 +66,15 @@ audit-portal: ## Audit one portal: make audit-portal PORTAL=wealth-portal
 test: ## Run all tests
 	pnpm nx run-many -t test
 
+demo-ucp: ## Bring up ChatGPT × UCP demo (cloudflared + BFF + ACE conv-assistant + portal)
+	@bash scripts/start-ucp-demo.sh
+
+demo-ucp-stop: ## Stop the UCP demo (tunnels + servers)
+	@lsof -ti :4201 :4500 :8003 2>/dev/null | xargs -r kill 2>/dev/null || true
+	@pkill -f "cloudflared.*localhost:4201" 2>/dev/null || true
+	@pkill -f "cloudflared.*localhost:4500" 2>/dev/null || true
+	@echo "UCP demo stopped"
+
 lint: ## Run linters
 	pnpm nx run-many -t lint
 

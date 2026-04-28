@@ -72,6 +72,28 @@ The flow ChatGPT runs:
 
 ---
 
+## Fast path — one command
+
+If you just want everything brought up with both tunnels, the env
+patched, and the BFF/conv-assistant/portal running, run:
+
+```bash
+make demo-ucp
+```
+
+That runs `scripts/start-ucp-demo.sh` which: kills anything on the
+relevant ports, starts both cloudflared tunnels, captures their URLs,
+patches `UCP_PAYMENT_URL_TEMPLATE` in `.env`, starts BFF (`:4201`),
+conv-assistant (`:8003`, ACE persona), and portal (`:4500`), then
+prints the BFF tunnel URL ready for you to paste into ChatGPT.
+
+To tear down later: `make demo-ucp-stop`.
+
+The manual steps below are useful when something breaks and you need
+to debug a specific layer.
+
+---
+
 ## Step 1 — Tunnel the BFF (port 4201)
 
 ChatGPT runs in OpenAI's cloud and can't reach `localhost`. Cloudflared
