@@ -19,8 +19,10 @@ import type {
   AgentUIConfig,
   CartItem,
   ChatMessage,
+  CheckoutConfig,
   DemoUser,
   EntityConfig,
+  PendingPayment,
   UploadRecord,
 } from '../lib/agent-types';
 
@@ -34,8 +36,11 @@ export type {
   CartItem,
   ChatMessage,
   ChatRole,
+  CheckoutCardConfig,
+  CheckoutConfig,
   DemoUser,
   EntityConfig,
+  PendingPayment,
   UploadRecord,
 } from '../lib/agent-types';
 
@@ -58,9 +63,17 @@ export interface UseAgentChatResult {
   uiConfig: AgentUIConfig | null;
   entityConfig: EntityConfig | null;
   entityConfigs: Record<string, EntityConfig> | null;
+  /** Persona-driven inline checkout config (undefined when disabled). */
+  checkoutConfig: CheckoutConfig | null;
+  /** Active inline payment capture; rendered as Stripe Elements when set. */
+  pendingPayment: PendingPayment | null;
   selectUser: (userId: string) => Promise<void>;
   sendMessage: (content: string) => void;
   addProductToCart: (entity: AgentEntity, quantity?: number) => void;
+  /** Called by the inline payment card after Stripe confirms — sends a
+   * follow-up message to the LLM so it calls ucp_checkout(step='complete'). */
+  confirmPayment: (paymentIntentId: string) => void;
+  cancelPayment: () => void;
   uploadFile: (file: File) => Promise<UploadRecord | null>;
   removeUpload: (fileId: string) => Promise<void>;
   clearSession: () => void;
@@ -85,6 +98,7 @@ export function useAgentChat(): UseAgentChatResult {
   const [entityConfig, setEntityConfig] = useState<EntityConfig | null>(null);
   const [entityConfigs, setEntityConfigs] = useState<Record<string, EntityConfig> | null>(null);
   const [uploads, setUploads] = useState<UploadRecord[]>([]);
+  const [pendingPayment, setPendingPayment] = useState<PendingPayment | null>(null);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/agent-config`)
@@ -254,6 +268,19 @@ export function useAgentChat(): UseAgentChatResult {
           setCart(payload.cart || []);
           break;
 
+        case 'payment_required':
+          // Backend signaled the UCP session is ready_for_complete and
+          // surfaced a Stripe client_secret. Render Elements inline.
+          if (payload.client_secret) {
+            setPendingPayment({
+              client_secret: payload.client_secret,
+              payment_intent_id: payload.payment_intent_id,
+              amount: payload.amount,
+              currency: payload.currency,
+            });
+          }
+          break;
+
         case 'assistant_message': {
           const attachedProducts = pendingProductsRef.current;
           pendingProductsRef.current = null;
@@ -407,11 +434,33 @@ export function useAgentChat(): UseAgentChatResult {
     setAgentSteps([]);
     setProducts([]);
     setUploads([]);
+    setPendingPayment(null);
     // Clear saved session so next mount creates fresh
     if (currentUser) {
       sessionStorage.removeItem(`dxp-agent-session-${currentUser.id}`);
     }
   }, [currentUser]);
+
+  const checkoutConfig = uiConfig?.checkout ?? null;
+
+  const confirmPayment = useCallback(
+    (paymentIntentId: string) => {
+      // Stripe confirmed the card on the client; tell the LLM to finish
+      // the UCP session. The exact message text comes from the persona
+      // config so each tenant can phrase the handoff in its own voice.
+      const template =
+        checkoutConfig?.post_success_user_message ??
+        '[payment-confirmed {payment_intent_id}] Please complete the order.';
+      const content = template.replace(/\{payment_intent_id\}/g, paymentIntentId);
+      setPendingPayment(null);
+      sendMessage(content);
+    },
+    [checkoutConfig, sendMessage],
+  );
+
+  const cancelPayment = useCallback(() => {
+    setPendingPayment(null);
+  }, []);
 
   return {
     connected,
@@ -427,9 +476,13 @@ export function useAgentChat(): UseAgentChatResult {
     uiConfig,
     entityConfig,
     entityConfigs,
+    checkoutConfig,
+    pendingPayment,
     selectUser,
     sendMessage,
     addProductToCart,
+    confirmPayment,
+    cancelPayment,
     uploadFile,
     removeUpload,
     clearSession,

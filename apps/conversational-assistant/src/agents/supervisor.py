@@ -264,6 +264,13 @@ def get_ui_config(config_id: str = DEFAULT_CONFIG_ID) -> dict:
         except FileNotFoundError:
             pass
 
+    # Expose inline-checkout config so the chat UI can render the Stripe
+    # Elements card with persona-driven labels. Absence = no inline checkout
+    # for this tenant, which is the default for non-retail verticals.
+    checkout = data.get("checkout")
+    if isinstance(checkout, dict) and checkout.get("enabled"):
+        ui["checkout"] = checkout
+
     return ui
 
 

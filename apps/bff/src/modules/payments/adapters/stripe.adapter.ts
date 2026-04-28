@@ -10,18 +10,38 @@ export class StripeAdapter extends PaymentsPort {
 
   constructor(private config: ConfigService) {
     super();
+    // Accept either STRIPE_SECRET_KEY (canonical) or the legacy STRIPE_API_KEY
+    // we briefly used for the UCP-only adapter; consolidating onto one name.
+    const key =
+      this.config.get<string>('STRIPE_SECRET_KEY') ||
+      this.config.get<string>('STRIPE_API_KEY') ||
+      '';
     this.client = axios.create({
       baseURL: 'https://api.stripe.com/v1',
-      auth: { username: this.config.get<string>('STRIPE_SECRET_KEY', ''), password: '' },
+      auth: { username: key, password: '' },
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     });
   }
 
+  override getPublishableKey(): string | null {
+    return this.config.get<string>('STRIPE_PUBLISHABLE_KEY') || null;
+  }
+
   async createPayment(dto: CreatePaymentDto): Promise<PaymentIntent> {
     this.logger.log(`Stripe: creating payment $${dto.amount / 100}`);
-    const { data } = await this.client.post('/payment_intents', new URLSearchParams({
-      amount: String(dto.amount), currency: dto.currency || 'usd', ...(dto.description ? { description: dto.description } : {}),
-    }));
+    // automatic_payment_methods lets Stripe Elements show whichever method
+    // the buyer prefers (card / Apple Pay / Link / etc.) without us picking.
+    const params: Record<string, string> = {
+      amount: String(dto.amount),
+      currency: dto.currency || 'usd',
+      'automatic_payment_methods[enabled]': 'true',
+    };
+    if (dto.description) params.description = dto.description;
+    if (dto.customerId) params.customer = dto.customerId;
+    if (dto.metadata) {
+      for (const [k, v] of Object.entries(dto.metadata)) params[`metadata[${k}]`] = String(v);
+    }
+    const { data } = await this.client.post('/payment_intents', new URLSearchParams(params));
     return this.mapPayment(data);
   }
 

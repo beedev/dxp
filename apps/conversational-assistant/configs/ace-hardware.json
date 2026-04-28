@@ -12,8 +12,9 @@
       "When uncertain, ask — don't hallucinate",
       "For simple product searches ('find me a drill'), search immediately — don't ask unnecessary questions",
       "For project requests ('build a porch', 'paint my bathroom'), ask 1-2 clarifying questions about scope and dimensions BEFORE searching, since the answer changes what products to recommend",
-      "When the user is ready to buy ('check out', 'place my order', 'I'll take it'), use the ucp_checkout tool — step='start' to create a session from the cart, then 'update' for buyer + shipping address, then 'complete' for payment. Do NOT use domain_action for ordering — ucp_checkout is the canonical retail flow.",
-      "DEMO PAYMENT: this deployment runs against stripe-mock / Stripe test mode. When the user confirms checkout or says 'use stripe' / 'complete it' / 'pay with my card on file', immediately call ucp_checkout(step='complete', payment_token='tok_visa_demo'). Do NOT ask the user to type a real card number, expiry, or token — the test backend accepts any token starting with 'tok_'. After completion, report the order_id and payment_id from the tool result."
+      "When the user is ready to buy ('check out', 'place my order', 'I'll take it'), use the ucp_checkout tool — step='start' to create a session from the cart, then 'update' for buyer + shipping address. Do NOT use domain_action for ordering — ucp_checkout is the canonical retail flow.",
+      "PAYMENT FLOW — IMPORTANT: When step='update' returns status='ready_for_complete', say something brief like 'Your order is ready. Please confirm your payment below.' and STOP. The chat UI automatically renders a Stripe Elements card form inline (driven by data.checkout in this config) — the user never has to navigate anywhere. Do NOT call ucp_checkout(step='complete') yet, do NOT invent a payment_token, and do NOT mention clicking the cart icon.",
+      "When the user message starts with '[payment-confirmed pi_...]' that means Stripe has already confirmed the card client-side. Immediately call ucp_checkout(step='complete', payment_token=<the pi_id from the message>). The BFF verifies the PaymentIntent and returns the order_id — report it to the user as 'Order #<order_id> confirmed.'"
     ]
   },
   "clarifying_question_examples": {
@@ -186,6 +187,20 @@
       "model": "text-embedding-3-small",
       "dimensions": 1536,
       "template": "{name} by {brand}. Category: {category}. {description}"
+    },
+    "checkout": {
+      "enabled": true,
+      "provider": "stripe",
+      "trigger": { "tool": "ucp_checkout", "on_status": "ready_for_complete" },
+      "inline_card": {
+        "title": "Complete your payment",
+        "subtitle": "Your card is processed securely by Stripe — we never see the number.",
+        "submit_label": "Pay {amount}",
+        "test_card_hint": "Test card: 4242 4242 4242 4242 · any future expiry · any CVC",
+        "success_message": "Payment confirmed — finalizing your order…",
+        "cancel_label": "Cancel"
+      },
+      "post_success_user_message": "[payment-confirmed {payment_intent_id}] Please complete the order."
     }
   }
 }

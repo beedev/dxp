@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Card, CardHeader, CardContent, Badge, Tabs } from '@dxp/ui';
 import type { AdapterModule } from '../data/modules';
+import { StripeSimulator } from './StripeSimulator';
 
 const methodColors: Record<string, string> = {
   GET: 'success', POST: 'brand', PUT: 'warning', DELETE: 'danger',
 };
 
-const docTabs = [
+const baseDocTabs = [
   { key: 'try', label: 'Try It' },
   { key: 'port', label: 'Port Interface' },
   { key: 'adapters', label: 'Adapters' },
   { key: 'sdk', label: 'SDK Usage' },
   { key: 'setup', label: 'Setup Guide' },
 ];
+
+// Modules that get an extra "Simulate" tab with a live interactive demo.
+const SIMULATE_MODULES = new Set(['Payments']);
 
 export function ApiTester({ module: mod, accessToken }: { module: AdapterModule; accessToken?: string }) {
   const [selectedEndpoint, setSelectedEndpoint] = useState(mod.endpoints[0]);
@@ -21,6 +25,10 @@ export function ApiTester({ module: mod, accessToken }: { module: AdapterModule;
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('try');
   const [bffUrl] = useState('http://localhost:4201/api/v1');
+
+  const docTabs = SIMULATE_MODULES.has(mod.name)
+    ? [baseDocTabs[0], { key: 'simulate', label: 'Simulate' }, ...baseDocTabs.slice(1)]
+    : baseDocTabs;
 
   useEffect(() => {
     setSelectedEndpoint(mod.endpoints[0]);
@@ -125,6 +133,11 @@ export function ApiTester({ module: mod, accessToken }: { module: AdapterModule;
             </Card>
           </div>
         </>
+      )}
+
+      {/* === Simulate (live Stripe payment) === */}
+      {activeTab === 'simulate' && mod.name === 'Payments' && (
+        <StripeSimulator accessToken={accessToken} />
       )}
 
       {/* === Port Interface === */}

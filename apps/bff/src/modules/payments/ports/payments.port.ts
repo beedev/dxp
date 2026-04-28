@@ -33,4 +33,14 @@ export abstract class PaymentsPort {
   abstract createSubscription(customerId: string, planId: string): Promise<Subscription>;
   abstract cancelSubscription(subscriptionId: string): Promise<void>;
   abstract listSubscriptions(customerId: string): Promise<Subscription[]>;
+
+  /**
+   * Optional: returns the provider's publishable / client-side key for
+   * embedded checkout SDKs (Stripe Elements, Razorpay JS, MercadoPago Brick).
+   * Returns `null` when the provider has no client-side surface or the key
+   * isn't configured. Adapters override as needed.
+   */
+  getPublishableKey(): string | null {
+    return null;
+  }
 }

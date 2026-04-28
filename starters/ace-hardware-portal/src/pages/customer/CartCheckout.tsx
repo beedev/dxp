@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Card, MultiStepForm, Input, Select, OptionList, OrderSummary, Button, Badge } from '@dxp/ui';
-import { ShoppingCart, Truck, Store as StoreIcon, CreditCard, CheckCircle, Zap } from 'lucide-react';
+import { ShoppingCart, Truck, Store as StoreIcon, CreditCard, CheckCircle, Zap, Lock } from 'lucide-react';
 import {
   useUcpCreateSession,
   useUcpUpdateSession,
   useUcpCompleteSession,
   useUcpProfile,
+  UcpPaymentPage,
 } from '@dxp/sdk-react';
 import { stores } from '../../data/mock-stores';
 
@@ -41,6 +42,12 @@ interface UcpReceipt {
   adapter: string;
 }
 
+interface PaymentStage {
+  sessionId: string;
+  clientSecret: string;
+  totalCents: number;
+}
+
 export function CartCheckout({ onNavigate }: CartCheckoutProps) {
   const [quantities, setQuantities] = useState<Record<string, number>>(
     Object.fromEntries(cartItems.map((i) => [i.id, i.qty]))
@@ -48,9 +55,9 @@ export function CartCheckout({ onNavigate }: CartCheckoutProps) {
   const [delivery, setDelivery] = useState<string>('pickup');
   const [selectedStore, setSelectedStore] = useState('S001');
   const [address, setAddress] = useState({ street: '', city: '', state: '', zip: '' });
-  const [payment, setPayment] = useState({ card: '', expiry: '', cvv: '' });
   const [submitting, setSubmitting] = useState(false);
   const [ucpError, setUcpError] = useState<string | null>(null);
+  const [paymentStage, setPaymentStage] = useState<PaymentStage | null>(null);
   const [receipt, setReceipt] = useState<UcpReceipt | null>(null);
 
   // UCP wiring — every checkout submit drives a real /api/v1/ucp/checkout-sessions flow.
@@ -73,7 +80,9 @@ export function CartCheckout({ onNavigate }: CartCheckoutProps) {
     setUcpError(null);
     setSubmitting(true);
     try {
-      // 1. Create — line items priced in minor units (cents).
+      // 1. Create — line items priced in minor units (cents). Server creates
+      //    a Stripe PaymentIntent and returns its client_secret in
+      //    session.payment.client_secret for the embedded card form.
       const session = await createSession.mutateAsync({
         currency: 'USD',
         line_items: activeItems.map((i, idx) => ({
@@ -83,7 +92,7 @@ export function CartCheckout({ onNavigate }: CartCheckoutProps) {
         })),
       });
 
-      // 2. Update — buyer + fulfillment selection (drives status → ready_for_complete).
+      // 2. Update — buyer + fulfillment selection.
       const fulfillmentMethod = {
         id: 'fm_1',
         type: delivery === 'delivery' ? ('shipping' as const) : ('pickup' as const),
@@ -104,7 +113,7 @@ export function CartCheckout({ onNavigate }: CartCheckoutProps) {
             }
           : {}),
       };
-      await updateSession.mutateAsync({
+      const updated = await updateSession.mutateAsync({
         id: session.id,
         patch: {
           buyer: { email: 'jane@example.com', first_name: 'Jane', last_name: 'Doe' },
@@ -112,35 +121,66 @@ export function CartCheckout({ onNavigate }: CartCheckoutProps) {
         },
       });
 
-      // 3. Complete — submit a (mocked) tokenized card.
-      const result = await completeSession.mutateAsync({
-        id: session.id,
-        body: {
-          payment_data: {
-            id: 'pi_demo',
-            handler_id: 'com.demo.pay',
-            type: 'card',
-            credential: { type: 'PAYMENT_GATEWAY', token: 'tok_demo_xyz' },
-          },
-        },
-      });
+      const clientSecret = updated.payment?.client_secret ?? session.payment?.client_secret;
+      if (!clientSecret) {
+        throw new Error('Adapter did not return a payment client_secret. Stripe Elements requires it.');
+      }
+      const totalCents = updated.totals.find((t) => t.type === 'total')?.amount ?? 0;
 
-      const totalCents = result.session.totals.find((t) => t.type === 'total')?.amount ?? 0;
-      // Adapter id is not on the wire today — infer it from the session id shape.
-      const adapter = session.id.startsWith('cs_test_') ? 'stripe' : 'mock';
-      setReceipt({
-        sessionId: session.id,
-        orderId: result.order_id ?? '—',
-        paymentId: result.payment_id ?? '—',
-        totalCents,
-        adapter,
-      });
+      // 3. Hand off to Stripe Elements for embedded card capture. We DO NOT
+      //    call completeSession here — that fires after the customer submits
+      //    the card form and Stripe confirms the PaymentIntent.
+      setPaymentStage({ sessionId: session.id, clientSecret, totalCents });
     } catch (err) {
       setUcpError((err as Error).message || 'Checkout failed');
     } finally {
       setSubmitting(false);
     }
   };
+
+  const onStripeSuccess = async (paymentIntentId: string) => {
+    if (!paymentStage) return;
+    setUcpError(null);
+    try {
+      const result = await completeSession.mutateAsync({
+        id: paymentStage.sessionId,
+        body: {
+          payment_data: {
+            // The PI is already confirmed by Stripe Elements client-side.
+            // The adapter retrieves it server-side and verifies status.
+            id: paymentIntentId,
+            handler_id: 'com.stripe.elements',
+            type: 'card',
+            credential: { type: 'PAYMENT_GATEWAY', token: paymentIntentId },
+          },
+        },
+      });
+      const totalCents = result.session.totals.find((t) => t.type === 'total')?.amount ?? paymentStage.totalCents;
+      const adapter = paymentStage.sessionId.startsWith('pi_') ? 'stripe' : 'mock';
+      setReceipt({
+        sessionId: paymentStage.sessionId,
+        orderId: result.order_id ?? '—',
+        paymentId: result.payment_id ?? paymentIntentId,
+        totalCents,
+        adapter,
+      });
+      setPaymentStage(null);
+    } catch (err) {
+      setUcpError((err as Error).message || 'Failed to finalize order');
+    }
+  };
+
+  // Stage 2: payment-capture screen — drops in the @dxp/sdk-react composite.
+  if (paymentStage) {
+    return (
+      <UcpPaymentPage
+        clientSecret={paymentStage.clientSecret}
+        totalCents={paymentStage.totalCents}
+        onSuccess={onStripeSuccess}
+        onBack={() => setPaymentStage(null)}
+      />
+    );
+  }
 
   if (receipt) {
     return (
@@ -292,36 +332,18 @@ export function CartCheckout({ onNavigate }: CartCheckoutProps) {
       ),
     },
     {
-      title: 'Payment',
+      title: 'Review & Pay',
       content: (
         <div>
-          <h3 className="text-base font-bold text-[var(--dxp-text)] mb-4">Payment Details</h3>
-          <Card className="p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <CreditCard size={20} className="text-[var(--dxp-brand)]" />
-              <span className="text-sm font-semibold text-[var(--dxp-text)]">Credit / Debit Card</span>
-            </div>
-            <div className="space-y-3">
-              <LabeledInput
-                label="Card Number"
-                value={payment.card}
-                onChange={(e) => setPayment({ ...payment, card: e.target.value })}
-                placeholder="•••• •••• •••• ••••"
-              />
-              <div className="grid grid-cols-2 gap-3">
-                <LabeledInput
-                  label="Expiry Date"
-                  value={payment.expiry}
-                  onChange={(e) => setPayment({ ...payment, expiry: e.target.value })}
-                  placeholder="MM/YY"
-                />
-                <LabeledInput
-                  label="CVV"
-                  value={payment.cvv}
-                  onChange={(e) => setPayment({ ...payment, cvv: e.target.value })}
-                  placeholder="•••"
-                />
-              </div>
+          <h3 className="text-base font-bold text-[var(--dxp-text)] mb-4">Confirm your order</h3>
+          <Card className="p-5 mb-4 flex items-start gap-3 bg-[var(--dxp-brand-light)]">
+            <Lock size={20} className="text-[var(--dxp-brand)] flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-[var(--dxp-text)]">Secure card capture via Stripe</p>
+              <p className="text-xs text-[var(--dxp-text-secondary)] mt-0.5">
+                On the next screen, enter your card details on a Stripe-managed form. Your card never
+                touches our servers — Stripe handles tokenization and PCI compliance.
+              </p>
             </div>
           </Card>
 

@@ -20,6 +20,7 @@ export { PreferencesPanel } from './components/PreferencesPanel';
 export { UploadButton, UploadChips } from './components/UploadButton';
 export { MicButton } from './components/MicButton';
 export { SpeakButton } from './components/SpeakButton';
+export { InlinePaymentCard } from './components/InlinePaymentCard';
 
 // === Pages (drop into any portal's manager/customer view) ===
 export { AgenticPlayground } from './pages/AgenticPlayground';
@@ -41,9 +42,12 @@ export type {
   CartItem,
   ChatMessage,
   ChatRole,
+  CheckoutCardConfig,
+  CheckoutConfig,
   DemoUser,
   EntityAction,
   EntityCardLayout,
   EntityConfig,
+  PendingPayment,
   UploadRecord,
 } from './lib/agent-types';

@@ -11,6 +11,7 @@ import { NetworkDashboard } from './pages/coop/NetworkDashboard';
 import { ProductCatalog } from './pages/customer/ProductCatalog';
 import { ProductDetail } from './pages/customer/ProductDetail';
 import { CartCheckout } from './pages/customer/CartCheckout';
+import { HostedPay } from './pages/customer/HostedPay';
 import { OrderHistory } from './pages/customer/OrderHistory';
 import { LoyaltyRewards } from './pages/customer/LoyaltyRewards';
 
@@ -140,6 +141,10 @@ function renderPage(
       );
     case '/customer/cart':
       return <CartCheckout onNavigate={navigate} />;
+    case '/customer/pay':
+      // Hosted UCP pay page — deep-link target for ChatGPT / MCP / email links.
+      // The session id arrives via ?session=<id> query string.
+      return <HostedPay onNavigate={navigate} />;
     case '/customer/orders':
       return <OrderHistory />;
     case '/customer/loyalty':

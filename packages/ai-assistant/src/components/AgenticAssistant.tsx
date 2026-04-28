@@ -25,6 +25,7 @@ import { UserSelector } from './UserSelector';
 import { PreferencesPanel } from './PreferencesPanel';
 import { UploadButton, UploadChips } from './UploadButton';
 import { MicButton } from './MicButton';
+import { InlinePaymentCard } from './InlinePaymentCard';
 
 // Domain-neutral fallbacks — only render when /api/agent-config is unreachable.
 // Real per-vertical suggestions come from the persona config.
@@ -170,6 +171,15 @@ export function AgenticAssistant() {
             ))}
 
             {chat.isThinking && <ThinkingIndicator />}
+
+            {chat.pendingPayment && chat.checkoutConfig?.enabled && (
+              <InlinePaymentCard
+                pending={chat.pendingPayment}
+                card={chat.checkoutConfig.inline_card}
+                onSuccess={chat.confirmPayment}
+                onCancel={chat.cancelPayment}
+              />
+            )}
 
             <div ref={messagesEndRef} />
           </div>

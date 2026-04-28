@@ -9,11 +9,15 @@
   },
   "dependencies": {
     "@dxp/contracts": "workspace:*",
-    "@tanstack/react-query": "^5.75.5"
+    "@dxp/ui": "workspace:*",
+    "@stripe/react-stripe-js": "^6.2.0",
+    "@stripe/stripe-js": "^9.3.1",
+    "@tanstack/react-query": "^5.75.5",
+    "lucide-react": "^1.11.0"
   },
   "devDependencies": {
-    "react": "^19.1.0",
     "@types/react": "^19.1.2",
+    "react": "^19.1.0",
     "typescript": "^5.8.3"
   }
 }

@@ -85,6 +85,77 @@ appName="BlueCross Member Portal"`,
     ],
   },
   {
+    day: 'Day 2',
+    title: 'Payments + Agentic Checkout (UCP)',
+    effort: '½ day',
+    effortVariant: 'success' as const,
+    steps: [
+      {
+        title: 'Stripe — drop-in via PaymentsPort',
+        detail:
+          'Get sk_test_* and pk_test_* from dashboard.stripe.com → set 3 env vars. The PaymentsPort (apps/bff/src/modules/payments/) already has a StripeAdapter. UCP Checkout automatically uses whatever PaymentsPort provider is active — no per-provider UCP code.',
+        code: `PAYMENTS_PROVIDER=stripe
+STRIPE_SECRET_KEY=sk_test_xxx           # server-side; never exposed
+STRIPE_PUBLISHABLE_KEY=pk_test_xxx      # browser-safe; served via /api/v1/ucp/public-config
+
+# UCP Checkout (defaults to payments-backed adapter):
+UCP_ADAPTER=payments-backed`,
+        tags: ['Stripe Elements', 'PaymentIntents', 'pk_test_*', 'sk_test_*'],
+        highlight: true,
+      },
+      {
+        title: 'Embedded card capture in your portal',
+        detail:
+          'Drop the @dxp/sdk-react <UcpPaymentPage> composite into any cart page. Customer types card on a Stripe-managed iframe (PCI scope stays with Stripe). On success, completeCheckoutSession returns the real Stripe pi_* and ord_* — visible immediately on dashboard.stripe.com/test/payments.',
+        code: `import { useUcpCreateSession, useUcpUpdateSession,
+         useUcpCompleteSession, UcpPaymentPage } from '@dxp/sdk-react';
+
+const session = await create.mutateAsync({ currency:'USD', line_items:[...] });
+const updated = await update.mutateAsync({ id:session.id, patch:{buyer, fulfillment} });
+
+<UcpPaymentPage
+  clientSecret={updated.payment.client_secret}
+  totalCents={updated.totals.find(t=>t.type==='total').amount}
+  onSuccess={(piId) => complete.mutateAsync({ id:session.id, body:{...} })}
+/>`,
+        tags: ['useUcpCreateSession', 'UcpPaymentPage', 'Stripe Elements'],
+      },
+      {
+        title: 'Agentic checkout — chat / ChatGPT / external agents',
+        detail:
+          'Same UCP endpoints work over REST, MCP/JSON-RPC, or as a ChatGPT Custom GPT Action via /api/v1/ucp/openapi.json. Hosted-redirect (payment_url) lets agents hand the customer a Stripe-hosted card form when they have no UI to render. Discovery doc at /.well-known/ucp.',
+        code: `# REST + Custom GPT Action
+GET /api/v1/ucp/openapi.json     # import URL into a ChatGPT GPT
+
+# JSON-RPC for MCP-aware clients (Claude desktop, agent frameworks)
+POST /api/v1/ucp/mcp
+{"jsonrpc":"2.0","id":1,"method":"create_checkout","params":{...}}
+
+# Discovery
+GET /.well-known/ucp`,
+        tags: ['UCP', 'MCP', 'OpenAPI 3.1', 'agentic commerce'],
+      },
+      {
+        title: 'Different region / processor — adapter swap, no UCP edit',
+        detail:
+          'India → Razorpay. LATAM → MercadoPago. China → Alipay. Implement PaymentsPort in apps/bff/src/modules/payments/adapters/<provider>.adapter.ts → add a case in payments.module.ts → flip PAYMENTS_PROVIDER. UCP Checkout, the chat tool, the portal cart, and ChatGPT Action all keep working unchanged.',
+        code: `# 1. New adapter file:
+class RazorpayAdapter extends PaymentsPort { ... }
+
+# 2. Register in payments.module.ts useFactory:
+case 'razorpay': return new RazorpayAdapter(config);
+
+# 3. .env:
+PAYMENTS_PROVIDER=razorpay
+RAZORPAY_KEY_ID=...
+RAZORPAY_KEY_SECRET=...
+
+# UCP picks it up automatically — no code change in apps/bff/src/modules/ucp-checkout/`,
+        tags: ['Razorpay', 'MercadoPago', 'Alipay', 'one env var'],
+      },
+    ],
+  },
+  {
     day: 'Week 2–3',
     title: 'Custom Adapters (if needed)',
     effort: '1–2 days each',

@@ -402,6 +402,22 @@ async def _stream_agent_turn(
                     if item:
                         await _emit_cart_state(session_id, just_added=item)
 
+                # Surface inline payment capture when ucp_checkout signals it.
+                # The frontend renders Stripe Elements right under the chat
+                # so the buyer never leaves the conversation.
+                if (
+                    isinstance(parsed, dict)
+                    and parsed.get("ui_action") == "collect_payment"
+                    and parsed.get("client_secret")
+                ):
+                    await manager.send_json(session_id, {
+                        "type": "payment_required",
+                        "client_secret": parsed["client_secret"],
+                        "payment_intent_id": parsed.get("payment_intent_id"),
+                        "amount": parsed.get("amount"),
+                        "currency": parsed.get("currency", "USD"),
+                    })
+
             # ── Final assistant message ──
             elif etype == "on_chain_end" and ename == "LangGraph":
                 output = data.get("output", {})

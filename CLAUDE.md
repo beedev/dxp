@@ -105,6 +105,21 @@ node scripts/audit-portals.js --fix-report  # write violations.json
 
 Exit codes: `0` = clean, `1` = errors (must fix), `2` = warnings only.
 
+## Dev Tools — standalone dev servers
+
+Each tool runs on its own port. The insurance portal at `:4200` 302-redirects
+the legacy bookmark URLs out so existing links keep working:
+
+| Bookmark | Tool | Run |
+|----------|------|-----|
+| `:4200/playground/` → `:4600` | API Playground | `pnpm --filter @dxp/playground dev` |
+| `:4200/storybook/`  → `:4700` | UI Storybook   | `pnpm --filter @dxp/ui storybook` |
+| `:4200/docs/`       → `:4800` | Docs           | `npx serve docs -p 4800` |
+
+Edits to `apps/playground/src/data/modules.ts` (or anything under `src/`)
+propagate instantly via HMR — no rebuild step. The redirects are wired in
+`starters/insurance-portal/vite.config.ts` (`redirectDevToolPaths` plugin).
+
 ## Commands
 - `make up` — start 4 infra services
 - `make dev` — start BFF in dev mode

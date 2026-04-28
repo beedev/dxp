@@ -15,6 +15,15 @@ export abstract class UcpCheckoutPort {
   /** Returns the deployment's UCP profile (capabilities + transports). */
   abstract getProfile(): Promise<UcpProfile>;
 
+  /**
+   * Optional: returns the payment provider's publishable key for embedded
+   * card-capture flows (e.g. Stripe Elements). `null` when the adapter has
+   * no client-side payment surface.
+   */
+  getPublishableKey(): string | null {
+    return null;
+  }
+
   /** Create a new checkout session. */
   abstract createSession(
     tenantId: string,

@@ -117,10 +117,30 @@ export interface CheckoutSession {
   line_items: LineItem[];
   buyer?: Buyer;
   fulfillment?: { methods: FulfillmentMethod[] };
-  payment?: { instruments?: PaymentInstrument[]; selected_instrument_id?: string };
+  payment?: {
+    instruments?: PaymentInstrument[];
+    selected_instrument_id?: string;
+    /**
+     * For embedded card-capture flows (e.g. Stripe Elements). Front-ends pass
+     * this to Stripe.js's confirmPayment() — never to the BFF.
+     */
+    client_secret?: string;
+    payment_intent_id?: string;
+  };
   totals: CheckoutTotals[];
+  /**
+   * Hosted-checkout URL when the adapter supports redirect-style capture
+   * (e.g. Stripe Checkout hosted page). Front-ends redirect the customer
+   * here to capture card details on the payment provider's domain.
+   */
+  payment_url?: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface UcpPublicConfig {
+  ucp_version: string;
+  stripe_publishable_key?: string;
 }
 
 export interface CheckoutResult {

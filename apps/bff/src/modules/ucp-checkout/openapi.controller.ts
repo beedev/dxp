@@ -45,15 +45,24 @@ export class UcpOpenApiController {
         title: 'UCP Shopping Checkout',
         description:
           'Universal Commerce Protocol (ucp.dev) — open standard for agentic commerce. ' +
-          'Use these operations to discover the merchant, create a checkout session for ' +
-          'one or more line items, attach buyer + fulfillment details, and complete the ' +
-          'purchase with a tokenized payment instrument. Backed by real Stripe in test mode.',
+          'AGENT WORKFLOW: ' +
+          '(1) Call `searchProducts` first to find real SKUs and prices in the merchant\'s ' +
+          'catalog. NEVER invent products or prices — always derive them from this call. ' +
+          '(2) `createCheckoutSession` with the returned `id` and `price_cents` as `item.id` ' +
+          'and `item.price`. ' +
+          '(3) `updateCheckoutSession` with buyer + fulfillment until status is ' +
+          '`ready_for_complete`. ' +
+          '(4) Surface the response\'s `payment_url` to the user as a clickable link — that ' +
+          'hosted page captures their card via Stripe Elements and calls `complete` for you. ' +
+          '(5) Poll `getCheckoutSession` until status is `completed`, then report the order. ' +
+          'Do NOT call `complete` yourself with a fake token. Stripe test mode is real.',
         version: '2026-01-11',
         contact: { name: 'UCP', url: 'https://ucp.dev' },
       },
       servers: [{ url: serverUrl, description: 'DXP BFF' }],
       tags: [
         { name: 'discovery', description: 'UCP profile / capability discovery' },
+        { name: 'catalog', description: 'Merchant product catalog (UCP extension)' },
         { name: 'checkout', description: 'UCP shopping checkout session lifecycle' },
       ],
       paths: {
@@ -70,6 +79,58 @@ export class UcpOpenApiController {
               '200': {
                 description: 'UCP profile',
                 content: { 'application/json': { schema: { $ref: '#/components/schemas/UcpProfile' } } },
+              },
+            },
+          },
+        },
+        '/api/v1/products/search': {
+          get: {
+            tags: ['catalog'],
+            operationId: 'searchProducts',
+            summary: 'Search the merchant product catalog',
+            description:
+              'Call before recommending or checking out a product. Returns live SKUs ' +
+              'and prices from the merchant catalog (pgvector + embeddings). Use the ' +
+              'result\'s `id` and `price_cents` as `item.id` and `item.price` in ' +
+              'createCheckoutSession — never invent SKUs or prices.',
+            parameters: [
+              {
+                name: 'q',
+                in: 'query',
+                required: true,
+                schema: { type: 'string' },
+                description:
+                  'Natural-language query — pass everything the user said (category, brand, ' +
+                  'use case, voltage, etc.) in this field. Embeddings handle semantic ranking; ' +
+                  'no separate category filter is needed.',
+              },
+              {
+                name: 'max_price',
+                in: 'query',
+                required: false,
+                schema: { type: 'number' },
+                description: 'Max unit price in major units (e.g. 150 for $150).',
+              },
+              {
+                name: 'min_rating',
+                in: 'query',
+                required: false,
+                schema: { type: 'number' },
+                description: 'Minimum customer rating, 0-5.',
+              },
+              {
+                name: 'limit',
+                in: 'query',
+                required: false,
+                schema: { type: 'integer', minimum: 1, maximum: 25, default: 10 },
+              },
+            ],
+            responses: {
+              '200': {
+                description: 'Catalog search results',
+                content: {
+                  'application/json': { schema: { $ref: '#/components/schemas/ProductSearchResult' } },
+                },
               },
             },
           },
@@ -213,11 +274,60 @@ export class UcpOpenApiController {
           },
           LineItem: {
             type: 'object',
-            required: ['id', 'item', 'quantity'],
+            required: ['item', 'quantity'],
             properties: {
-              id: { type: 'string', description: 'Stable id within the session (e.g. `li_1`)' },
+              id: { type: 'string', description: 'Stable id within the session (e.g. `li_1`). Server-assigned.' },
               item: { $ref: '#/components/schemas/LineItemRef' },
               quantity: { type: 'integer', minimum: 1 },
+              totals: {
+                type: 'array',
+                description: 'Per-line-item totals (subtotal, tax, total). Computed by the server on create/update.',
+                items: { $ref: '#/components/schemas/CheckoutTotal' },
+              },
+            },
+          },
+          Product: {
+            type: 'object',
+            properties: {
+              id: { type: 'string', description: 'Stable SKU. Use as `item.id` in createCheckoutSession.', example: 'T001' },
+              sku: { type: 'string', nullable: true },
+              name: { type: 'string', example: 'DeWalt 12V MAX Drill/Driver Kit' },
+              brand: { type: 'string', nullable: true, example: 'DeWalt' },
+              category: { type: 'string', nullable: true, example: 'Power Tools' },
+              price_cents: {
+                type: 'integer',
+                nullable: true,
+                description: 'Unit price in minor units (cents). Use as `item.price` in createCheckoutSession.',
+                example: 12900,
+              },
+              description: { type: 'string', nullable: true },
+              rating: { type: 'number', nullable: true, example: 4.7 },
+              review_count: { type: 'integer', nullable: true },
+              image_url: { type: 'string', nullable: true },
+            },
+          },
+          ProductSearchResult: {
+            type: 'object',
+            properties: {
+              count: { type: 'integer', example: 3 },
+              products: { type: 'array', items: { $ref: '#/components/schemas/Product' } },
+            },
+          },
+          UcpEnvelope: {
+            type: 'object',
+            description: 'Capability envelope echoed back by every UCP response so callers can detect supported features without re-reading discovery.',
+            properties: {
+              version: { type: 'string', example: '2026-01-11' },
+              capabilities: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string', example: 'dev.ucp.shopping.checkout' },
+                    version: { type: 'string', example: '2026-01-11' },
+                  },
+                },
+              },
             },
           },
           Buyer: {
@@ -254,13 +364,30 @@ export class UcpOpenApiController {
           CheckoutSession: {
             type: 'object',
             properties: {
-              id: { type: 'string', example: 'cs_test_a1zAp8KmIMyrkVSl' },
+              ucp: { $ref: '#/components/schemas/UcpEnvelope' },
+              id: { type: 'string', example: 'pi_3TQtwtBcFyDpOVAP10GNruQv' },
               status: { type: 'string', enum: ['open', 'ready_for_complete', 'completed', 'canceled'] },
               currency: { type: 'string', example: 'USD' },
               line_items: { type: 'array', items: { $ref: '#/components/schemas/LineItem' } },
               buyer: { $ref: '#/components/schemas/Buyer' },
               fulfillment: { $ref: '#/components/schemas/Fulfillment' },
               totals: { type: 'array', items: { $ref: '#/components/schemas/CheckoutTotal' } },
+              payment: {
+                type: 'object',
+                description: 'Embedded card-capture details (used by Stripe Elements).',
+                properties: {
+                  client_secret: {
+                    type: 'string',
+                    description: 'Stripe PaymentIntent client_secret. Embedded UIs only — agents that cannot render iframes should use payment_url instead.',
+                  },
+                  payment_intent_id: { type: 'string', example: 'pi_3TQtwtBcFyDpOVAP10GNruQv' },
+                },
+              },
+              payment_url: {
+                type: 'string',
+                description: 'Hosted-checkout URL for non-rendering agents (e.g. ChatGPT). Send the buyer here to enter card details, then poll status or wait for the session to reach `completed`.',
+                example: 'http://localhost:4500/customer/pay?session=pi_3TQtwtBcFyDpOVAP10GNruQv',
+              },
               created_at: { type: 'string', format: 'date-time' },
               updated_at: { type: 'string', format: 'date-time' },
             },
@@ -287,7 +414,11 @@ export class UcpOpenApiController {
             required: ['type', 'token'],
             properties: {
               type: { type: 'string', example: 'PAYMENT_GATEWAY' },
-              token: { type: 'string', description: 'Tokenized payment method (test mode: any value starting with tok_)', example: 'tok_visa' },
+              token: {
+                type: 'string',
+                description: 'Stripe PaymentIntent id (e.g. pi_*) once the buyer has confirmed the card via the hosted-payment URL. The BFF verifies the intent server-side — bogus tokens are rejected.',
+                example: 'pi_3TQtwtBcFyDpOVAP10GNruQv',
+              },
             },
           },
           PaymentData: {

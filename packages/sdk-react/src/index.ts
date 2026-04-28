@@ -54,4 +54,13 @@ export {
   useUcpCompleteSession,
   useUcpCancelSession,
 } from './hooks/use-ucp-checkout';
+export { useUcpPublicConfig } from './hooks/use-ucp-public-config';
+
+// UCP — embedded card capture (Stripe Elements)
+// UcpPaymentForm: low-level form — just the card field + submit button.
+// UcpPaymentPage: drop-in page composite (title + security note + form + back link).
+export { UcpPaymentForm } from './components/UcpPaymentForm';
+export type { UcpPaymentFormProps } from './components/UcpPaymentForm';
+export { UcpPaymentPage } from './components/UcpPaymentPage';
+export type { UcpPaymentPageProps } from './components/UcpPaymentPage';
 

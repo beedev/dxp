@@ -1,42 +1,32 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
-import fs from 'fs';
-import path from 'path';
 
-const mimeTypes: Record<string, string> = {
-  '.html': 'text/html',
-  '.js': 'application/javascript',
-  '.mjs': 'application/javascript',
-  '.css': 'text/css',
-  '.json': 'application/json',
-  '.svg': 'image/svg+xml',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.woff2': 'font/woff2',
-  '.woff': 'font/woff',
-  '.ttf': 'font/ttf',
-  '.ico': 'image/x-icon',
+// Redirects bookmarks to the old embedded dev-tool URLs out to their
+// standalone dev servers. Each tool runs on its own port now — no more
+// rebuild-and-copy dance.
+//
+//   :4200/playground/  → :4600  (apps/playground)
+//   :4200/storybook/   → :4700  (packages/ui storybook — change -p in package.json if different)
+//   :4200/docs/        → :4800  (run a static server against /docs/, e.g. npx serve docs -p 4800)
+const REDIRECTS: Record<string, string> = {
+  '/playground': 'http://localhost:4600/',
+  '/storybook': 'http://localhost:4700/',
+  '/docs': 'http://localhost:4800/',
 };
 
-function serveStaticSubpaths(): Plugin {
+function redirectDevToolPaths(): Plugin {
   return {
-    name: 'serve-static-subpaths',
+    name: 'redirect-dev-tool-paths',
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         const url = (req.url || '').split('?')[0];
-        if (url.startsWith('/docs/') || url.startsWith('/storybook/') || url.startsWith('/playground/')) {
-          const filePath = path.join(process.cwd(), 'public', url);
-          if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-            const ext = path.extname(filePath).toLowerCase();
-            res.setHeader('Content-Type', mimeTypes[ext] || 'application/octet-stream');
-            return res.end(fs.readFileSync(filePath));
-          }
-          // SPA fallback within subpath
-          const root = url.startsWith('/docs/') ? 'docs' : url.startsWith('/playground/') ? 'playground' : 'storybook';
-          const indexPath = path.join(process.cwd(), 'public', root, 'index.html');
-          if (fs.existsSync(indexPath)) {
-            res.setHeader('Content-Type', 'text/html');
-            return res.end(fs.readFileSync(indexPath));
+        for (const [prefix, target] of Object.entries(REDIRECTS)) {
+          if (url === prefix || url.startsWith(`${prefix}/`)) {
+            const tail = url.slice(prefix.length).replace(/^\//, '');
+            res.statusCode = 302;
+            res.setHeader('Location', `${target}${tail}`);
+            res.setHeader('Cache-Control', 'no-store');
+            return res.end(`Moved → ${target}${tail}`);
           }
         }
         next();
@@ -46,7 +36,7 @@ function serveStaticSubpaths(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [serveStaticSubpaths(), react()],
+  plugins: [redirectDevToolPaths(), react()],
   server: {
     port: 4200,
     // Fail fast when 4200 is taken instead of silently auto-incrementing

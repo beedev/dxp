@@ -25,7 +25,17 @@ async function bootstrap() {
   app.useGlobalInterceptors(new RequestContextInterceptor());
 
   app.enableCors({
-    origin: ['http://localhost:4200', 'http://localhost:4400', 'http://localhost:4500', 'http://localhost:4300'],
+    origin: [
+      // Portals
+      'http://localhost:4200', // insurance
+      'http://localhost:4300', // payer
+      'http://localhost:4400', // wealth
+      'http://localhost:4500', // ace-hardware
+      // Dev tools (standalone vite dev servers)
+      'http://localhost:4600', // playground
+      'http://localhost:4700', // storybook
+      'http://localhost:4800', // docs
+    ],
     credentials: true,
   });
 

@@ -113,6 +113,24 @@ def _headers() -> dict[str, str]:
     }
 
 
+def _augment_with_payment_signal(out: dict, session: dict) -> dict:
+    """When the BFF session is ready for payment, expose the Stripe
+    client_secret + payment_intent_id so the chat UI can render Stripe
+    Elements inline. The frontend looks for `ui_action='collect_payment'`.
+    """
+    payment = session.get("payment") or {}
+    if session.get("status") == "ready_for_complete" and payment.get("client_secret"):
+        out["ui_action"] = "collect_payment"
+        out["payment_intent_id"] = payment.get("payment_intent_id") or session.get("id")
+        out["client_secret"] = payment["client_secret"]
+        out["amount"] = next(
+            (t.get("amount") for t in (session.get("totals") or []) if t.get("type") == "total"),
+            None,
+        )
+        out["currency"] = session.get("currency", "USD")
+    return out
+
+
 def _active_chat_id() -> str:
     """Best-effort handle on the chat session id so we can scope checkout state."""
     try:
@@ -169,14 +187,14 @@ async def ucp_checkout_tool(
                 data = resp.json()
                 SESSION_CHECKOUT[chat_id] = {"session_id": data["id"], "status": data["status"]}
                 logger.info(f"ucp_checkout start -> {data['id']} ({data['status']})")
-                return {
+                return _augment_with_payment_signal({
                     "success": True,
                     "step": "start",
                     "session_id": data["id"],
                     "status": data["status"],
                     "totals": data.get("totals"),
                     "next": "Call step='update' with buyer + fulfillment, then step='complete' with payment_token.",
-                }
+                }, data)
 
             session_id = state.get("session_id")
             if not session_id:
@@ -222,7 +240,7 @@ async def ucp_checkout_tool(
                     return {"success": False, "error": f"BFF {resp.status_code}", "detail": resp.text[:500]}
                 data = resp.json()
                 SESSION_CHECKOUT[chat_id]["status"] = data["status"]
-                return {
+                return _augment_with_payment_signal({
                     "success": True,
                     "step": "update",
                     "status": data["status"],
@@ -231,7 +249,7 @@ async def ucp_checkout_tool(
                         "Ready to complete." if data["status"] == "ready_for_complete"
                         else "Provide remaining buyer/fulfillment fields, then call complete."
                     ),
-                }
+                }, data)
 
             if step == "complete":
                 if not payment_token:

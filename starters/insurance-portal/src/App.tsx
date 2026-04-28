@@ -5,7 +5,6 @@ import { Dashboard } from './pages/Dashboard';
 import { Policies } from './pages/Policies';
 import { Claims } from './pages/Claims';
 import { Documents } from './pages/Documents';
-import { Playground } from './pages/Playground';
 import { GetQuote } from './pages/GetQuote';
 import { Settings } from './pages/Settings';
 import { FormBuilder } from './pages/FormBuilder';
@@ -30,27 +29,24 @@ const insuranceNav: NavItem[] = [
   { label: 'Settings', href: '/insurance/settings' },
 ];
 
-const playgroundNav: NavItem[] = [
-  { label: '← Home', href: '/' },
-  { label: 'API Playground', href: '/playground' },
-];
-
 function navForPath(path: string): NavItem[] {
   if (path.startsWith('/insurance')) return insuranceNav;
-  if (path === '/playground') return playgroundNav;
   return homeNav;
 }
 
 // ── Dev tools sidebar ────────────────────────────────────────────────────────
 
+// Dev tool links point at the dedicated dev servers directly (4600/4700/4800).
+// :4200 also 302-redirects /playground, /storybook, /docs as a safety net for
+// old bookmarks — see vite.config.ts redirectDevToolPaths plugin.
 const devTools = [
-  { label: 'API Playground',    href: '/playground',          external: false },
-  { label: 'Integration Guide', href: '/integration-guide',   external: false },
-  { label: 'Storybook',         href: '/storybook/index.html', external: true },
-  { label: 'Swagger',           href: '/api/docs',             external: true },
-  { label: 'Docs',              href: '/docs/index.html',      external: true },
-  { label: 'Payer Portal',      href: 'http://localhost:4300', external: true },
-  { label: 'Wealth Portal',     href: 'http://localhost:4400', external: true },
+  { label: 'API Playground',    href: 'http://localhost:4600',  external: true },
+  { label: 'Integration Guide', href: '/integration-guide',     external: false },
+  { label: 'Storybook',         href: 'http://localhost:4700',  external: true },
+  { label: 'Swagger',           href: '/api/docs',              external: true },
+  { label: 'Docs',              href: 'http://localhost:4800',  external: true },
+  { label: 'Payer Portal',      href: 'http://localhost:4300',  external: true },
+  { label: 'Wealth Portal',     href: 'http://localhost:4400',  external: true },
   { label: 'ACE Hardware Portal', href: 'http://localhost:4500', external: true },
 ];
 
@@ -66,7 +62,6 @@ function renderPage(path: string, onNavigate: (p: string) => void) {
     case '/insurance/quote':        return <GetQuote />;
     case '/insurance/settings':     return <Settings />;
     case '/insurance/form-builder': return <FormBuilder />;
-    case '/playground':             return <Playground />;
     case '/integration-guide':      return <IntegrationGuide onNavigate={onNavigate} />;
     default:                        return <Splash onNavigate={onNavigate} />;
   }

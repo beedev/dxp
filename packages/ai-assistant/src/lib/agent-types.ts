@@ -109,6 +109,37 @@ export interface DemoUser {
 }
 
 /**
+ * Persona-driven inline checkout card (rendered when the backend emits
+ * `payment_required`). Absence = no inline checkout for this tenant.
+ */
+export interface CheckoutCardConfig {
+  title?: string;
+  subtitle?: string;
+  submit_label?: string;
+  test_card_hint?: string;
+  success_message?: string;
+  cancel_label?: string;
+}
+
+export interface CheckoutConfig {
+  enabled: boolean;
+  provider?: string;
+  trigger?: { tool?: string; on_status?: string };
+  inline_card?: CheckoutCardConfig;
+  /** Template for the message sent to the LLM after Stripe confirms.
+   * `{payment_intent_id}` is substituted. */
+  post_success_user_message?: string;
+}
+
+/** A pending Stripe Elements card capture surfaced inline in the chat. */
+export interface PendingPayment {
+  client_secret: string;
+  payment_intent_id?: string;
+  amount?: number;
+  currency?: string;
+}
+
+/**
  * UI config from the deployment's persona JSON (loaded from backend).
  */
 export interface AgentUIConfig {
@@ -117,6 +148,7 @@ export interface AgentUIConfig {
   greeting: string;
   greeting_subtitle?: string;
   suggestions: string[];
+  checkout?: CheckoutConfig;
 }
 
 export interface UploadRecord {

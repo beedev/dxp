@@ -453,7 +453,9 @@ For Outlook: build OutlookAdapter implementing SchedulingPort, using Microsoft G
   {
     name: 'Payments',
     domain: 'Core Platform',
-    description: 'Payment processing and subscriptions. Stripe adapter included — swap providers via PAYMENTS_PROVIDER.',
+    badge: 'POWERS UCP',
+    description:
+      'Payment processing, subscriptions, and the foundation for UCP Checkout. Provider chosen via PAYMENTS_PROVIDER (Stripe today; Razorpay / MercadoPago / Alipay slot in by adding adapters). UCP Checkout delegates ALL payment-processor calls here — switching regions doesn\'t require a UCP code change.',
     port: 'PaymentsPort',
     portInterface: `abstract class PaymentsPort {
   abstract createPayment(dto: CreatePaymentDto): Promise<PaymentIntent>;
@@ -463,9 +465,29 @@ For Outlook: build OutlookAdapter implementing SchedulingPort, using Microsoft G
   abstract createSubscription(customerId: string, planId: string): Promise<Subscription>;
   abstract cancelSubscription(subscriptionId: string): Promise<void>;
   abstract listSubscriptions(customerId: string): Promise<Subscription[]>;
+
+  /**
+   * Provider's client-side / publishable key for embedded checkout SDKs
+   * (Stripe Elements, Razorpay JS, MercadoPago Brick). Returns null when
+   * the provider has no client-side surface or the key isn't configured.
+   */
+  getPublishableKey(): string | null;
 }`,
     adapters: [
-      { name: 'StripeAdapter', envValue: 'stripe', description: 'Full Stripe integration — payment intents, subscriptions, refunds. Uses Stripe Node SDK.', config: `STRIPE_SECRET_KEY=sk_test_...\nSTRIPE_WEBHOOK_SECRET=whsec_...` },
+      {
+        name: 'StripeAdapter',
+        envValue: 'stripe',
+        description:
+          'Talks to api.stripe.com via axios + REST. Returns PaymentIntents with client_secret (used by Stripe Elements via UCP). createPayment uses automatic_payment_methods so Elements shows card / Apple Pay / Link / Link without us hardcoding.',
+        config: `PAYMENTS_PROVIDER=stripe
+STRIPE_SECRET_KEY=sk_test_51...
+STRIPE_PUBLISHABLE_KEY=pk_test_51...    # served via /api/v1/ucp/public-config
+STRIPE_WEBHOOK_SECRET=whsec_...         # for refund / dispute webhooks (future)`,
+      },
+      // Future regional adapters fit the same shape — same UCP, no UCP code change.
+      // { name: 'RazorpayAdapter',    envValue: 'razorpay',    description: 'India payments.',  config: 'PAYMENTS_PROVIDER=razorpay\nRAZORPAY_KEY_ID=...' },
+      // { name: 'MercadoPagoAdapter', envValue: 'mercadopago', description: 'LATAM payments.', config: 'PAYMENTS_PROVIDER=mercadopago\nMP_ACCESS_TOKEN=...' },
+      // { name: 'AlipayAdapter',      envValue: 'alipay',      description: 'China payments.',  config: 'PAYMENTS_PROVIDER=alipay\nALIPAY_APP_ID=...' },
     ],
     envVar: 'PAYMENTS_PROVIDER',
     endpoints: [
@@ -476,17 +498,29 @@ For Outlook: build OutlookAdapter implementing SchedulingPort, using Microsoft G
       { method: 'POST', path: '/payments/subscriptions', description: 'Create subscription', sampleBody: JSON.stringify({ customerId: 'cus_abc', planId: 'plan_monthly' }, null, 2) },
       { method: 'GET', path: '/payments/subscriptions/cus_abc', description: 'List subscriptions' },
     ],
-    sdkUsage: `// No SDK hook yet — call via apiFetch
+    sdkUsage: `// Direct REST (server-to-server scenarios — recurring billing, MOTO, refunds)
 import { apiFetch } from '@dxp/sdk-react';
 const intent = await apiFetch('/payments', {
   method: 'POST',
   body: JSON.stringify({ amount: 4999, currency: 'usd' })
-});`,
-    setupGuide: `1. Set PAYMENTS_PROVIDER=stripe in .env
-2. Set STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET
-3. Restart BFF
+});
 
-For Square: build SquareAdapter implementing PaymentsPort.`,
+// For customer-facing card capture, use UCP Checkout — it owns the
+// session lifecycle and surfaces the client_secret to Stripe Elements:
+//   useUcpCreateSession + useUcpUpdateSession + <UcpPaymentPage />`,
+    setupGuide: `1. Set PAYMENTS_PROVIDER=stripe in .env (default).
+2. Set STRIPE_SECRET_KEY (server) + STRIPE_PUBLISHABLE_KEY (browser-safe).
+3. Restart BFF.
+
+# UCP Checkout automatically picks up this provider via PaymentsPort —
+# nothing extra to wire. The publishable key flows to browsers through
+# GET /api/v1/ucp/public-config, used by <UcpPaymentForm /> / <UcpPaymentPage />.
+
+# Adding a new region:
+1. Implement PaymentsPort in apps/bff/src/modules/payments/adapters/<provider>.adapter.ts.
+2. Add a case in payments.module.ts useFactory.
+3. Set PAYMENTS_PROVIDER=<provider> in .env.
+4. UCP Checkout works automatically against the new processor.`,
   },
   {
     name: 'E-Signature',
@@ -1333,29 +1367,55 @@ import { DataPipeline } from './pages/manager/DataPipeline';
   abstract updateSession(tenantId: string, id: string, req: UpdateSessionRequest): Promise<CheckoutSession>;
   abstract completeSession(tenantId: string, id: string, req: CompleteSessionRequest): Promise<CheckoutResult>;
   abstract cancelSession(tenantId: string, id: string): Promise<CheckoutSession>;
+
+  /** Pulls publishable key from the active PaymentsPort adapter (Stripe etc). */
+  getPublishableKey(): string | null;
+}
+
+// CheckoutSession returned by createSession includes:
+interface CheckoutSession {
+  id: string;                  // For Stripe: the PaymentIntent id (pi_*)
+  status: 'open' | 'ready_for_complete' | 'completed' | 'canceled';
+  currency: string;
+  line_items: LineItem[];
+  buyer?: Buyer;
+  fulfillment?: { methods: FulfillmentMethod[] };
+  payment?: {
+    client_secret?: string;    // Used by <UcpPaymentForm /> with Stripe Elements
+    payment_intent_id?: string;
+  };
+  payment_url?: string;        // Optional hosted-redirect fallback
+  totals: CheckoutTotal[];
 }`,
     adapters: [
       {
         name: 'MockUcpCheckoutAdapter',
         envValue: 'mock',
-        description: 'In-memory session store keyed by tenantId:sessionId. Computes 8% tax, fakes payment success. Use for unit tests / no-Docker mode.',
+        description:
+          'In-memory session store. No payment processor calls. Use for unit tests or offline demos.',
         config: `UCP_ADAPTER=mock`,
       },
       {
-        name: 'StripeUcpCheckoutAdapter',
-        envValue: 'stripe',
+        name: 'PaymentsBackedUcpCheckoutAdapter',
+        envValue: 'payments-backed',
         description:
-          'Real Stripe Node SDK against either stripe/stripe-mock (local Docker) or live Stripe in test mode. Returns real cs_test_* / pi_* ids. Switch from mock to prod by changing env vars only — no code change.',
-        config: `UCP_ADAPTER=stripe
-STRIPE_API_KEY=sk_test_xxx          # any value works against stripe-mock
-STRIPE_API_HOST=localhost           # omit to use api.stripe.com
-STRIPE_API_PORT=12111
-STRIPE_API_PROTOCOL=http`,
+          'Default. Delegates ALL payment-processor calls to the platform\'s PaymentsPort — switching between Stripe / Razorpay / MercadoPago / Alipay is a PAYMENTS_PROVIDER env change with zero edits to the UCP layer. UCP only owns session lifecycle (line items, buyer, fulfillment); the underlying PaymentIntent and publishable key flow through PaymentsPort.',
+        config: `UCP_ADAPTER=payments-backed
+# Choose the payment processor on the Payments module:
+PAYMENTS_PROVIDER=stripe
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_PUBLISHABLE_KEY=pk_test_...`,
       },
     ],
     envVar: 'UCP_ADAPTER',
     endpoints: [
       { method: 'GET', path: '/.well-known/ucp', description: 'UCP discovery — capabilities + transports (unprefixed per spec).' },
+      {
+        method: 'GET',
+        path: '/ucp/public-config',
+        description:
+          'Public config the browser needs to wire embedded checkout — the active payment processor\'s publishable key (Stripe pk_test_*) + UCP version. Pulled from PaymentsPort.getPublishableKey().',
+      },
       {
         method: 'POST',
         path: '/ucp/checkout-sessions',
@@ -1433,29 +1493,76 @@ STRIPE_API_PROTOCOL=http`,
         ),
       },
     ],
-    sdkUsage: `// === In a portal page (React) — uses the SDK hooks ===
+    sdkUsage: `// === Embedded card capture inside the portal — Stripe Elements ===
+// Drop-in: <UcpPaymentPage> handles title + Stripe form + error UI + back link.
 import {
-  useUcpProfile,
   useUcpCreateSession,
   useUcpUpdateSession,
   useUcpCompleteSession,
+  UcpPaymentPage,           // composite: full page
+  UcpPaymentForm,           // primitive: just the card field
+  useUcpPublicConfig,       // pulls publishable key from BFF
 } from '@dxp/sdk-react';
 
-const profile = useUcpProfile();           // /.well-known/ucp
 const create = useUcpCreateSession();
 const update = useUcpUpdateSession();
 const complete = useUcpCompleteSession();
 
-const session = await create.mutateAsync({
-  currency: 'USD',
-  line_items: [{ id: 'li_1', item: { id: 'sku', title: 'Drill', price: 18999 }, quantity: 1 }],
-});
-await update.mutateAsync({ id: session.id, patch: { buyer, fulfillment } });
+const onPlaceOrder = async () => {
+  // 1. Create session — backend creates a real Stripe PaymentIntent and
+  //    returns its client_secret in session.payment.client_secret.
+  const session = await create.mutateAsync({
+    currency: 'USD',
+    line_items: [{ id: 'li_1', item: { id: 'sku_drill', title: 'Drill', price: 18999 }, quantity: 1 }],
+  });
+
+  // 2. Update with buyer + fulfillment (transitions to ready_for_complete).
+  const updated = await update.mutateAsync({
+    id: session.id,
+    patch: {
+      buyer: { email: 'jane@example.com' },
+      fulfillment: { methods: [{ id: 'fm_1', type: 'shipping', line_item_ids: ['li_1'] }] },
+    },
+  });
+
+  setStage({
+    sessionId: session.id,
+    clientSecret: updated.payment!.client_secret!,
+    totalCents: updated.totals.find(t => t.type === 'total')!.amount,
+  });
+};
+
+// 3. Render the embedded Stripe form.
+{stage && (
+  <UcpPaymentPage
+    clientSecret={stage.clientSecret}
+    totalCents={stage.totalCents}
+    onSuccess={async (paymentIntentId) => {
+      const result = await complete.mutateAsync({
+        id: stage.sessionId,
+        body: {
+          payment_data: {
+            id: paymentIntentId,
+            handler_id: 'com.stripe.elements',
+            type: 'card',
+            credential: { type: 'PAYMENT_GATEWAY', token: paymentIntentId },
+          },
+        },
+      });
+      // result.order_id, result.payment_id
+    }}
+    onBack={() => setStage(null)}
+  />
+)}
+
+
+// === Headless / agentic flow — chat or external agent (no UI) ===
+// Uses the same endpoints; skips Elements; sends a tokenized payment_data
+// (test mode accepts any 'tok_*' token).
 const result = await complete.mutateAsync({
   id: session.id,
-  body: { payment_data: { id: 'pi_demo', handler_id: 'com.demo.pay', type: 'card', credential: { type: 'PAYMENT_GATEWAY', token: 'tok_demo' } } },
+  body: { payment_data: { id: 'pi_demo', handler_id: 'com.demo.pay', type: 'card', credential: { type: 'PAYMENT_GATEWAY', token: 'tok_visa' } } },
 });
-// result.order_id, result.payment_id
 
 
 // === In the conv-assistant (Python) — single tool, step discriminator ===
@@ -1511,13 +1618,46 @@ const completed = await rpc('complete_checkout', { id: sid, payment_data: {...} 
    import { useUcpCreateSession, useUcpUpdateSession, useUcpCompleteSession } from '@dxp/sdk-react';
    See the live wiring at starters/ace-hardware-portal/src/pages/customer/CartCheckout.tsx.
 
-# Switch the backing engine via env var (true adapter swap)
-   UCP_ADAPTER=mock     → in-memory sessions, no external deps
-   UCP_ADAPTER=stripe   → real Stripe Node SDK against stripe/stripe-mock or production Stripe
-                          (same code path; flip STRIPE_API_HOST to switch envs)
+# Switch the payment processor via env var (true adapter swap, no UCP code change)
+   PAYMENTS_PROVIDER=stripe        → Stripe (US/EU)
+   PAYMENTS_PROVIDER=razorpay      → Razorpay (India)        # add adapter to PaymentsPort
+   PAYMENTS_PROVIDER=mercadopago   → MercadoPago (LATAM)     # add adapter to PaymentsPort
+   PAYMENTS_PROVIDER=alipay        → Alipay (China)          # add adapter to PaymentsPort
 
-   stripe-mock runs as a Docker container started by make up:
-     docker compose up -d stripe-mock        # listens on :12111
+   UCP itself has only two adapters (mock + payments-backed); regional payment
+   support comes from adding new PaymentsPort adapters. UCP automatically gains
+   them.
+
+# === Embedded card capture in your portal — Stripe Elements ===
+
+# Architecture
+   Browser:  <UcpPaymentForm/> or <UcpPaymentPage/>  (in @dxp/sdk-react)
+       ↓     mounts Stripe Elements with the client_secret
+   BFF:      POST /ucp/checkout-sessions
+       ↓     creates Stripe PaymentIntent via PaymentsPort
+   Stripe:   returns client_secret + pi_*
+       ↓
+   Browser:  Stripe.js confirms the PaymentIntent client-side
+       ↓     onSuccess(paymentIntentId)
+   BFF:      POST /ucp/checkout-sessions/{id}/complete
+             retrieves the PI via PaymentsPort.getPayment(), verifies status
+
+# Test cards (work against any sandboxed Stripe account)
+   4242 4242 4242 4242   → always succeeds
+   4000 0000 0000 9995   → declined (insufficient funds)
+   4000 0027 6000 3184   → 3-D Secure challenge
+   Any future expiry, any 3-digit CVC.
+
+# Where to see the resulting payment
+   https://dashboard.stripe.com/test/payments
+   The pi_* id from result.payment_id deep-links there.
+
+# What the customer types
+   Card number + expiry + CVC. That's it. Stripe handles tokenization,
+   3-D Secure, error states. We never see card numbers; PCI scope stays
+   with Stripe.
+
+# === Connect a ChatGPT Custom GPT (REST + OpenAPI Action) ===
 
 # How a ChatGPT custom GPT or Claude desktop would use it
 1. Configure the agent with the discovery URL: http://localhost:4201/.well-known/ucp
@@ -1535,6 +1675,13 @@ const completed = await rpc('complete_checkout', { id: sid, payment_data: {...} 
 - "Find me a cordless drill" → product card
 - "Add to cart" → existing flow
 - "Check out my cart" → LLM calls ucp_checkout(step='start') → 'update' → 'complete'
+
+# Try the in-portal Elements flow
+- Open http://localhost:4500/customer/cart
+- Step through Review → Delivery → Submit
+- "Secure payment" screen renders <UcpPaymentPage/> with Stripe Elements
+- Type 4242 4242 4242 4242, any future expiry, any CVC → Pay
+- Receipt shows real cs_test_* / pi_* ids; appears on https://dashboard.stripe.com/test/payments
 
 # === Connect a ChatGPT Custom GPT (Option A: REST + OpenAPI Action) ===
 
