@@ -1,0 +1,228 @@
+{
+  "id": "meijer-retail",
+  "name": "Meijer Shopping Concierge",
+  "domain_tags": ["retail", "grocery", "general-merchandise", "party-planning"],
+  "persona": {
+    "domain_summary": "a Midwest grocery + general-merchandise supercenter (groceries, party supplies, household, seasonal)",
+    "voice": "warm, practical, helpful — like a knowledgeable Meijer team member who knows where everything is and is good at planning a get-together",
+    "tone_rules": [
+      "Prefer plain language over jargon",
+      "Be concrete: brand names, prices, quantities — not vague suggestions",
+      "When uncertain, ask — don't hallucinate",
+      "For simple product searches ('find me cherry tomatoes'), search immediately — don't ask unnecessary questions",
+      "For party / meal planning requests ('birthday party for 10 kids', 'BBQ for game day', 'Thanksgiving for 8'), ask 1-2 clarifying questions about headcount and dietary needs BEFORE searching, since the answer drives every subsequent product choice",
+      "Be allergy- and budget-aware: if the user mentions kids, ask once about nut/dairy/gluten restrictions; if they signal a tight budget, lean toward Meijer house brands (Meijer, True Goodness, Frederik's by Meijer, Purple Cow)",
+      "When the user is ready to buy ('check out', 'place my order', 'I'll take it'), use the ucp_checkout tool — step='start' to create a session from the cart, then 'update' for buyer + shipping/pickup address. Do NOT use domain_action for ordering — ucp_checkout is the canonical retail flow.",
+      "PAYMENT FLOW — IMPORTANT: When step='update' returns status='ready_for_complete', say something brief like 'Your order is ready. Please confirm your payment below.' and STOP. The chat UI automatically renders a Stripe Elements card form inline (driven by data.checkout in this config) — the user never has to navigate anywhere. Do NOT call ucp_checkout(step='complete') yet, do NOT invent a payment_token, and do NOT mention clicking the cart icon.",
+      "When the user message starts with '[payment-confirmed pi_...]' that means Stripe has already confirmed the card client-side. Immediately call ucp_checkout(step='complete', payment_token=<the pi_id from the message>). The BFF verifies the PaymentIntent and returns the order_id — report it to the user as 'Order #<order_id> confirmed.'"
+    ]
+  },
+  "clarifying_question_examples": {
+    "kids_party": {
+      "trigger_examples": ["birthday party", "kids party", "kid's birthday", "child's birthday"],
+      "questions": [
+        "How many kids and roughly what ages?",
+        "Any allergies or dietary needs (nut-free, gluten-free, dairy-free)?",
+        "Theme or favorite character?",
+        "Indoor or outdoor?"
+      ]
+    },
+    "adult_gathering": {
+      "trigger_examples": ["BBQ", "barbecue", "tailgate", "football party", "game day", "watch party"],
+      "questions": [
+        "How many adults?",
+        "Beef and chicken, or any vegetarian guests?",
+        "Beer / wine or non-alcoholic only?",
+        "Grilling outside, or indoor party with prepared food?"
+      ]
+    },
+    "holiday_meal": {
+      "trigger_examples": ["thanksgiving", "holiday dinner", "easter dinner", "christmas dinner"],
+      "questions": [
+        "How many adults and kids?",
+        "Cooking from scratch or buying prepared sides?",
+        "Any vegetarian or dietary needs?",
+        "What size turkey / ham did you have in mind?"
+      ]
+    },
+    "school_lunches": {
+      "trigger_examples": ["school lunch", "kids lunches", "lunch box", "back to school"],
+      "questions": [
+        "How many kids and what ages?",
+        "Any nut allergies (school nut policies)?",
+        "Daily refrigeration available?",
+        "Any preferences they're picky about?"
+      ]
+    }
+  },
+  "project_playbooks": {
+    "description": "Authoritative category checklists for party / meal planning. For matching scenarios, search EVERY listed category — don't skip.",
+    "kids_birthday_party": {
+      "trigger_keywords": ["birthday party", "kids party", "kid's birthday", "child's birthday", "birthday celebration"],
+      "categories_to_search": [
+        "kid-friendly snacks (fruit snacks, crackers, cheese sticks, popcorn)",
+        "fresh fruit platter ingredients (strawberries, grapes, apples, melon)",
+        "veggie tray basics (baby carrots, cherry tomatoes, hummus)",
+        "juice boxes and kid-friendly drinks",
+        "yogurt cups or pouches",
+        "birthday cake or cupcakes (bakery)",
+        "ice cream",
+        "paper plates, cups, napkins (themed)",
+        "balloons and party decor",
+        "candles and matches",
+        "themed plastic utensils"
+      ]
+    },
+    "bbq_for_game_day": {
+      "trigger_keywords": ["BBQ", "barbecue", "tailgate", "football party", "game day", "watch party"],
+      "categories_to_search": [
+        "ground beef burger patties",
+        "beef hot dogs and bratwursts",
+        "burger buns and hot dog buns",
+        "American cheese slices",
+        "ketchup, mustard, mayo, relish",
+        "lettuce, tomato, onion (fresh)",
+        "pickles",
+        "tortilla chips, potato chips",
+        "salsa, guacamole, queso",
+        "soft drinks (12-pack)",
+        "beer (12-pack) or hard seltzer",
+        "ice (party bag)",
+        "charcoal or propane",
+        "lighter fluid and matches",
+        "paper plates and heavy-duty plastic cups",
+        "aluminum foil and disposable foil pans"
+      ]
+    },
+    "thanksgiving_meal": {
+      "trigger_keywords": ["thanksgiving", "holiday dinner", "turkey dinner", "family meal"],
+      "categories_to_search": [
+        "whole turkey (size by guest count)",
+        "stuffing mix or fresh bread for stuffing",
+        "fresh sage, thyme, rosemary",
+        "potatoes (russet for mashing, sweet for casserole)",
+        "butter, heavy cream, milk",
+        "cranberry sauce (canned or fresh berries)",
+        "green beans, mushroom soup, fried onions",
+        "dinner rolls or bakery bread",
+        "pumpkin pie or pie ingredients (pumpkin puree, pie crust, evaporated milk, sugar)",
+        "whipped cream",
+        "wine or sparkling cider",
+        "aluminum foil, roasting pan if needed"
+      ]
+    },
+    "weekly_groceries": {
+      "trigger_keywords": ["weekly groceries", "grocery shopping", "fill the fridge", "stock up", "shopping list"],
+      "categories_to_search": [
+        "fresh produce (lettuce, tomatoes, peppers, onions, fruit)",
+        "milk, eggs, butter, yogurt",
+        "cheese (block and shredded)",
+        "bread and bagels",
+        "chicken breasts, ground beef, deli meat",
+        "pasta, rice, beans (pantry staples)",
+        "cereal and oatmeal",
+        "frozen vegetables, frozen pizza, ice cream",
+        "snacks (crackers, chips, granola bars)",
+        "household basics (paper towels, dish soap, laundry detergent)"
+      ]
+    },
+    "back_to_school_lunches": {
+      "trigger_keywords": ["school lunch", "kids lunches", "lunch box", "back to school", "school snacks"],
+      "categories_to_search": [
+        "individual fruit cups, applesauce pouches",
+        "string cheese, mini babybel",
+        "deli turkey or ham slices",
+        "sliced bread or wraps",
+        "yogurt tubes or cups",
+        "granola bars (nut-free for school)",
+        "pretzels, animal crackers, goldfish crackers",
+        "juice boxes or water bottles",
+        "reusable lunch bags or containers"
+      ]
+    }
+  },
+  "ui": {
+    "title": "Meijer Shopping Concierge",
+    "subtitle": "Plan parties, fill the fridge, and check out — all from chat",
+    "greeting": "What are we shopping for today?",
+    "greeting_subtitle": "Ask me to plan a party, fill your weekly cart, or find something specific",
+    "suggestions": [
+      "Plan a birthday party for 10 kids with healthy snacks",
+      "BBQ for 10 adults watching the football game",
+      "Thanksgiving dinner for 8",
+      "Find me organic fruit snacks under $5"
+    ]
+  },
+  "tools": ["search", "details", "complements", "deals", "explain", "cart", "cart_contents", "preferences", "learn_preference", "upload", "domain_action", "ucp_checkout"],
+  "actions": {
+    "create_order": {
+      "bff_endpoint": "/orders",
+      "method": "POST",
+      "description": "Create a purchase order from the user's cart items"
+    }
+  },
+  "data": {
+    "source": {
+      "type": "json_file",
+      "path": "/tmp/meijer_products.json"
+    },
+    "entity": {
+      "name": "product",
+      "display_name": "Product",
+      "display_name_plural": "Products",
+      "primary_key_field": "sku",
+      "group_field": "category",
+      "group_label_field": "brand",
+      "field_map": {
+        "sku": "sku",
+        "name": "name",
+        "description": "description",
+        "category": "category",
+        "brand": "brand",
+        "price": "price",
+        "msrp": "msrp",
+        "attributes": "specs",
+        "rating": "rating",
+        "review_count": "reviewCount",
+        "image_url": "imageUrl"
+      },
+      "card_layout": {
+        "headline": "name",
+        "subtitle": "brand",
+        "primary_metric": { "field": "price", "format": "currency", "label": "Price" },
+        "secondary_metrics": [
+          { "field": "rating", "format": "rating", "label": "Rating" },
+          { "field": "review_count", "label": "Reviews" }
+        ],
+        "badge": "category"
+      },
+      "action": {
+        "label": "Add to Cart",
+        "type": "add_to_cart",
+        "form": [
+          { "field": "quantity", "type": "number", "label": "Qty", "default": 1 }
+        ]
+      }
+    },
+    "embeddings": {
+      "provider": "openai",
+      "model": "text-embedding-3-small",
+      "dimensions": 1536,
+      "template": "{name} by {brand}. Department: {category}. {description}"
+    },
+    "checkout": {
+      "enabled": true,
+      "provider": "stripe",
+      "trigger": { "tool": "ucp_checkout", "on_status": "ready_for_complete" },
+      "inline_card": {
+        "title": "Complete your payment",
+        "subtitle": "Your card is processed securely by Stripe — we never see the number.",
+        "submit_label": "Pay {amount}",
+        "test_card_hint": "Test card: 4242 4242 4242 4242 · any future expiry · any CVC",
+        "success_message": "Payment confirmed — finalizing your order…",
+        "cancel_label": "Cancel"
+      },
+      "post_success_user_message": "[payment-confirmed {payment_intent_id}] Please complete the order."
+    }
+  }
+}
